@@ -1,0 +1,10 @@
+name: GeyserPermGroup
+main: dpear.gpg.main
+version: 1.0
+api-version: 1.17
+commands:
+  checkplayerbe:
+    usage: "/checkplayerbe <player-name>"
+    description: "Auto change the permission group if the player is using BE"
+    permission: "" # 需要的权限，通常不用
+    permission-message: "You cannot do that!" # 无权限返回的消息，通常不用

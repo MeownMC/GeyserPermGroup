@@ -1,0 +1,10 @@
+#This plugin is made by D-Pear[QQ:1448360624]
+#You can visit my server 'mc.meown.top'(JE) or 'be.meown.top'(BE)
+#YOU CAN REPORT BUGS IN THE GITHUB
+command:
+  listener_PlayerJoinEvent: false
+  head: 'lp user '
+  foot: ' parent set bedefault'
+  execute:
+    head: 'tellraw '
+    foot: ' [{"text":"[","color":"dark_gray","bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false},{"text":"系统","color":"dark_red","bold":true,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false},{"text":"] ","color":"dark_gray","bold":false,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false},{"text":"检测到基岩版玩家，已自动为您切换权限","color":"gold","bold":true,"italic":false,"underlined":false,"strikethrough":false,"obfuscated":false}]'

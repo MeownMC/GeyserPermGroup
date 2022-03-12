@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="GeyserPermGroup">
+    <output-path>$PROJECT_DIR$/out/artifacts/GeyserPermGroup</output-path>
+    <root id="archive" name="GeyserPermGroup.jar">
+      <element id="module-output" name="GeyserPermGroup" />
+    </root>
+  </artifact>
+</component>
