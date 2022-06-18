@@ -12,7 +12,6 @@ Register:
   EventListener: false
 VersionCheck:
   FloodGate: true
-  ProtocolSupport: true
   ViaVersion: false
 Version:
   Bedrock:

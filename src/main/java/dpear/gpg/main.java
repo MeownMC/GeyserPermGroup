@@ -5,7 +5,6 @@ import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
-import org.bukkit.block.CommandBlock;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -22,8 +21,6 @@ import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
-import protocolsupport.api.ProtocolSupportAPI;
-import protocolsupport.api.ProtocolVersion;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
@@ -1199,34 +1196,6 @@ public class main extends JavaPlugin {
                 return ("Bedrock");
             };
         }
-
-        if(getConfig().getBoolean("VersionCheck.ProtocolSupport", false)){
-
-            if (getConfig().getBoolean("VersionCheck.ViaVersion", false)){
-
-
-                Integer Pverison = Via.getAPI().getPlayerVersion(player.getUniqueId());
-                ProtocolVersion version = ProtocolSupportAPI.getProtocolVersion(player);
-
-
-                if (version.isAfterOrEq(ProtocolVersion.MINECRAFT_1_6_4)){
-                    if(version.getId() < Via.getAPI().getServerVersion().lowestSupportedVersion()){
-                        Pverison = version.getId();
-                    }
-                }else {
-                    Pverison = -version.getId();
-                }
-
-                return (String.valueOf(Pverison));
-            }
-
-            ProtocolVersion version = ProtocolSupportAPI.getProtocolVersion(player);
-            if (version.isAfterOrEq(ProtocolVersion.MINECRAFT_1_6_4)){
-                return (String.valueOf(version.getId()));
-            }else {
-                return ("-" + version.getId());
-            }
-        };
 
         if(getConfig().getBoolean("VersionCheck.ViaVersion", false)){
 
