@@ -9,7 +9,6 @@ softdepend:
   - AuthMe
   - PlugManX
   - ViaVersion
-  - ProtocolSupport
   - Vault
 commands:
   checkplayerbe:

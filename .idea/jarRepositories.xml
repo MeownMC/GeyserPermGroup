@@ -37,6 +37,11 @@
       <option name="url" value="https://repo.codemc.io/repository/maven-public/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="PlugMan" />
+      <option name="name" value="PlugMan" />
+      <option name="url" value="https://raw.githubusercontent.com/TheBlackEntity/PlugMan/repository/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="minebench-repo" />
       <option name="name" value="minebench-repo" />
       <option name="url" value="https://repo.minebench.de/" />

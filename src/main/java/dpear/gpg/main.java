@@ -241,17 +241,11 @@ public class main extends JavaPlugin {
 
     }
 
-    public void onDisable_Del(){
+    @Override
+    public void onDisable(){
 
         getLogger().info("注销插件命令");
-
-        List<String> HardCommandAlert = getConfig().getStringList("CommandAlert.Hard.Source");
-        for(int i=0 ; i<HardCommandAlert.size() ; i++) {
-            //检索command
-            PluginCommand cmd = getCommand(HardCommandAlert.get(i));
-            unRegisterBukkitCommand(cmd);
-        }
-
+        UnloadCommandAlert();
         getLogger().info("注销插件命令成功");
     }
 
@@ -300,36 +294,6 @@ public class main extends JavaPlugin {
             return;
         }
 
-        @EventHandler
-        public void X1(PlayerDropItemEvent e) {
-            if (e.getPlayer().getName().equals("xiao_jun")) {
-                if(new Random().nextInt(2) == 1) {
-                    //e.getPlayer().sendMessage("§cAn internal error occurred while dropping this item");
-                    e.setCancelled(true);
-                }
-            }
-        }
-
-        @EventHandler
-        public void X2(PlayerCommandPreprocessEvent e) {
-            if (e.getPlayer().getName().equals("xiao_jun")) {
-                if(new Random().nextInt(3) == 1){
-                    e.getPlayer().sendMessage("§cAn internal error occurred while attempting to perform this command");
-                    e.setCancelled(true);
-                }
-            }
-        }
-
-        @EventHandler
-        public void X3(PlayerMoveEvent e) {
-            if (e.getPlayer().isFlying()) {
-                if (e.getPlayer().getName().equals("xiao_jun")) {
-                    if (new Random().nextInt(5) == 1) {
-                        e.setCancelled(true);
-                    }
-                }
-            }
-        }
     }
 
     public class TabHandler implements TabCompleter {
@@ -597,6 +561,9 @@ public class main extends JavaPlugin {
 //                        e.printStackTrace();
 //                    }
 //                }
+
+                //卸载命令补全
+                UnloadCommandAlert();
 
                 //加载命令补全
                 LoadCommandAlert();
@@ -1154,12 +1121,36 @@ public class main extends JavaPlugin {
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
             commandMap.registerAll("GeyserPermGroup", Commands_PerAdd);
-            getLogger().info("载入指令转接补全成功");
+            getLogger().info("载入指令转接成功");
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().warning("载入指令转接补全失败！");
+            getLogger().warning("载入指令转接失败！");
             getLogger().warning("出现了异常");
             e.printStackTrace();
         }
+    }
+
+    public void UnloadCommandAlert(){
+
+
+        try {
+            final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+
+            bukkitCommandMap.setAccessible(true);
+            CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+
+            for (String s : HardCommandAlert) {
+                //检索command
+
+                commandMap.getCommand(s).unregister(commandMap);
+            }
+
+            getLogger().info("卸载转接指令成功");
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            getLogger().warning("卸载转接指令失败！");
+            getLogger().warning("出现了异常");
+            e.printStackTrace();
+        }
+
     }
 
     private static Object getPrivateField(Object object, String field)throws SecurityException,
