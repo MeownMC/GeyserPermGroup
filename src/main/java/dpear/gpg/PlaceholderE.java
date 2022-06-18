@@ -1,7 +1,5 @@
 package dpear.gpg;
 
-import de.themoep.minedown.MineDown;
-import de.themoep.minedown.MineDownParser;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.OfflinePlayer;
