@@ -1,10 +1,29 @@
 name: GeyserPermGroup
 main: dpear.gpg.main
-version: 1.0
+version: 2.1
 api-version: 1.17
+depend:
+  - floodgate
+  - PlaceholderAPI
+softdepend:
+  - AuthMe
+  - PlugManX
+  - ViaVersion
+  - ProtocolSupport
+  - Vault
 commands:
   checkplayerbe:
     usage: "/checkplayerbe <player-name>"
     description: "Auto change the permission group if the player is using BE"
-    permission: "" # 需要的权限，通常不用
-    permission-message: "You cannot do that!" # 无权限返回的消息，通常不用
+    permission: ""
+    permission-message: "You cannot do that!"
+  regbeplayer:
+    usage: "/regbeplayer <be-player-name>"
+    description: "Auto register if BE player"
+    permission: ""
+    permission-message: "You cannot do that!"
+  bemenu:
+    usage: "Use /bemenu help tp show usages."
+    description: "Open a be form"
+    permission: "dpear.gpg.menu"
+    permission-message: "You have no permission"
