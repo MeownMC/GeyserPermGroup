@@ -357,12 +357,12 @@ public class main extends JavaPlugin {
             if (args.length == 0) {
                 return false;
             }
-            ;
+
             if (args.length > 1) {
                 return false;
 
             }
-            ;
+
             Player P = Bukkit.getPlayer(args[0]);
 
             //判断玩家对象是否有效
