@@ -40,11 +40,16 @@ public class main extends JavaPlugin {
     public static String PluginVersion = "2.1";
     public static String Developer = "MownSoft666";
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-    List <String>HardCommandAlert = getConfig().getStringList("CommandAlert.RegisterList");
+    List <String>HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
+    List <String>SoftCommandAlert = getConfig().getStringList("CommandAlert.Soft");
+
 
     @Override
     public void onEnable() {
         getLogger().info("正在进行预加载");
+
+        PluginVersion = this.getDescription().getVersion();
+
         saveDefaultConfig();
 
         if(!getConfig().getString("ConfigVersion", "0").equals(PluginVersion)){
@@ -68,9 +73,8 @@ public class main extends JavaPlugin {
                 Process process = Runtime.getRuntime().exec(new String[] { "wmic", "cpu", "get", "ProcessorId" });
                 process.getOutputStream().close();
                 Scanner sc = new Scanner(process.getInputStream());
-                String serial = sc.next();
 
-                ComputerCode = serial;
+                ComputerCode = sc.next();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -281,16 +285,36 @@ public class main extends JavaPlugin {
             }
             ;
 
-            Integer index = getConfig().getStringList("CommandAlert.Soft.Source").indexOf(e.getMessage().substring(1));
+            //解析命令
+            String Command = e.getMessage().split(" ")[0].substring(1);
+
+            Integer index = SoftCommandAlert.indexOf(Command);
             if (index == -1) {
                 //不匹配的话
                 return;
             }
             ;
 
-            String Goal = getConfig().getStringList("CommandAlert.Soft.Goal").get(index);
-            getLogger().info("玩家 " + e.getPlayer().getName() + "使用了命令" + e.getMessage() + "转接[Soft]到/" + Goal);
-            e.setMessage("/" + Goal.substring(2));
+            //取消事件
+            e.setCancelled(true);
+
+            if(!e.getMessage().substring(1).equals(Command)) {
+                //有参数的话
+                String[] FullCMD = e.getMessage().substring(Command.length() + 2).split(" ");
+
+                //执行
+                CommandAlertExecutor(e.getPlayer(), Command,FullCMD);
+            }else {
+                //没参数的话
+                String[] FullCMD = {};
+
+                //执行
+                CommandAlertExecutor(e.getPlayer(), Command,FullCMD);
+            }
+
+
+
+
             return;
         }
 
@@ -960,152 +984,23 @@ public class main extends JavaPlugin {
 
     public void LoadCommandAlert() {
         //注册转接命令
-        getLogger().info("载入指令转接补全");
-        ArrayList Commands_PerAdd = new ArrayList();
-        HardCommandAlert = getConfig().getStringList("CommandAlert.RegisterList");
 
-        getLogger().info("已注册" + HardCommandAlert.size() + "个命令转接");
+        //soft
+        getLogger().info("载入指令转接[Soft]");
+        SoftCommandAlert = getConfig().getStringList("CommandAlert.Soft");
+        getLogger().info("已注册" + SoftCommandAlert.size() + "个命令转接[Soft]");
+
+        //hard
+        getLogger().info("载入指令转接[Hard]");
+        ArrayList Commands_PerAdd = new ArrayList();
+        HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
 
         for (String s : HardCommandAlert) {
             //创建Command实例
             Command PerAdd = new Command(s) {
                 @Override
                 public boolean execute(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings) {
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("CommandAlert.Hard.").append(s).append(".");
-
-                    //获得玩家实例
-                    Player p = Bukkit.getPlayer(commandSender.getName());
-                    //确定是玩家支持
-                    if (p != null) {
-                        //版本
-                        if (getConfig().getBoolean("CommandAlert.Hard." + s + ".exFunction.PlayerVersion", false)) {
-
-                            //获得版本
-                            String version = GetVersion(p);
-
-                            //表项是否存在
-                            if(getConfig().isLocation(sb + version)){
-                                sb.append(GetVersion(p)).
-                                        append(".");
-                            }else{
-                                sb.append("Other.");
-                            }
-
-
-                        }
-
-                        //权限组
-                        if (getConfig().getBoolean("CommandAlert.Hard." + s + ".exFunction.PermissionGroup", false)) {
-
-                            //这边可能NullPointer
-                            try {
-
-
-                                //只获取第一权限组
-                                String permissiongroup = getServer().getServicesManager().getRegistration(Permission.class).getProvider().getPlayerGroups(p)[0];
-                                //表项是否存在
-                                if(getConfig().isLocation(sb + permissiongroup)) {
-                                    sb.append(permissiongroup).
-                                            append(".");
-                                }else{
-                                    sb.append("Other.");
-                                }
-
-
-                            }catch (Exception e){
-                                getLogger().warning("在获取权限组时出现了异常");
-                                getLogger().warning("以Other继续！");
-                                sb.append("Other.");
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    //参数个数(显然这个不关玩家事)
-                    if (getConfig().getBoolean("CommandAlert.Hard." + s + ".exFunction.ArgAmount", false)) {
-
-                        //获得长度
-                        String length = String.valueOf(strings.length);
-
-                        //表项是否存在
-                        if(getConfig().isLocation(sb + length)) {
-                            sb.append(length).
-                                    append(".");
-                        }else{
-                            sb.append("Other.");
-                        }
-                    }
-
-                    //自定义参数(显然这个也不关玩家事)
-                    //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
-                    if (getConfig().getBoolean("CommandAlert.Hard." + s + ".exFunction.Arg", false)) {
-                        for (String c : strings) {
-                            sb.append(c).append(".");
-                        }
-                    }
-
-
-                    String CommandPath = sb.toString();
-
-                    //输出
-                    getLogger().info("CommandPath:" + CommandPath);
-
-                    //判读表项是否存在
-                    if(!getConfig().isLocation(CommandPath)) {
-                        commandSender.sendMessage("出现了内部异常，指定的数据不存在，请联系管理员解决");
-                        return true;
-                    }
-
-                    if (!getConfig().getString(CommandPath + ".Arg", "0").equals(String.valueOf(strings.length))) {
-                        //参数不足的话
-                        commandSender.sendMessage("参数数量不足");
-                        return false;
-                    }
-
-                    if (!getConfig().getString(CommandPath + ".Permission", "Null").equals("Null")) {
-                        if (!commandSender.hasPermission(getConfig().getString(CommandPath + ".Permission", "Null"))) {
-                            commandSender.sendMessage("权限不足");
-                        }
-                    }
-
-                    List<String> ExecuteCommands = getConfig().getStringList(CommandPath + ".Goal");
-
-                    //日志
-                    getLogger().info("玩家 " + commandSender.getName() + "使用了命令" + s);
-
-                    //执行
-                    if (getConfig().getBoolean(CommandPath + ".Replace", false)) {
-
-                        for (String executeCommand : ExecuteCommands) {
-
-                            //替换参数
-                            String Executer = executeCommand;
-                            for (int i = 0; i < strings.length; i++) {
-                                Executer = Executer.replace("{" + i + "}", strings[i]);
-                            }
-
-                            //是否是玩家
-                            if (p != null) {
-                                Executer = Executer.
-                                        replace("{PlayerName}", p.getName()).
-                                        replace("{PlayerUUID}", p.getUniqueId().toString()).
-                                        replace("{PlayerWorld}", p.getWorld().toString());
-                            }
-
-                            //执行命令
-                            Bukkit.dispatchCommand(commandSender, Executer);
-                        }
-
-                    } else {
-                        for (String executeCommand : ExecuteCommands) {
-                            //执行命令
-                            Bukkit.dispatchCommand(commandSender, executeCommand);
-                        }
-                    }
-                    return true;
-
+                    return(CommandAlertExecutor(commandSender,s,strings));
                 }
             };
 
@@ -1121,9 +1016,10 @@ public class main extends JavaPlugin {
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
             commandMap.registerAll("GeyserPermGroup", Commands_PerAdd);
-            getLogger().info("载入指令转接成功");
+
+            getLogger().info("已注册" + HardCommandAlert.size() + "个命令转接[Hard]");
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().warning("载入指令转接失败！");
+            getLogger().warning("载入指令转接[Hard]失败！");
             getLogger().warning("出现了异常");
             e.printStackTrace();
         }
@@ -1150,6 +1046,146 @@ public class main extends JavaPlugin {
             getLogger().warning("出现了异常");
             e.printStackTrace();
         }
+
+    }
+
+    public boolean CommandAlertExecutor(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings){
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("CommandAlert.CommandList.").append(s).append(".");
+
+        //获得玩家实例
+        Player p = Bukkit.getPlayer(commandSender.getName());
+        //确定是玩家支持
+        if (p != null) {
+            //版本
+            if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.PlayerVersion", false)) {
+
+                //获得版本
+                String version = GetVersion(p);
+
+                //表项是否存在
+                if(getConfig().isConfigurationSection(sb + version)){
+                    sb.append(GetVersion(p)).
+                            append(".");
+                }else{
+                    sb.append("Other.");
+                }
+
+
+            }
+
+            //权限组
+            if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.PermissionGroup", false)) {
+
+                //这边可能NullPointer
+                try {
+
+
+                    //只获取第一权限组
+                    String permissiongroup = getServer().getServicesManager().getRegistration(Permission.class).getProvider().getPlayerGroups(p)[0];
+                    //表项是否存在
+                    if(getConfig().isConfigurationSection(sb + permissiongroup)) {
+                        sb.append(permissiongroup).
+                                append(".");
+                    }else{
+                        sb.append("Other.");
+                    }
+
+
+                }catch (Exception e){
+                    getLogger().warning("在获取权限组时出现了异常");
+                    getLogger().warning("以Other继续！");
+                    sb.append("Other.");
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        //参数个数(显然这个不关玩家事)
+        if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.ArgAmount", false)) {
+
+            //获得长度
+            String length = String.valueOf(strings.length);
+
+            //表项是否存在
+            if(getConfig().isConfigurationSection(sb + length)) {
+                sb.append(length).
+                        append(".");
+            }else{
+                sb.append("Other.");
+            }
+        }
+
+        //自定义参数(显然这个也不关玩家事)
+        //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
+        if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.Arg", false)) {
+            for (String c : strings) {
+                sb.append(c).append(".");
+            }
+        }
+
+        String CommandPath = sb.toString();
+
+        //去点
+        String CommandPathWithoutDot = CommandPath.substring(0,CommandPath.length()-1);
+
+        //输出
+        getLogger().info("CommandPath:" + CommandPathWithoutDot);
+
+        //判读表项是否存在
+        if(!getConfig().isConfigurationSection(CommandPathWithoutDot)) {
+            commandSender.sendMessage("出现了内部异常，指定的数据不存在，请联系管理员解决");
+            return true;
+        }
+
+        if (!getConfig().getString(CommandPath + "Arg", "0").equals(String.valueOf(strings.length))) {
+            //参数不足的话
+            commandSender.sendMessage("参数数量错误");
+            return false;
+        }
+
+        if (!getConfig().getString(CommandPath + "Permission", "Null").equals("Null")) {
+            if (!commandSender.hasPermission(getConfig().getString(CommandPath + "Permission", "Null"))) {
+                commandSender.sendMessage("权限不足");
+            }
+        }
+
+        List<String> ExecuteCommands = getConfig().getStringList(CommandPath + "Goal");
+
+        //日志
+        getLogger().info("玩家 " + commandSender.getName() + "使用了命令" + s);
+
+        //执行
+        if (getConfig().getBoolean(CommandPath + "Replace", false)) {
+
+            for (String executeCommand : ExecuteCommands) {
+
+                //替换参数
+                String Executer = executeCommand;
+                for (int i = 0; i < strings.length; i++) {
+                    Executer = Executer.replace("{" + i + "}", strings[i]);
+                }
+
+                //是否是玩家
+                if (p != null) {
+                    Executer = Executer.
+                            replace("{PlayerName}", p.getName()).
+                            replace("{PlayerUUID}", p.getUniqueId().toString()).
+                            replace("{PlayerWorld}", p.getWorld().toString());
+                }
+
+                //执行命令
+                Bukkit.dispatchCommand(commandSender, Executer);
+            }
+
+        } else {
+            for (String executeCommand : ExecuteCommands) {
+                //执行命令
+                Bukkit.dispatchCommand(commandSender, executeCommand);
+            }
+        }
+        return true;
 
     }
 

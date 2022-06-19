@@ -94,11 +94,7 @@ Menus:
     button: '取消'
     buttonaction: 'Null'
 CommandAlert:
-  RegisterList:
-    - 'tssbb'
-    - 'nssbb'
-    - 'wssbb'
-  Hard:
+  CommandList:
     tssbb:
       Replace: false
       Arg: 0
@@ -125,12 +121,8 @@ CommandAlert:
       Goal:
         - 'gm {0}'
         - 'say 我是{0}模式'
+  Hard:
+    - 'tssbb'
+    - 'nssbb'
   Soft:
-    Source:
-      - 'tsb'
-      - 'nsb'
-      - 'wsb'
-    Goal:
-      - 'gm 0'
-      - 'gm 1'
-      - 'gm 3'
+    - 'wssbb'
