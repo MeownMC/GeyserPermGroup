@@ -42,6 +42,7 @@ public class main extends JavaPlugin {
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
     List <String>HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
     List <String>SoftCommandAlert = getConfig().getStringList("CommandAlert.Soft");
+    commandMap cm = null;
 
 
     @Override
@@ -1011,9 +1012,9 @@ public class main extends JavaPlugin {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 
             bukkitCommandMap.setAccessible(true);
-            CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+            cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
-            commandMap.registerAll("GeyserPermGroup", Commands_PerAdd);
+            cm.registerAll("GeyserPermGroup", Commands_PerAdd);
 
             getLogger().info("已注册" + HardCommandAlert.size() + "个命令转接[Hard]");
         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -1029,13 +1030,10 @@ public class main extends JavaPlugin {
         try {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 
-            bukkitCommandMap.setAccessible(true);
-            CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
-
             for (String s : HardCommandAlert) {
                 //检索command
 
-                commandMap.getCommand(s).unregister(commandMap);
+                commandMap.getCommand(s).unregister(cm);
             }
 
             getLogger().info("卸载转接指令成功");
