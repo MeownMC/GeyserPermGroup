@@ -1033,7 +1033,7 @@ public class main extends JavaPlugin {
             for (String s : HardCommandAlert) {
                 //检索command
 
-                commandMap.getCommand(s).unregister(cm);
+                cm.getCommand(s).unregister(cm);
             }
 
             getLogger().info("卸载转接指令成功");
