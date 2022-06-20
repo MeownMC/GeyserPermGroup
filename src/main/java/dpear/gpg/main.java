@@ -21,6 +21,7 @@ import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
+import org.bukkit.command.commandMap;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
