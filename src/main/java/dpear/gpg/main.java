@@ -1029,9 +1029,11 @@ public class main extends JavaPlugin {
         try {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 
+            bukkitCommandMap.setAccessible(true);
+            commandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+
             for (String s : HardCommandAlert) {
                 //检索command
-
                 cm.getCommand(s).unregister(cm);
             }
 
