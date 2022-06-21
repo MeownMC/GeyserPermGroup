@@ -21,7 +21,6 @@ import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
-import org.bukkit.command.commandMap;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
@@ -43,7 +42,6 @@ public class main extends JavaPlugin {
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
     List <String>HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
     List <String>SoftCommandAlert = getConfig().getStringList("CommandAlert.Soft");
-    commandMap cm = null;
 
 
     @Override
@@ -1013,7 +1011,7 @@ public class main extends JavaPlugin {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 
             bukkitCommandMap.setAccessible(true);
-            cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+            commandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
             cm.registerAll("GeyserPermGroup", Commands_PerAdd);
 
