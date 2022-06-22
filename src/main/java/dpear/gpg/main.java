@@ -954,7 +954,7 @@ public class main extends JavaPlugin {
                         MFBuilder = MFBuilder.button(ReadMenuData (config, args[2], "text").
                                 replace("%PlayerName", Button.get(i).getName()).
                                 replace("%PlayerUUID", Button.get(i).getUniqueId().toString())
-                        );
+                        , FormImage.Type.URL, "https://minecraft-api.com/api/skins/"+Button.get(i).getName()+"/head");
                     }
 
 
