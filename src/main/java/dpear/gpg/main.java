@@ -21,6 +21,7 @@ import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
+import org.bukkit.command.CommandMap;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
@@ -42,6 +43,7 @@ public class main extends JavaPlugin {
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
     List <String>HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
     List <String>SoftCommandAlert = getConfig().getStringList("CommandAlert.Soft");
+    CommandMap gcm;
 
 
     @Override
@@ -1011,9 +1013,9 @@ public class main extends JavaPlugin {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 
             bukkitCommandMap.setAccessible(true);
-            CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+            CommandMap gcm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
-            cm.registerAll("GeyserPermGroup", Commands_PerAdd);
+            gcm.registerAll("GeyserPermGroup", Commands_PerAdd);
 
             getLogger().info("已注册" + HardCommandAlert.size() + "个命令转接[Hard]");
         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -1029,12 +1031,12 @@ public class main extends JavaPlugin {
         try {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 
-            bukkitCommandMap.setAccessible(true);
-            CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+            //bukkitCommandMap.setAccessible(true);
+            //CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
             for (String s : HardCommandAlert) {
                 //检索command
-                cm.getCommand(s).unregister(cm);
+                gcm.getCommand(s).unregister(gcm);
             }
 
             getLogger().info("卸载转接指令成功");
