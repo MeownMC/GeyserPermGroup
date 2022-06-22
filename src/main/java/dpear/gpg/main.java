@@ -1011,7 +1011,7 @@ public class main extends JavaPlugin {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 
             bukkitCommandMap.setAccessible(true);
-            commandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+            CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
             cm.registerAll("GeyserPermGroup", Commands_PerAdd);
 
@@ -1030,7 +1030,7 @@ public class main extends JavaPlugin {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 
             bukkitCommandMap.setAccessible(true);
-            commandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+            CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
             for (String s : HardCommandAlert) {
                 //检索command
