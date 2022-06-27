@@ -88,8 +88,9 @@ Menus:
     type: 'PlayerListForm'
     title: '玩家互传'
     content: '今天要传送到谁那里呢？'
-    text: '%PlayerName'
+    icon: true
     removeself: true
+    text: '%PlayerName'
     action: 'tpa %PlayerName'
     button: '取消'
     buttonaction: 'Null'

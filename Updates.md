@@ -1,5 +1,7 @@
-# Update log
-
+#<font color=#FF8247 >Update log</font><br>
+###Version:1.3 and earlier:
+<font color=BBBBDD>I didn't write update log that time, and I forget what did I do each version.<br>
+So no update log here :(</font><br>
 ###Version:1.4:
 1.修改了给玩家发送的文本的方式，变为配置文件数组<br>
 2.配置文件大改<br>
@@ -19,11 +21,12 @@
 ###Version:1.8:
 1.添加了btpa菜单<br>
 2.添加了权限管理机制<br>
-使用bemenu命令:dpear.gpg.menu<br>
-重载:dpear.gpg.menu.reload<br>
-为自己打开菜单:dpear.gpg.menu.open.self<br>
-为别人打开菜单:dpear.gpg.menu.open.allplayer<br>
-打开指定菜单:dpear.gpg.menu.菜单名称<br>
+>使用bemenu命令: dpear.gpg.menu<br>
+>重载: dpear.gpg.menu.reload<br>
+>为自己打开菜单: dpear.gpg.menu.open.self<br>
+>为别人打开菜单: dpear.gpg.menu.open.allplayer<br>
+>打开指定菜单: dpear.gpg.menu.菜单名称<br>
+
 3.又移除了btpa菜单，合并到主菜单里面了<br>
 4.添加了PlayerListForm菜单<br>
 ###Version:1.9:
@@ -70,3 +73,4 @@ Hard:处理玩家执行该命令的事件，并独立以玩家身份执行命令
 
 键位：<br>
 ![PIANO KEY](https://i-s2.328888.xyz/2022/06/27/62b958c2245a2.png)
+13.基岩版PlayerListForm添加显示玩家头像选项[仅支持Java正版玩家]<br>

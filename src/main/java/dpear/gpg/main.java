@@ -2,7 +2,6 @@ package dpear.gpg;
 
 import com.viaversion.viaversion.api.Via;
 import fr.xephi.authme.api.v3.AuthMeApi;
-import fr.xephi.authme.events.AuthMeAsyncPreLoginEvent;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -53,6 +52,7 @@ public class main extends JavaPlugin {
             0.707107,0.707107,0.793701,0.890899, //1123
             0.793701,0.707107,0.707107 //211
     };
+
     ArrayList <String>SoundPad = new ArrayList<>(
             List.of("Q", "A", "W", "S", "E", "D", "F", "T", "G", "Y", "H", "J", "I", "K", "O", "L", "P", ";", "'", "]",
                     "Z", "X", "C", "N", "M")
@@ -356,7 +356,7 @@ public class main extends JavaPlugin {
             if (args.length == 2){
                 if (args[0].equals("piano")){
                     if (args[1].length() != 0){
-                        Integer NoteNumber = SoundPad.indexOf(args[1].substring(args[1].length() - 1));
+                        int NoteNumber = SoundPad.indexOf(args[1].substring(args[1].length() - 1));
                         ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
                                 Sound.BLOCK_NOTE_BLOCK_HARP, 1F, GetNote(NoteNumber));
                         return (List.of("Last:" + NoteNumber,"What's the next?"));
@@ -1251,13 +1251,22 @@ public class main extends JavaPlugin {
 
                     });
 
-            for(int i=0 ; i<Button.size() ; i++) {
-
-                //生成button
-                MFBuilder = MFBuilder.button(ReadMenuData (config, name, "text").
-                                replace("%PlayerName", Button.get(i).getName()).
-                                replace("%PlayerUUID", Button.get(i).getUniqueId().toString())
-                        , FormImage.Type.URL, "https://minecraft-api.com/api/skins/"+Button.get(i).getName()+"/head");
+            //是否有玩家头像
+            if (ReadMenuData(config, name, "icon").equals("true")) {
+                for (Player player : Button) {
+                    //生成button
+                    MFBuilder = MFBuilder.button(ReadMenuData(config, name, "text").
+                                    replace("%PlayerName", player.getName()).
+                                    replace("%PlayerUUID", player.getUniqueId().toString())
+                            , FormImage.Type.URL, "https://minecraft-api.com/api/skins/" + player.getName() + "/head");
+                }
+            }else{
+                for (Player player : Button) {
+                    //生成button
+                    MFBuilder = MFBuilder.button(ReadMenuData(config, name, "text").
+                                    replace("%PlayerName", player.getName()).
+                                    replace("%PlayerUUID", player.getUniqueId().toString()));
+                }
             }
 
 
