@@ -2,6 +2,7 @@ package dpear.gpg;
 
 import com.viaversion.viaversion.api.Via;
 import fr.xephi.authme.api.v3.AuthMeApi;
+import fr.xephi.authme.events.AuthMeAsyncPreLoginEvent;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -799,175 +800,12 @@ public class main extends JavaPlugin {
             if(fa.isFloodgatePlayer(P.getUniqueId())){
                 //判断权限
                 if (sender.hasPermission("dpear.gpg.menu." + args[2])) {
+                    //发送菜单
+                    return (SendBedrockForm (P,args[2],sender));
                 }else {
                     sender.sendMessage("权限不足，您没有dpear.gpg.menu." + args[2] + "权限");
                     return false;
-                };
-
-                //获取配置文件
-                FileConfiguration config = getConfig();
-                String type = ReadMenuData (config, args[2], "type");
-
-                //判断菜单类型
-                if (type.equals("Null")){
-                    sender.sendMessage("无效菜单类型");
-                    return false;
-                };
-
-
-                //如果是ModalForm
-                if (type.equals("ModalForm")){
-
-                    ModalForm.Builder MFBuilder = ModalForm.builder()
-                            .title(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, args[2], "title")))
-                            .content(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, args[2], "content")))
-                            .button1(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, args[2], "button1")))
-                            .button2(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, args[2], "button2")))
-                            .responseHandler((form, responseData) -> {
-                                ModalFormResponse response = form.parseResponse(responseData);
-
-                                if (!response.isCorrect()) {
-                                    //玩家直接关闭菜单或者输入了非法数据
-                                    return;
-                                }
-                                if (response.isInvalid()) {
-                                    //玩家输入了非法数据
-                                    return;
-                                }
-
-
-                                if (response.getClickedButtonId() == 0) {
-                                    //第一按钮
-                                    if (!ReadMenuData (config, args[2], "action.button1").equals("Null")) {
-                                        Bukkit.dispatchCommand(P, ReadMenuData(config, args[2], "action.button1"));
-                                    }
-                                    return;
-                                }
-
-                                if (response.getClickedButtonId() == 1) {
-                                    //第二按钮
-                                    if (!ReadMenuData (config, args[2], "action.button2").equals("Null")) {
-                                    Bukkit.dispatchCommand(P,ReadMenuData (config, args[2], "action.button2"));
-                                    }
-                                    return;
-                                }
-
-                            });
-
-                    fa.sendForm(P.getUniqueId(), MFBuilder);
-                    return true;
-                };
-
-                //如果是SimpleForm
-                if (type.equals("SimpleForm")){
-
-                    SimpleForm.Builder MFBuilder = SimpleForm.builder()
-                            .title(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, args[2], "title")))
-                            .content(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, args[2], "content")))
-                            .responseHandler((form, responseData) -> {
-                                SimpleFormResponse response = form.parseResponse(responseData);
-
-                                if (!response.isCorrect()) {
-                                    //玩家直接关闭菜单或者输入了非法数据
-                                    return;
-                                }
-                                if (response.isInvalid()) {
-                                    //玩家输入了非法数据
-                                    return;
-                                }
-
-                                List<String> Action = config.getStringList("Menus." + args[2] + ".action");
-                                if (!Action.get(response.getClickedButtonId()).equals("Null")) {
-                                    Bukkit.dispatchCommand(P, Action.get(response.getClickedButtonId()));
-                                }
-                                return;
-
-                            });
-
-                    List<String> Button = config.getStringList("Menus." + args[2] + ".button");
-                    List<String> Image = config.getStringList("Menus." + args[2] + ".image");
-                    for(int i=0 ; i<Button.size() ; i++) {
-                        if (Image.get(i).equals("Null")){
-                            //不带图片的
-                            MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)));
-                        }else{
-                            //带图片的
-                            MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)), FormImage.Type.URL, Image.get(i));
-                        }
-                    }
-
-                    fa.sendForm(P.getUniqueId(), MFBuilder);
-                    return true;
-                };
-
-                //如果是PlayerListForm
-                if (type.equals("PlayerListForm")){
-
-                    //获得玩家列表
-                    Collection<? extends Player> b = Bukkit.getOnlinePlayers();
-                    if (ReadMenuData (config, args[2], "removeself").equals("true")) {
-                        b.remove(P);
-                    };
-                    List<Player> Button = (List<Player>) b;
-
-                    SimpleForm.Builder MFBuilder = SimpleForm.builder()
-                            .title(ReadMenuData (config, args[2], "title"))
-                            .content(ReadMenuData (config, args[2], "content"))
-                            .responseHandler((form, responseData) -> {
-                                SimpleFormResponse response = form.parseResponse(responseData);
-
-                                if (!response.isCorrect()) {
-                                    //玩家直接关闭菜单或者输入了非法数据
-                                    return;
-                                }
-                                if (response.isInvalid()) {
-                                    //玩家输入了非法数据
-                                    return;
-                                }
-
-                                if (Button.size() == response.getClickedButtonId()){
-                                    if (ReadMenuData (config, args[2], "buttonaction").equals("Null")){
-                                        return;
-                                    }else{
-                                        Bukkit.dispatchCommand(P, ReadMenuData (config, args[2], "buttonaction").
-                                                replace("%PlayerName", Button.get(response.getClickedButtonId()).getName()).
-                                                replace("%PlayerUUID", Button.get(response.getClickedButtonId()).getUniqueId().toString())
-                                        );
-                                        return;
-                                    }
-                                    //选择了取消
-                                }
-                                Bukkit.dispatchCommand(P, ReadMenuData (config, args[2], "action").
-                                        replace("%PlayerName", Button.get(response.getClickedButtonId()).getName()).
-                                        replace("%PlayerUUID", Button.get(response.getClickedButtonId()).getUniqueId().toString())
-                                );
-
-                                return;
-
-                            });
-
-                    for(int i=0 ; i<Button.size() ; i++) {
-
-                        //生成button
-                        MFBuilder = MFBuilder.button(ReadMenuData (config, args[2], "text").
-                                replace("%PlayerName", Button.get(i).getName()).
-                                replace("%PlayerUUID", Button.get(i).getUniqueId().toString())
-                        , FormImage.Type.URL, "https://minecraft-api.com/api/skins/"+Button.get(i).getName()+"/head");
-                    }
-
-
-                    if (!ReadMenuData (config, args[2], "button").equals("Null")){
-                        MFBuilder = MFBuilder.button(ReadMenuData (config, args[2], "button"));
-                    };
-
-                    fa.sendForm(P.getUniqueId(), MFBuilder);
-                    return true;
-
-
-                };
-
-                //都不匹配
-                sender.sendMessage("无效菜单类型");
+                }
 
             }else{
                 sender.sendMessage("无效玩家对象[对象为Java版玩家]");
@@ -1231,6 +1069,177 @@ public class main extends JavaPlugin {
         return ("Unknow");
     }
 
+    public boolean SendBedrockForm(Player P,String name,CommandSender sender){
+
+        //获得API
+        FloodgateApi fa = FloodgateApi.getInstance();
+
+        //获取配置文件
+        FileConfiguration config = getConfig();
+        String type = ReadMenuData (config, name, "type");
+
+        //判断菜单类型
+        if (type.equals("Null")){
+            sender.sendMessage("无效菜单类型");
+            return false;
+        };
+
+
+        //如果是ModalForm
+        if (type.equals("ModalForm")){
+
+            ModalForm.Builder MFBuilder = ModalForm.builder()
+                    .title(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "title")))
+                    .content(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "content")))
+                    .button1(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "button1")))
+                    .button2(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "button2")))
+                    .responseHandler((form, responseData) -> {
+                        ModalFormResponse response = form.parseResponse(responseData);
+
+                        if (!response.isCorrect()) {
+                            //玩家直接关闭菜单或者输入了非法数据
+                            return;
+                        }
+                        if (response.isInvalid()) {
+                            //玩家输入了非法数据
+                            return;
+                        }
+
+
+                        if (response.getClickedButtonId() == 0) {
+                            //第一按钮
+                            if (!ReadMenuData (config, name, "action.button1").equals("Null")) {
+                                Bukkit.dispatchCommand(P, ReadMenuData(config, name, "action.button1"));
+                            }
+                            return;
+                        }
+
+                        if (response.getClickedButtonId() == 1) {
+                            //第二按钮
+                            if (!ReadMenuData (config, name, "action.button2").equals("Null")) {
+                                Bukkit.dispatchCommand(P,ReadMenuData (config, name, "action.button2"));
+                            }
+                            return;
+                        }
+
+                    });
+
+            fa.sendForm(P.getUniqueId(), MFBuilder);
+            return true;
+        };
+
+        //如果是SimpleForm
+        if (type.equals("SimpleForm")){
+
+            SimpleForm.Builder MFBuilder = SimpleForm.builder()
+                    .title(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "title")))
+                    .content(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "content")))
+                    .responseHandler((form, responseData) -> {
+                        SimpleFormResponse response = form.parseResponse(responseData);
+
+                        if (!response.isCorrect()) {
+                            //玩家直接关闭菜单或者输入了非法数据
+                            return;
+                        }
+                        if (response.isInvalid()) {
+                            //玩家输入了非法数据
+                            return;
+                        }
+
+                        List<String> Action = config.getStringList("Menus." + name + ".action");
+                        if (!Action.get(response.getClickedButtonId()).equals("Null")) {
+                            Bukkit.dispatchCommand(P, Action.get(response.getClickedButtonId()));
+                        }
+                        return;
+
+                    });
+
+            List<String> Button = config.getStringList("Menus." + name + ".button");
+            List<String> Image = config.getStringList("Menus." + name + ".image");
+            for(int i=0 ; i<Button.size() ; i++) {
+                if (Image.get(i).equals("Null")){
+                    //不带图片的
+                    MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)));
+                }else{
+                    //带图片的
+                    MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)), FormImage.Type.URL, Image.get(i));
+                }
+            }
+
+            fa.sendForm(P.getUniqueId(), MFBuilder);
+            return true;
+        };
+
+        //如果是PlayerListForm
+        if (type.equals("PlayerListForm")){
+
+            //获得玩家列表
+            Collection<? extends Player> b = Bukkit.getOnlinePlayers();
+            if (ReadMenuData (config, name, "removeself").equals("true")) {
+                b.remove(P);
+            };
+            List<Player> Button = (List<Player>) b;
+
+            SimpleForm.Builder MFBuilder = SimpleForm.builder()
+                    .title(ReadMenuData (config, name, "title"))
+                    .content(ReadMenuData (config, name, "content"))
+                    .responseHandler((form, responseData) -> {
+                        SimpleFormResponse response = form.parseResponse(responseData);
+
+                        if (!response.isCorrect()) {
+                            //玩家直接关闭菜单或者输入了非法数据
+                            return;
+                        }
+                        if (response.isInvalid()) {
+                            //玩家输入了非法数据
+                            return;
+                        }
+
+                        if (Button.size() == response.getClickedButtonId()){
+                            if (ReadMenuData (config, name, "buttonaction").equals("Null")){
+                                return;
+                            }else{
+                                Bukkit.dispatchCommand(P, ReadMenuData (config, name, "buttonaction").
+                                        replace("%PlayerName", Button.get(response.getClickedButtonId()).getName()).
+                                        replace("%PlayerUUID", Button.get(response.getClickedButtonId()).getUniqueId().toString())
+                                );
+                                return;
+                            }
+                            //选择了取消
+                        }
+                        Bukkit.dispatchCommand(P, ReadMenuData (config, name, "action").
+                                replace("%PlayerName", Button.get(response.getClickedButtonId()).getName()).
+                                replace("%PlayerUUID", Button.get(response.getClickedButtonId()).getUniqueId().toString())
+                        );
+
+                        return;
+
+                    });
+
+            for(int i=0 ; i<Button.size() ; i++) {
+
+                //生成button
+                MFBuilder = MFBuilder.button(ReadMenuData (config, name, "text").
+                                replace("%PlayerName", Button.get(i).getName()).
+                                replace("%PlayerUUID", Button.get(i).getUniqueId().toString())
+                        , FormImage.Type.URL, "https://minecraft-api.com/api/skins/"+Button.get(i).getName()+"/head");
+            }
+
+
+            if (!ReadMenuData (config, name, "button").equals("Null")){
+                MFBuilder = MFBuilder.button(ReadMenuData (config,name, "button"));
+            };
+
+            fa.sendForm(P.getUniqueId(), MFBuilder);
+            return true;
+
+
+        };
+
+        //都不匹配
+        sender.sendMessage("无效菜单类型");
+        return false;
+    }
 
 }
 
