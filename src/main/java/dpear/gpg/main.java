@@ -43,7 +43,20 @@ public class main extends JavaPlugin {
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
     List <String>HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
     List <String>SoftCommandAlert = getConfig().getStringList("CommandAlert.Soft");
-
+    double[] Music = {0.890899,
+            0.890899,0.890899,0.943874,1.059463, //3345
+            1.059463,0.943874,0.890899,0.793701, //5432
+            0.707107,0.707107,0.793701,0.890899, //1123
+            0.890899,0.793701,0.793701, //322
+            0.890899,0.890899,0.943874,1.059463, //3345
+            1.059463,0.943874,0.890899,0.793701, //5432
+            0.707107,0.707107,0.793701,0.890899, //1123
+            0.793701,0.707107,0.707107 //211
+    };
+    ArrayList <String>SoundPad = new ArrayList<>(
+            List.of("Q", "A", "W", "S", "E", "D", "F", "T", "G", "Y", "H", "J", "I", "K", "O", "L", "P", ";", "'", "]",
+                    "Z", "X", "C", "N", "M")
+    );
 
     @Override
     public void onEnable() {
@@ -331,9 +344,25 @@ public class main extends JavaPlugin {
             }
 
             if (args.length == 1){
-                ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
-                        Sound.BLOCK_NOTE_BLOCK_HARP, 1,((float)(args[0].length()+1)/4)%2);
-                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion"));
+                //((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),Sound.BLOCK_NOTE_BLOCK_HARP, 1,((float)(args[0].length()+1)/4)%2);
+
+                if (args[0].length() < Music.length) {
+                    ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                            Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
+                }
+                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano"));
+            }
+
+            if (args.length == 2){
+                if (args[0].equals("piano")){
+                    if (args[1].length() != 0){
+                        Integer NoteNumber = SoundPad.indexOf(args[1].substring(args[1].length() - 1));
+                        ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                Sound.BLOCK_NOTE_BLOCK_HARP, 1F, GetNote(NoteNumber));
+                        return (List.of("Last:" + NoteNumber,"What's the next?"));
+                    }
+                    return (List.of("What's the next?"));
+                }
             }
 
             return null;
@@ -597,6 +626,12 @@ public class main extends JavaPlugin {
                 getLogger().info("重载完毕");
                 return true;
             };
+
+            //是否钢琴
+            if (args[0].equals("piano")){
+                sender.sendMessage("这是给你弹的，不是命令awa");
+                return true;
+            }
 
             //判断是否是全重载
             if (args[0].equals("plreload")){
@@ -1240,6 +1275,16 @@ public class main extends JavaPlugin {
         sender.sendMessage("无效菜单类型");
         return false;
     }
+
+    public float GetNote(int Note){
+        return (float) Math.pow(2,(float)(Note-12)/12);
+    };
+
+
+
+
+
+
 
 }
 
