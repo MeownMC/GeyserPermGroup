@@ -360,15 +360,20 @@ public class main extends JavaPlugin {
             }
 
             if (args.length == 2){
+                if (args[0].equals("piano")) {
+                    return (List.of("bass","snare","hat","basedrum","bell","flute","chime","guitar","xylophone","iron_xylophone", "cow_bell","didgeridoo","bit","banjo","pling","harp"));
+                }
+            }
+
+            if (args.length == 3){
                 if (args[0].equals("piano")){
-                    if (args[1].length() != 0){
+                    if (args[2].length() != 0){
 
-
-                        int NoteNumber = SoundPad.indexOf(args[1].substring(args[1].length() - 1));
+                        int NoteNumber = SoundPad.indexOf(args[2].substring(args[2].length() - 1));
 
                         //高音?
                         if (NoteNumber == -1){
-                            NoteNumber = SoundPad_High.indexOf(args[1].substring(args[1].length() - 1));
+                            NoteNumber = SoundPad_High.indexOf(args[2].substring(args[2].length() - 1));
 
                             if (NoteNumber == -1){
                                 //不存在
@@ -376,27 +381,27 @@ public class main extends JavaPlugin {
                             }else {
                                 //高音
                                 ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
-                                        "block.note_block.harp_1", 1F, GetNote(NoteNumber));
+                                        "block.note_block."+args[1]+"_1", 1F, GetNote(NoteNumber));
                                 return (List.of("Last:+" + NoteNumber, "What's the next?"));
                             }
                         }else {
                             //只有一个肯定不可能低音
-                            if (args[1].length() > 1) {
-                                if (args[1].charAt(args[1].length() - 2) == '/') {
+                            if (args[2].length() > 1) {
+                                if (args[2].charAt(args[2].length() - 2) == '/') {
                                     //低音
                                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
-                                            "block.note_block.harp_-1", 1F, GetNote(NoteNumber));
+                                            "block.note_block."+args[1]+"_-1", 1F, GetNote(NoteNumber));
                                     return (List.of("Last:-" + NoteNumber, "What's the next?"));
                                 } else {
                                     //中音
                                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
-                                            Sound.BLOCK_NOTE_BLOCK_HARP, 1F, GetNote(NoteNumber));
+                                            "block.note_block."+args[1], 1F, GetNote(NoteNumber));
                                     return (List.of("Last:" + NoteNumber, "What's the next?"));
                                 }
                             }else {
                                 //中音
                                 ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
-                                        Sound.BLOCK_NOTE_BLOCK_HARP, 1F, GetNote(NoteNumber));
+                                        "block.note_block."+args[1], 1F, GetNote(NoteNumber));
                                 return (List.of("Last:" + NoteNumber, "What's the next?"));
                             }
                         }
