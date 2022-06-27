@@ -54,7 +54,12 @@ public class main extends JavaPlugin {
     };
 
     ArrayList <String>SoundPad = new ArrayList<>(
-            List.of("Q", "A", "W", "S", "E", "D", "F", "T", "G", "Y", "H", "J", "I", "K", "O", "L", "P", ";", "'", "]",
+            List.of("q", "a", "w", "s", "e", "d", "f", "t", "g", "y", "h", "j", "i", "k", "o", "l", "p", ";", "'", "]",
+                    "z", "x", "c", "n", "m")
+    );
+
+    ArrayList <String>SoundPad_High = new ArrayList<>(
+            List.of("Q", "A", "W", "S", "E", "D", "F", "T", "G", "Y", "H", "J", "I", "K", "O", "L", "P", ":", "\"", "}",
                     "Z", "X", "C", "N", "M")
     );
 
@@ -247,6 +252,7 @@ public class main extends JavaPlugin {
 
         //加载命令补全
         LoadCommandAlert();
+        //LoadCommandAlertTabComplete();
 
         if (!PassCheck){
             getLogger().info("Fail in checking SCID-C");
@@ -356,10 +362,44 @@ public class main extends JavaPlugin {
             if (args.length == 2){
                 if (args[0].equals("piano")){
                     if (args[1].length() != 0){
+
+
                         int NoteNumber = SoundPad.indexOf(args[1].substring(args[1].length() - 1));
-                        ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
-                                Sound.BLOCK_NOTE_BLOCK_HARP, 1F, GetNote(NoteNumber));
-                        return (List.of("Last:" + NoteNumber,"What's the next?"));
+
+                        //高音?
+                        if (NoteNumber == -1){
+                            NoteNumber = SoundPad_High.indexOf(args[1].substring(args[1].length() - 1));
+
+                            if (NoteNumber == -1){
+                                //不存在
+                                return (List.of("Last:null","What's the next?"));
+                            }else {
+                                //高音
+                                ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                        "block.note_block.harp_1", 1F, GetNote(NoteNumber));
+                                return (List.of("Last:+" + NoteNumber, "What's the next?"));
+                            }
+                        }else {
+                            //只有一个肯定不可能低音
+                            if (args[1].length() > 1) {
+                                if (args[1].charAt(args[1].length() - 2) == '/') {
+                                    //低音
+                                    ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                            "block.note_block.harp_-1", 1F, GetNote(NoteNumber));
+                                    return (List.of("Last:-" + NoteNumber, "What's the next?"));
+                                } else {
+                                    //中音
+                                    ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                            Sound.BLOCK_NOTE_BLOCK_HARP, 1F, GetNote(NoteNumber));
+                                    return (List.of("Last:" + NoteNumber, "What's the next?"));
+                                }
+                            }else {
+                                //中音
+                                ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                        Sound.BLOCK_NOTE_BLOCK_HARP, 1F, GetNote(NoteNumber));
+                                return (List.of("Last:" + NoteNumber, "What's the next?"));
+                            }
+                        }
                     }
                     return (List.of("What's the next?"));
                 }
@@ -367,6 +407,8 @@ public class main extends JavaPlugin {
 
             return null;
         }
+
+
     }
 
     public class Commander_L implements CommandExecutor {
@@ -562,7 +604,6 @@ public class main extends JavaPlugin {
                 return false;
             };
 
-
             //判断是否是重载
             if (args[0].equals("reload")){
 
@@ -621,6 +662,7 @@ public class main extends JavaPlugin {
 
                 //加载命令补全
                 LoadCommandAlert();
+                //LoadCommandAlertTabComplete();
 
                 sender.sendMessage("重载完毕");
                 getLogger().info("重载完毕");
@@ -873,6 +915,11 @@ public class main extends JavaPlugin {
                 public boolean execute(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings) {
                     return(CommandAlertExecutor(commandSender,s,strings));
                 }
+
+                public List<String> tabComplete(CommandSender sender, String alias, String[] args){
+                    getLogger().info(alias);
+                    return (CommandAlertTabHandler(sender, alias, args));
+                }
             };
 
             //将Command实例添加到列表
@@ -894,6 +941,23 @@ public class main extends JavaPlugin {
             getLogger().warning("出现了异常");
             e.printStackTrace();
         }
+    }
+
+    public void LoadCommandAlertTabComplete(){
+
+        getLogger().info("载入指令转接补全[Hard]");
+        int Success = 0;
+        for (String s : HardCommandAlert){
+            try {
+
+                //Objects.requireNonNull(getCommand(s)).setTabCompleter(CommandAlertTabHandler());
+                Success = Success + 1;
+            }catch (Exception e){
+                getLogger().warning("在注册命令" + s + "时出现异常:");
+                e.printStackTrace();
+            }
+        }
+        getLogger().info("已注册" + Success + "个命令转接补全[Hard]");
     }
 
     public void UnloadCommandAlert(){
@@ -1056,6 +1120,98 @@ public class main extends JavaPlugin {
             }
         }
         return true;
+
+    }
+
+    public List<String> CommandAlertTabHandler(CommandSender sender, String s, String[] args) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("CommandAlert.CommandList.").append(s).append(".");
+
+            //获得玩家实例
+            Player p = Bukkit.getPlayer(sender.getName());
+
+            //是否是玩家
+            if (p != null) {
+                //版本
+                if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.PlayerVersion", false)) {
+
+                    //获得版本
+                    String version = GetVersion(p);
+
+                    //表项是否存在
+                    if (getConfig().isConfigurationSection(sb + version)) {
+                        sb.append(GetVersion(p)).
+                                append(".");
+                    } else {
+                        sb.append("Other.");
+                    }
+
+
+                }
+
+                //权限组
+                if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.PermissionGroup", false)) {
+
+                    //这边可能NullPointer
+                    try {
+
+
+                        //只获取第一权限组
+                        String permissiongroup = getServer().getServicesManager().getRegistration(Permission.class).getProvider().getPlayerGroups(p)[0];
+                        //表项是否存在
+                        if (getConfig().isConfigurationSection(sb + permissiongroup)) {
+                            sb.append(permissiongroup).
+                                    append(".");
+                        } else {
+                            sb.append("Other.");
+                        }
+
+
+                    } catch (Exception e) {
+                        getLogger().warning("在获取权限组时出现了异常");
+                        getLogger().warning("以Other继续！");
+                        sb.append("Other.");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            //参数个数(显然这个不关玩家事)
+            if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.ArgAmount", false)) {
+
+                //获得长度
+                String length = String.valueOf(args.length);
+
+                //表项是否存在
+                if (getConfig().isConfigurationSection(sb + length)) {
+                    sb.append(length).
+                            append(".");
+                } else {
+                    sb.append("Other.");
+                }
+            }
+
+            //自定义参数(显然这个也不关玩家事)
+            //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
+            if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.Arg", false)) {
+                for (String c : args) {
+                    sb.append(c).append(".");
+                }
+            }
+
+            List<String> TabResults = getConfig().getStringList(sb + "Tab");
+            if (TabResults.size() == 0) {
+                //正常返回
+                return (TabResults);
+            }else{
+                //如果没写对应配置的话
+                return null;
+            }
+        }catch (Exception e){
+            //有问题就不返回
+            return null;
+        }
 
     }
 

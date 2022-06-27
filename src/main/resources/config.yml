@@ -103,6 +103,7 @@ CommandAlert:
       Goal:
         - 'gm 0'
         - 'say 我是生存模式'
+      Tab: []
     nssbb:
       exFunction:
         PlayerVersion: false
