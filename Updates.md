@@ -1,24 +1,24 @@
 #<font color=#FF8247 >Update log</font><br>
-###Version:1.3 and earlier:
+##Version:1.3 and earlier:
 <font color=BBBBDD>I didn't write update log that time, and I forget what did I do each version.<br>
 So no update log here :(</font><br>
-###Version:1.4:
+##Version:1.4:
 1.修改了给玩家发送的文本的方式，变为配置文件数组<br>
 2.配置文件大改<br>
 3.修改了自动修改密码和注册部分的代码<br>
-###Version:1.5:
+##Version:1.5:
 1.修改了执行命令的方式，变为配置文件数组<br>
 2.使名字前带点的JE玩家踢出消息可自定义<br>
 3.让注册命令和改密码命令不再硬编码，改为配置文件可调<br>
 4.添加了执行命令时判断是否为null<br>
-###Version:1.6:
+##Version:1.6:
 1.合并了自动注册和自动修改密码的配置到OnBedrockPlayerJoin和OnBedrockPlayerRegister里<br>
 2.使Login命令可以自定义<br>
 3.测试PlayerJoinEvent里面加Timer，目前还不可用！<br>
-###Version:1.7:
+##Version:1.7:
 1.添加了给菜单功能<br>
 2.修改了BE玩家判断机制，使用了floodgateapi<br>
-###Version:1.8:
+##Version:1.8:
 1.添加了btpa菜单<br>
 2.添加了权限管理机制<br>
 >使用bemenu命令: dpear.gpg.menu<br>
@@ -29,7 +29,7 @@ So no update log here :(</font><br>
 
 3.又移除了btpa菜单，合并到主菜单里面了<br>
 4.添加了PlayerListForm菜单<br>
-###Version:1.9:
+##Version:1.9:
 1.可以使用PAPI变量了<br>
 2.添加了调试功能<br>
 
@@ -39,7 +39,7 @@ So no update log here :(</font><br>
 3.添加了bemenu about命令，显示关于<br>
 4.添加了bemenu plreload命令，调用PlugMan重载整个插件<br>
 5.在PlayerListForm中添加了removeself[STILL DEV]<br>
-###Version:2.0:
+##Version:2.0:
 1.调用了AuthMe API，可以直接从内部自动登录了<br>
 2.修改了命令，改为了/bemenu open [PlayerName] [MenuName]<br>
 3.添加了防止在控制输入bemenu open @s *的部分<br>
@@ -52,7 +52,7 @@ Soft:修改玩家执行的命令[不支持补全和命令白名单]<br>
 Hard:处理玩家执行该命令的事件，并独立以玩家身份执行命令，支持参数转换[支持补全和命令白名单]<br>
 8.添加了AuthMe和PlugMan进soft-depend<br>
 9.执行/bemenu plreload时会检查有没有PlugMan了<br>
-###Version:2.1:
+##Version:2.1:
 1.支持按照不同的MC版本执行不同命令和发送不同消息<br>
 2.添加了机器码验证<br>
 3.添加了Vault支持，可以直接修改权限组<br>
@@ -73,4 +73,34 @@ Hard:处理玩家执行该命令的事件，并独立以玩家身份执行命令
 
 键位：<br>
 ![PIANO KEY](https://i-s2.328888.xyz/2022/06/27/62b958c2245a2.png)
+送两首歌：<br>
+###Ode an die Freude
+对照表：
+>33455432<br>
+><b>HHJKKJHG</b><br>
+>1123322<br>
+><b>FFGHHGG</b><br>
+>33455432<br>
+><b>HHJKKJHG</b><br>
+>1123211<br>
+><b>FFGHGFF</b><br>
+>22312343<br>
+><b>GGHFGHJHF</b><br>
+>2343212₅<br>
+><b>GHJHGFGA</b><br>
+>33455432<br>
+><b>HHJKKJHG</b><br>
+>1123211<br>
+><b>FFGHGFF</b><br>
+
+纯享版：
+>HHJKKJHGFFGHHGGHHJKKJHGFFGHGFFGGHFGHJHFGHJHGFGAHHJKKJHGFFGHGFF
+
+###Flower dance:
+纯享版：
+>HGLGHGSG
+>HGLGHGSG
+>HGLGHGLGM
+
+
 13.基岩版PlayerListForm添加显示玩家头像选项[仅支持Java正版玩家]<br>
