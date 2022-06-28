@@ -4,6 +4,8 @@ import com.viaversion.viaversion.api.Via;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -338,6 +340,30 @@ public class main extends JavaPlugin {
             return;
         }
 
+        @EventHandler
+        public void onCommandChangeWorld(PlayerChangedWorldEvent e){
+            String version = Bukkit.getMinecraftVersion();
+
+            //设置视距
+            e.getPlayer().setViewDistance(
+                    getConfig().getInt("ViewDistance."+e.getPlayer().getWorld().getName(),e.getPlayer().getViewDistance())
+            );
+
+            //判断版本
+            getLogger().info(e.getPlayer().getWorld().getName());
+            if (Integer.parseInt(version.substring(2, 4)) >= 18) {
+                //设置模拟距离
+                e.getPlayer().setSimulationDistance(
+                        getConfig().getInt("SimulationDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getSimulationDistance())
+                );
+            } else {
+                //设置假视距
+                e.getPlayer().setNoTickViewDistance(
+                        getConfig().getInt("NoTickViewDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getNoTickViewDistance())
+                );
+            }
+        }
+
     }
 
     public class TabHandler implements TabCompleter {
@@ -356,12 +382,20 @@ public class main extends JavaPlugin {
                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
                             Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
                 }
-                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano"));
+                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance"));
             }
 
             if (args.length == 2){
                 if (args[0].equals("piano")) {
                     return (List.of("bass","snare","hat","basedrum","bell","flute","chime","guitar","xylophone","iron_xylophone", "cow_bell","didgeridoo","bit","banjo","pling","harp"));
+                }
+
+                if (args[0].equals("SetDistance")) {
+                    return (List.of("NoTickViewDistance","ViewDistance","SimulationDistance"));
+                }
+
+                if (args[0].equals("GetDistance")) {
+                    return (List.of("NoTickViewDistance","ViewDistance","SimulationDistance"));
                 }
             }
 
@@ -370,43 +404,50 @@ public class main extends JavaPlugin {
                     if (args[2].length() != 0){
 
                         int NoteNumber = SoundPad.indexOf(args[2].substring(args[2].length() - 1));
-
+                        Player player = ((Player) sender).getPlayer();
                         //高音?
                         if (NoteNumber == -1){
                             NoteNumber = SoundPad_High.indexOf(args[2].substring(args[2].length() - 1));
 
                             if (NoteNumber == -1){
                                 //不存在
-                                return (List.of("Last:null","What's the next?"));
+                                return (List.of("","Last:null","What's the next?"));
                             }else {
                                 //高音
-                                ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                player.playSound(((Player) sender).getPlayer().getLocation(),
                                         "block.note_block."+args[1]+"_1", 1F, GetNote(NoteNumber));
-                                return (List.of("Last:+" + NoteNumber, "What's the next?"));
+                                player.getWorld().spawnParticle(Particle.REDSTONE, new Location(player.getWorld(), 0, 2, 0), 1, new Particle.DustOptions(org.bukkit.Color.fromRGB(255, 0, 0), 1));
+                                return (List.of("","Last:+" + NoteNumber, "What's the next?"));
                             }
                         }else {
                             //只有一个肯定不可能低音
                             if (args[2].length() > 1) {
                                 if (args[2].charAt(args[2].length() - 2) == '/') {
                                     //低音
-                                    ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                    player.playSound(player.getLocation(),
                                             "block.note_block."+args[1]+"_-1", 1F, GetNote(NoteNumber));
-                                    return (List.of("Last:-" + NoteNumber, "What's the next?"));
+                                    return (List.of("","Last:-" + NoteNumber, "What's the next?"));
                                 } else {
                                     //中音
-                                    ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                    player.playSound(player.getLocation(),
                                             "block.note_block."+args[1], 1F, GetNote(NoteNumber));
-                                    return (List.of("Last:" + NoteNumber, "What's the next?"));
+                                    return (List.of("","Last:" + NoteNumber, "What's the next?"));
                                 }
                             }else {
                                 //中音
-                                ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                player.playSound(player.getLocation(),
                                         "block.note_block."+args[1], 1F, GetNote(NoteNumber));
-                                return (List.of("Last:" + NoteNumber, "What's the next?"));
+                                return (List.of("","Last:" + NoteNumber, "What's the next?"));
                             }
                         }
                     }
                     return (List.of("What's the next?"));
+                }
+            }
+
+            if (args.length == 4){
+                if (args[0].equals("SetDistance")) {
+                    return (List.of("2","3","4","5","6","7","8"));
                 }
             }
 
@@ -721,6 +762,99 @@ public class main extends JavaPlugin {
                     return false;
                 }
             };
+
+            //是否设置距
+            if (args[0].equals("SetDistance")){
+
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.menu.SetDistance")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.SetDistance权限");
+                    return false;
+                };
+
+                if (args.length != 4){
+                    sender.sendMessage("参数数量错误");
+                    return false;
+                }
+
+                //确定玩家有效
+                Player player = Bukkit.getPlayer(args[2]);
+                if (player == null){
+                    sender.sendMessage("无效玩家");
+                    return false;
+                }
+
+                try {
+                    //是否设置NoTick视距
+                    if (args[1].equals("NoTickViewDistance")) {
+                        player.setNoTickViewDistance(Integer.parseInt(args[3]));
+                        sender.sendMessage("成功将玩家" + player.getName() + "的NoTickViewDistance设置为" + args[3]);
+                    }
+
+                    //是否设置视距
+                    if (args[1].equals("ViewDistance")) {
+                        player.setViewDistance(Integer.parseInt(args[3]));
+                        sender.sendMessage("成功将玩家" + player.getName() + "的ViewDistance设置为" + args[3]);
+                    }
+
+                    //是否设置模拟距离
+                    if (args[1].equals("SimulationDistance")) {
+                        player.setSimulationDistance(Integer.parseInt(args[3]));
+                        sender.sendMessage("成功将玩家" + player.getName() + "的SimulationDistance设置为" + args[3]);
+                    }
+                    return true;
+                }catch (Exception e){
+                    sender.sendMessage("出现异常，操作无法完成，详细信息见控制台");
+                    getLogger().warning("出现异常:");
+                    e.printStackTrace();
+                };
+
+            }
+
+            //是否获得剧
+            if (args[0].equals("GetDistance")){
+
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.menu.GetDistance")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.GetDistance权限");
+                    return false;
+                };
+
+                if (args.length != 3){
+                    sender.sendMessage("参数数量错误");
+                    return false;
+                }
+
+                //确定玩家有效
+                Player player = Bukkit.getPlayer(args[2]);
+                if (player == null){
+                    sender.sendMessage("无效玩家");
+                    return false;
+                }
+
+                try {
+                    //是否设置NoTick视距
+                    if (args[1].equals("NoTickViewDistance")) {
+                        sender.sendMessage("玩家" + player.getName() + "的NoTickViewDistance为" + player.getNoTickViewDistance());
+                    }
+
+                    //是否设置视距
+                    if (args[1].equals("ViewDistance")) {
+                        sender.sendMessage("玩家" + player.getName() + "的ViewDistance为" + player.getViewDistance());
+                    }
+
+                    //是否设置模拟距离
+                    if (args[1].equals("SimulationDistance")) {
+                        sender.sendMessage("玩家" + player.getName() + "的SimulationDistance为" + player.getSimulationDistance());
+                    }
+                    return true;
+                }catch (Exception e){
+                    sender.sendMessage("出现异常，操作无法完成，详细信息见控制台");
+                    getLogger().warning("出现异常:");
+                    e.printStackTrace();
+                };
+
+            }
 
 
             //是否列出所有玩家版本

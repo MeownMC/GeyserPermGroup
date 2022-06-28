@@ -128,3 +128,10 @@ CommandAlert:
     - 'nssbb'
   Soft:
     - 'wssbb'
+SimulationDistance:
+  world: 3
+  plotworld: 3
+ViewDistance:
+  world: 5
+  plotworld: 4
+NoTickViewDistance:

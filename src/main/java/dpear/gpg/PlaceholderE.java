@@ -1,5 +1,6 @@
 package dpear.gpg;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.OfflinePlayer;
@@ -8,6 +9,8 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import dpear.gpg.main;
 
 import java.util.Arrays;
+
+import static org.apache.logging.log4j.LogManager.getLogger;
 
 public class PlaceholderE extends PlaceholderExpansion{
 
@@ -54,6 +57,36 @@ public class PlaceholderE extends PlaceholderExpansion{
         if(params.equalsIgnoreCase("isBedrock")) {
             return String.valueOf(FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId()));
         }
+
+        //世界季节_到下个季节天数
+        if(params.equalsIgnoreCase("rs_days_until_next_season")) {
+            if(player.getPlayer().getWorld().getName().equals("world")) {
+                return PlaceholderAPI.setPlaceholders(player, "%rs_days_until_next_season%");
+            }else{
+                return ("不可用");
+            }
+        }
+
+        //世界季节_当前季节
+        if(params.equalsIgnoreCase("rs_season")) {
+            if(player.getPlayer().getWorld().getName().equals("world")) {
+                return PlaceholderAPI.setPlaceholders(player, "%rs_season%");
+            }else{
+                return ("不可用");
+            }
+        }
+
+        //世界季节_温度
+        if(params.equalsIgnoreCase("rs_temperature")) {
+            if(player.getPlayer().getWorld().getName().equals("world")) {
+                return PlaceholderAPI.setPlaceholders(player, "%rs_temperature%");
+            }else{
+                return ("不可用");
+            }
+        }
+
+
+
 
         return null; // 未知变量
     }
