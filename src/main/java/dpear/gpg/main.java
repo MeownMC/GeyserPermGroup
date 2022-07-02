@@ -78,7 +78,7 @@ public class main extends JavaPlugin {
 
         //localServer = new LocalServer();
 
-        saveDefaultConfig();
+        //saveDefaultConfig();
 
         if(!getConfig().getString("ConfigVersion", "0").equals(PluginVersion)){
             getLogger().warning("过期的配置文件版本!请将旧版本配置文件迁移至新版本");
@@ -1044,6 +1044,8 @@ public class main extends JavaPlugin {
                 sender.sendMessage("§2强制登入玩家 §a/bemenu authmelogin 玩家名");
                 sender.sendMessage("§2查看协议版本 §a/bemenu version");
                 sender.sendMessage("§2列出所有玩家的版本 §a/bemenu listversion");
+                sender.sendMessage("§2切噜语翻译 §a/bemenu cheru");
+                sender.sendMessage("§2放置光源 §a/bemenu light");
                 sender.sendMessage("§2重新加载配置 §a/bemenu reload");
                 sender.sendMessage("§2重新加载插件配置 §a/bemenu plreload");
                 sender.sendMessage("§2显示帮助 §a/bemenu help");
