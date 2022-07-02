@@ -104,6 +104,19 @@ Hard:处理玩家执行该命令的事件，并独立以玩家身份执行命令
 >HGLGHGSG
 >HGLGHGLGM
 
+(有隐藏的弹射功能哦~)<br>
 
 13.基岩版PlayerListForm添加显示玩家头像选项[仅支持Java正版玩家]<br>
-14.现在命令转接可以支持Tab补全了[大概吧]
+14.现在命令转接可以支持Tab补全了[大概吧]<br>
+15.添加了切噜语翻译功能(玩家输入 "切噜～♪切" 前缀自动翻译)
+>加密:/bemenu cheru encrypt 内容<br>
+>解密:/bemenu cheru decrypt 内容<br>
+
+(聊天栏输入ToCheRu前缀的在使用TrChat等聊天插件时不起作用)<br>
+16.开始制作网页接口<br>
+17.添加了一键放置光源的功能<br>
+>/bemenu light [clear/亮度]
+
+18.增加了动态模拟距离和调整视距的功能<br>
+19.支持根据世界设置不同视距<br>
+20.添加了修复rs的PAPI变量<br>

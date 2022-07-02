@@ -15,6 +15,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
+import org.checkerframework.checker.calledmethods.qual.EnsuresCalledMethodsVarArgs;
 import org.geysermc.cumulus.ModalForm;
 import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.ModalFormResponse;
@@ -23,6 +24,8 @@ import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
+
+import dpear.gpg.LocalServer;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
@@ -55,6 +58,8 @@ public class main extends JavaPlugin {
             0.793701,0.707107,0.707107 //211
     };
 
+    public LocalServer localServer;
+
     ArrayList <String>SoundPad = new ArrayList<>(
             List.of("q", "a", "w", "s", "e", "d", "f", "t", "g", "y", "h", "j", "i", "k", "o", "l", "p", ";", "'", "]",
                     "z", "x", "c", "n", "m")
@@ -70,6 +75,8 @@ public class main extends JavaPlugin {
         getLogger().info("正在进行预加载");
 
         PluginVersion = this.getDescription().getVersion();
+
+        //localServer = new LocalServer();
 
         saveDefaultConfig();
 
@@ -350,7 +357,6 @@ public class main extends JavaPlugin {
             );
 
             //判断版本
-            getLogger().info(e.getPlayer().getWorld().getName());
             if (Integer.parseInt(version.substring(2, 4)) >= 18) {
                 //设置模拟距离
                 e.getPlayer().setSimulationDistance(
@@ -362,6 +368,22 @@ public class main extends JavaPlugin {
                         getConfig().getInt("NoTickViewDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getNoTickViewDistance())
                 );
             }
+        }
+
+        @EventHandler
+        public void onChatEvent(PlayerChatEvent e){
+            if (e.getMessage().startsWith("切噜～♪切")){
+                try {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rainbowbc 玩家" + e.getPlayer().getName() + "发送了一条切噜语消息，已自动翻译:"
+                            + CheRu.decrypt(e.getMessage()));
+                }catch (Exception ignored){}//不会翻译能不能别翻译[doge]
+            }
+
+            if (e.getMessage().startsWith("ToCheRu")){
+                e.setMessage(CheRu.encrypt(e.getMessage().substring(7)));
+                e.getPlayer().sendMessage("已将您的消息转换为切噜语");
+            }
+
         }
 
     }
@@ -382,7 +404,7 @@ public class main extends JavaPlugin {
                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
                             Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
                 }
-                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance"));
+                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light"));
             }
 
             if (args.length == 2){
@@ -397,6 +419,15 @@ public class main extends JavaPlugin {
                 if (args[0].equals("GetDistance")) {
                     return (List.of("NoTickViewDistance","ViewDistance","SimulationDistance"));
                 }
+
+                if (args[0].equals("light")) {
+                    return (List.of("clear","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"));
+                }
+
+                if (args[0].equals("chery")) {
+                    return (List.of("encrypt","decrypt"));
+                }
+
             }
 
             if (args.length == 3){
@@ -405,6 +436,10 @@ public class main extends JavaPlugin {
 
                         int NoteNumber = SoundPad.indexOf(args[2].substring(args[2].length() - 1));
                         Player player = ((Player) sender).getPlayer();
+
+                        String BlockName = "minecraft:sea_lantern";
+
+
                         //高音?
                         if (NoteNumber == -1){
                             NoteNumber = SoundPad_High.indexOf(args[2].substring(args[2].length() - 1));
@@ -416,7 +451,12 @@ public class main extends JavaPlugin {
                                 //高音
                                 player.playSound(((Player) sender).getPlayer().getLocation(),
                                         "block.note_block."+args[1]+"_1", 1F, GetNote(NoteNumber));
-                                player.getWorld().spawnParticle(Particle.REDSTONE, new Location(player.getWorld(), 0, 2, 0), 1, new Particle.DustOptions(org.bukkit.Color.fromRGB(255, 0, 0), 1));
+                                if (player.isOp()) {
+                                    if(player.getLevel() == 14514) {
+                                        Bukkit.dispatchCommand(player, "summon minecraft:falling_block ~ ~-2 ~1 {BlockState:{Name:\""+BlockName+"\"},Tags:[\"nbs\",\"nbs_1\"],Glowing:1,Time:-120,DropItem:0,Motion:["
+                                                + String.valueOf(-((double) (NoteNumber+1)/10)-1.2) + "d,1.5d,1.5d]}");
+                                    }
+                                }
                                 return (List.of("","Last:+" + NoteNumber, "What's the next?"));
                             }
                         }else {
@@ -426,17 +466,36 @@ public class main extends JavaPlugin {
                                     //低音
                                     player.playSound(player.getLocation(),
                                             "block.note_block."+args[1]+"_-1", 1F, GetNote(NoteNumber));
+                                    if (player.isOp()) {
+                                        if(player.getLevel() == 14514) {
+                                            Bukkit.dispatchCommand(player, "summon minecraft:falling_block ~ ~-2 ~1 {BlockState:{Name:\""+BlockName+"\"},Tags:[\"nbs\",\"nbs_1\"],Glowing:1,Time:-120,DropItem:0,Motion:["
+                                                    + String.valueOf(-((double) (NoteNumber+1)/10)+3.6) + "d,1.5d,1.5d]}");
+                                        }
+                                    }
                                     return (List.of("","Last:-" + NoteNumber, "What's the next?"));
                                 } else {
                                     //中音
                                     player.playSound(player.getLocation(),
                                             "block.note_block."+args[1], 1F, GetNote(NoteNumber));
+                                    if (player.isOp()) {
+                                        if(player.getLevel() == 14514) {
+                                            Bukkit.dispatchCommand(player, "summon minecraft:falling_block ~ ~-2 ~1 {BlockState:{Name:\""+BlockName+"\"},Tags:[\"nbs\",\"nbs_1\"],Glowing:1,Time:-120,DropItem:0,Motion:["
+                                                    + String.valueOf(-((double) (NoteNumber+1)/10)+1.2) + "d,1.5d,1.5d]}");
+                                        }
+                                    }
                                     return (List.of("","Last:" + NoteNumber, "What's the next?"));
+
                                 }
                             }else {
                                 //中音
                                 player.playSound(player.getLocation(),
                                         "block.note_block."+args[1], 1F, GetNote(NoteNumber));
+                                if (player.isOp()) {
+                                    if(player.getLevel() == 14514) {
+                                        Bukkit.dispatchCommand(player, "summon minecraft:falling_block ~ ~-2 ~1 {BlockState:{Name:\""+BlockName+"\"},Tags:[\"nbs\",\"nbs_1\"],Glowing:1,Time:-120,DropItem:0,Motion:["
+                                                + String.valueOf(-((double) (NoteNumber+1)/10)+1.2) + "d,1.5d,1.5d]}");
+                                    }
+                                }
                                 return (List.of("","Last:" + NoteNumber, "What's the next?"));
                             }
                         }
@@ -810,6 +869,76 @@ public class main extends JavaPlugin {
                 };
 
             }
+
+
+            //是否cheru
+            if (args[0].equals("light")){
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.menu.light")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.light权限");
+                    return false;
+                };
+
+                if (args.length != 2) {
+                    sender.sendMessage("参数数量错误");
+                    return false;
+                };
+
+                if (args[1].equals("clear")){
+                    Bukkit.dispatchCommand(sender,"fill " +
+                            ((Player)sender).getLocation().getBlockX() + " " +
+                            ((Player)sender).getLocation().getBlockY() + " " +
+                            ((Player)sender).getLocation().getBlockZ() + " " +
+                            ((Player)sender).getLocation().getBlockX() + " " +
+                            ((Player)sender).getLocation().getBlockY() + " " +
+                            ((Player)sender).getLocation().getBlockZ() + " " + "minecraft:air replace minecraft:light");
+                    sender.sendMessage("成功清除了所在格的光源(如果有的话)");
+                    return true;
+                }
+
+                Bukkit.dispatchCommand(sender,"setblock " +
+                        ((Player)sender).getLocation().getBlockX() + " " +
+                        ((Player)sender).getLocation().getBlockY() + " " +
+                        ((Player)sender).getLocation().getBlockZ() + " minecraft:light[level="+args[1]+"]");
+                sender.sendMessage("成功放置了亮度为"+args[1]+"的光源");
+                return true;
+
+            }
+
+            //是否cheru
+            if (args[0].equals("cheru")){
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.menu.cheru")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.cheru权限");
+                    return false;
+                };
+
+                if (args.length != 3) {
+                    sender.sendMessage("参数数量错误");
+                    return false;
+                };
+
+                if (args[1].equals("encrypt")){
+                    sender.sendMessage(CheRu.encrypt(args[2]));
+                    return true;
+                }
+
+                if (args[1].equals("decrypt")){
+                    try {
+                        sender.sendMessage(CheRu.decrypt(args[2]));
+                    }catch (Exception e){
+                        sender.sendMessage("切噜~翻译失败了");
+                        getLogger().info("切噜翻译时出现异常:");
+                        e.printStackTrace();
+                    }
+                    return true;
+                }
+
+                sender.sendMessage("参数数量错误");
+                return false;
+            }
+
+
 
             //是否获得剧
             if (args[0].equals("GetDistance")){
