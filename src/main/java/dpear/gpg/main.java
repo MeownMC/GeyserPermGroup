@@ -424,7 +424,7 @@ public class main extends JavaPlugin {
                     return (List.of("clear","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"));
                 }
 
-                if (args[0].equals("chery")) {
+                if (args[0].equals("cheru")) {
                     return (List.of("encrypt","decrypt"));
                 }
 
