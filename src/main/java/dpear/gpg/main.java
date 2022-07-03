@@ -4,8 +4,6 @@ import com.viaversion.viaversion.api.Via;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,7 +13,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
-import org.checkerframework.checker.calledmethods.qual.EnsuresCalledMethodsVarArgs;
 import org.geysermc.cumulus.ModalForm;
 import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.ModalFormResponse;
@@ -24,8 +21,6 @@ import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
-
-import dpear.gpg.LocalServer;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
@@ -425,7 +420,7 @@ public class main extends JavaPlugin {
                 }
 
                 if (args[0].equals("cheru")) {
-                    return (List.of("encrypt","decrypt"));
+                    return (List.of("encrypt","decrypt","send"));
                 }
 
             }
@@ -919,11 +914,23 @@ public class main extends JavaPlugin {
                 };
 
                 if (args[1].equals("encrypt")){
+                    //判断权限
+                    if (!sender.hasPermission("dpear.gpg.menu.cheru.encrypt")) {
+                        sender.sendMessage("权限不足，您没有dpear.gpg.menu.cheru.encrypt权限");
+                        return false;
+                    };
+
                     sender.sendMessage(CheRu.encrypt(args[2]));
                     return true;
                 }
 
                 if (args[1].equals("decrypt")){
+                    //判断权限
+                    if (!sender.hasPermission("dpear.gpg.menu.cheru.decrypt")) {
+                        sender.sendMessage("权限不足，您没有dpear.gpg.menu.cheru.decrypt权限");
+                        return false;
+                    };
+
                     try {
                         sender.sendMessage(CheRu.decrypt(args[2]));
                     }catch (Exception e){
@@ -933,6 +940,18 @@ public class main extends JavaPlugin {
                     }
                     return true;
                 }
+
+                if (args[1].equals("send")){
+                    //判断权限
+                    if (!sender.hasPermission("dpear.gpg.menu.cheru.send")) {
+                        sender.sendMessage("权限不足，您没有dpear.gpg.menu.cheru.send权限");
+                        return false;
+                    };
+
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"sudo " +sender.getName()+ " c:"+CheRu.encrypt(args[2]));
+                    return true;
+                }
+
 
                 sender.sendMessage("参数数量错误");
                 return false;
@@ -1187,7 +1206,6 @@ public class main extends JavaPlugin {
                 }
 
                 public List<String> tabComplete(CommandSender sender, String alias, String[] args){
-                    getLogger().info(alias);
                     return (CommandAlertTabHandler(sender, alias, args));
                 }
             };
@@ -1472,11 +1490,20 @@ public class main extends JavaPlugin {
 
             List<String> TabResults = getConfig().getStringList(sb + "Tab");
             if (TabResults.size() == 0) {
-                //正常返回
-                return (TabResults);
-            }else{
                 //如果没写对应配置的话
                 return null;
+            }else{
+                if(TabResults.get(1).equals("Null")){
+                    //不返回
+                    return null;
+                }
+                if (TabResults.get(1).equals("PlayerList")){
+                    //玩家列表
+                    return GetStringPlayerList(args[args.length - 1]);
+                }
+
+                //正常返回
+                return (TabResults);
             }
         }catch (Exception e){
             //有问题就不返回
@@ -1715,8 +1742,26 @@ public class main extends JavaPlugin {
         return (float) Math.pow(2,(float)(Note-12)/12);
     };
 
+    public List GetStringPlayerList(String head){
+        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+        ArrayList<String> players_string = new ArrayList<>();
 
-
+        //转换
+        if (head.equals("")){
+            //直接添加
+            for (Player player: players) {
+                players_string.add(player.getName());
+            }
+        }else{
+            //检查头相等
+            for (Player player: players) {
+                if (player.getName().startsWith(head)) {
+                    players_string.add(player.getName());
+                }
+            }
+        }
+        return players_string;
+    }
 
 
 

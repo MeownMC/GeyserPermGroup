@@ -7,8 +7,8 @@ website: meown.top
 depend:
   - floodgate
   - PlaceholderAPI
-  - AuthMe
 softdepend:
+  - AuthMe
   - PlugManX
   - ViaVersion
   - Vault

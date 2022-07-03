@@ -41,8 +41,6 @@ public class StaticFileHandler implements HttpHandler {
 
         String[] PATH = name.split("/");
         if (PATH.length == 3){
-            ex.sendResponseHeaders(200, name.length());
-
 
             //out.write(
             //        PlaceholderAPI.setPlaceholders(
@@ -51,6 +49,7 @@ public class StaticFileHandler implements HttpHandler {
             //                .getBytes()
             //);
             out.write(Files.readAllBytes(Paths.get("plugins/GeyserPermGroup/config.yml")));
+            ex.sendResponseHeaders(200, name.length());
 
 
         }else {
