@@ -26,5 +26,5 @@ commands:
   bemenu:
     usage: "Use /bemenu help tp show usages."
     description: "Open a be form"
-    permission: "dpear.gpg.menu"
+    permission: "dpear.gpg"
     permission-message: "You have no permission"

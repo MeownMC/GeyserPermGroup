@@ -708,9 +708,9 @@ public class main extends JavaPlugin {
             if (args[0].equals("reload")){
 
                 //判断权限
-                if (sender.hasPermission("dpear.gpg.menu.reload")) {
+                if (sender.hasPermission("dpear.gpg.reload")) {
                 }else {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.reload权限");
+                    sender.sendMessage("权限不足，您没有dpear.gpg.reload权限");
                     return false;
                 };
 
@@ -779,8 +779,8 @@ public class main extends JavaPlugin {
             if (args[0].equals("plreload")){
 
                 //判断权限
-                if (!sender.hasPermission("dpear.gpg.menu.plreload")) {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.plreload权限");
+                if (!sender.hasPermission("dpear.gpg.plreload")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.plreload权限");
                     return false;
                 };
 
@@ -796,8 +796,8 @@ public class main extends JavaPlugin {
             //是否强制登入
             if (args[0].equals("authmelogin")){
                 //判断权限
-                if (!sender.hasPermission("dpear.gpg.menu.authmelogin")) {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.authmelogin权限");
+                if (!sender.hasPermission("dpear.gpg.authmelogin")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.authmelogin权限");
                     return false;
                 };
 
@@ -869,8 +869,8 @@ public class main extends JavaPlugin {
             //是否cheru
             if (args[0].equals("light")){
                 //判断权限
-                if (!sender.hasPermission("dpear.gpg.menu.light")) {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.light权限");
+                if (!sender.hasPermission("dpear.gpg.light")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.light权限");
                     return false;
                 };
 
@@ -903,8 +903,8 @@ public class main extends JavaPlugin {
             //是否cheru
             if (args[0].equals("cheru")){
                 //判断权限
-                if (!sender.hasPermission("dpear.gpg.menu.cheru")) {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.cheru权限");
+                if (!sender.hasPermission("dpear.gpg.cheru")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.cheru权限");
                     return false;
                 };
 
@@ -915,8 +915,8 @@ public class main extends JavaPlugin {
 
                 if (args[1].equals("encrypt")){
                     //判断权限
-                    if (!sender.hasPermission("dpear.gpg.menu.cheru.encrypt")) {
-                        sender.sendMessage("权限不足，您没有dpear.gpg.menu.cheru.encrypt权限");
+                    if (!sender.hasPermission("dpear.gpg.cheru.encrypt")) {
+                        sender.sendMessage("权限不足，您没有dpear.gpg.cheru.encrypt权限");
                         return false;
                     };
 
@@ -926,8 +926,8 @@ public class main extends JavaPlugin {
 
                 if (args[1].equals("decrypt")){
                     //判断权限
-                    if (!sender.hasPermission("dpear.gpg.menu.cheru.decrypt")) {
-                        sender.sendMessage("权限不足，您没有dpear.gpg.menu.cheru.decrypt权限");
+                    if (!sender.hasPermission("dpear.gpg.cheru.decrypt")) {
+                        sender.sendMessage("权限不足，您没有dpear.gpg.cheru.decrypt权限");
                         return false;
                     };
 
@@ -943,8 +943,8 @@ public class main extends JavaPlugin {
 
                 if (args[1].equals("send")){
                     //判断权限
-                    if (!sender.hasPermission("dpear.gpg.menu.cheru.send")) {
-                        sender.sendMessage("权限不足，您没有dpear.gpg.menu.cheru.send权限");
+                    if (!sender.hasPermission("dpear.gpg.cheru.send")) {
+                        sender.sendMessage("权限不足，您没有dpear.gpg.cheru.send权限");
                         return false;
                     };
 
@@ -963,8 +963,8 @@ public class main extends JavaPlugin {
             if (args[0].equals("GetDistance")){
 
                 //判断权限
-                if (!sender.hasPermission("dpear.gpg.menu.GetDistance")) {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.GetDistance权限");
+                if (!sender.hasPermission("dpear.gpg.GetDistance")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.GetDistance权限");
                     return false;
                 };
 
@@ -1008,8 +1008,8 @@ public class main extends JavaPlugin {
             //是否列出所有玩家版本
             if (args[0].equals("listversion")){
                 //判断权限
-                if (!sender.hasPermission("dpear.gpg.menu.listversion")) {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.listversion权限");
+                if (!sender.hasPermission("dpear.gpg.listversion")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.listversion权限");
                     return false;
                 };
 
@@ -1033,8 +1033,8 @@ public class main extends JavaPlugin {
             //是否列出所有玩家版本
             if (args[0].equals("gc")){
                 //判断权限
-                if (!sender.hasPermission("dpear.gpg.menu.gc")) {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.gc权限");
+                if (!sender.hasPermission("dpear.gpg.gc")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.gc权限");
                     return false;
                 };
                 System.gc();
@@ -1076,11 +1076,11 @@ public class main extends JavaPlugin {
             //判断是否是获取版本号
             if (args[0].equals("version")){
                 //判断权限
-                if (sender.hasPermission("dpear.gpg.menu.version")) {
+                if (sender.hasPermission("dpear.gpg.version")) {
                     sender.sendMessage("Your version is " + GetVersion(Bukkit.getPlayer(sender.getName())));
                     return true;
                 }else {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.version权限");
+                    sender.sendMessage("权限不足，您没有dpear.gpg.version权限");
                     return false;
                 }
             };
@@ -1136,7 +1136,7 @@ public class main extends JavaPlugin {
 
             //判断权限
             if (args[1].equals("@s")){
-                if (sender.hasPermission("dpear.gpg.menu.open.self")) {
+                if (sender.hasPermission("dpear.gpg.open.self")) {
                     //判断是不是控制台
                     if (sender instanceof Player){
                         Pr = Bukkit.getPlayer(sender.getName());
@@ -1144,12 +1144,12 @@ public class main extends JavaPlugin {
                         sender.sendMessage("控制台你执行个鬼");
                     }
                 }else{
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.open.self权限");
+                    sender.sendMessage("权限不足，您没有dpear.gpg.open.self权限");
                     return false;
                 };
             }else{
-                if (!sender.hasPermission("dpear.gpg.menu.open.allplayer")) {
-                    sender.sendMessage("权限不足，您没有dpear.gpg.menu.open.allplayer权限");
+                if (!sender.hasPermission("dpear.gpg.open.allplayer")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.open.allplayer权限");
                     return false;
                 };
             };
