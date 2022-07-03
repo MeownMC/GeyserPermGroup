@@ -1684,17 +1684,13 @@ public class main extends JavaPlugin {
                         }
 
                         if (Button.size() == response.getClickedButtonId()){
-                            if (ReadMenuData (config, name, "buttonaction").equals("Null")){
-                                return;
-                            }else{
-                                Bukkit.dispatchCommand(P, ReadMenuData (config, name, "buttonaction").
-                                        replace("%PlayerName", Button.get(response.getClickedButtonId()).getName()).
-                                        replace("%PlayerUUID", Button.get(response.getClickedButtonId()).getUniqueId().toString())
-                                );
-                                return;
+                            if (!ReadMenuData(config, name, "buttonaction").equals("Null")) {
+                                Bukkit.dispatchCommand(P, ReadMenuData(config, name, "buttonaction"));
                             }
                             //选择了取消
+                            return;
                         }
+
                         Bukkit.dispatchCommand(P, ReadMenuData (config, name, "action").
                                 replace("%PlayerName", Button.get(response.getClickedButtonId()).getName()).
                                 replace("%PlayerUUID", Button.get(response.getClickedButtonId()).getUniqueId().toString())
