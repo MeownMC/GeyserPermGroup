@@ -1493,11 +1493,11 @@ public class main extends JavaPlugin {
                 //如果没写对应配置的话
                 return null;
             }else{
-                if(TabResults.get(1).equals("Null")){
+                if(TabResults.get(0).equals("Null")){
                     //不返回
                     return null;
                 }
-                if (TabResults.get(1).equals("PlayerList")){
+                if (TabResults.get(0).equals("PlayerList")){
                     //玩家列表
                     return GetStringPlayerList(args[args.length - 1]);
                 }
