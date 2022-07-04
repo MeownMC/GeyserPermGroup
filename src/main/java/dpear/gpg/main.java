@@ -65,6 +65,8 @@ public class main extends JavaPlugin {
                     "Z", "X", "C", "N", "M")
     );
 
+    PlaceholderE PAPIE = new  PlaceholderE(this);
+
     @Override
     public void onEnable() {
         getLogger().info("正在进行预加载");
@@ -183,7 +185,8 @@ public class main extends JavaPlugin {
         }else{
             getLogger().info("已检测到PlaceholderAPI");
             try {
-                new PlaceholderE(this).register();
+                PAPIE.register();
+                PAPIE.EnableSeasonWorlds = getConfig().getStringList("RealisticSeasonsPAPIFix.EnabledWorld");
                 getLogger().info("PlaceholderAPI挂钩成功");
             } catch (Exception e) {
                 getLogger().warning("PlaceholderAPI挂钩失败");
@@ -763,6 +766,9 @@ public class main extends JavaPlugin {
                 //加载命令补全
                 LoadCommandAlert();
                 //LoadCommandAlertTabComplete();
+
+                getLogger().info("加载RealisticSeasons变量修复世界");
+                PAPIE.EnableSeasonWorlds = getConfig().getStringList("RealisticSeasonsPAPIFix.EnabledWorld");
 
                 sender.sendMessage("重载完毕");
                 getLogger().info("重载完毕");

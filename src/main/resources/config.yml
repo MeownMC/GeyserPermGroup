@@ -135,3 +135,8 @@ ViewDistance:
   world: 5
   plotworld: 4
 NoTickViewDistance:
+  world: 6
+  plotworld: 5
+RealisticSeasonsPAPIFix:
+  EnabledWorld:
+    - 'world'

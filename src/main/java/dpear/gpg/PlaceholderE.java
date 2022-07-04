@@ -9,11 +9,13 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import dpear.gpg.main;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
 
 public class PlaceholderE extends PlaceholderExpansion{
 
+    public List<String> EnableSeasonWorlds = null;
     private final main plugin;
     public PlaceholderE(main plugin) {
         this.plugin = plugin;
@@ -60,8 +62,8 @@ public class PlaceholderE extends PlaceholderExpansion{
 
         //世界季节_到下个季节天数
         if(params.equalsIgnoreCase("rs_days_until_next_season")) {
-            if(player.getPlayer().getWorld().getName().equals("world")) {
-                return PlaceholderAPI.setPlaceholders(player, "%rs_days_until_next_season%");
+            if(EnableSeasonWorlds.contains(player.getPlayer().getWorld().getName())) {
+                return PlaceholderAPI.setPlaceholders(player, "%rs_days_until_next_season%" +"天");
             }else{
                 return ("不可用");
             }
@@ -69,7 +71,8 @@ public class PlaceholderE extends PlaceholderExpansion{
 
         //世界季节_当前季节
         if(params.equalsIgnoreCase("rs_season")) {
-            if(player.getPlayer().getWorld().getName().equals("world")) {
+
+            if(EnableSeasonWorlds.contains(player.getPlayer().getWorld().getName())) {
                 return PlaceholderAPI.setPlaceholders(player, "%rs_season%");
             }else{
                 return ("不可用");
@@ -78,8 +81,8 @@ public class PlaceholderE extends PlaceholderExpansion{
 
         //世界季节_温度
         if(params.equalsIgnoreCase("rs_temperature")) {
-            if(player.getPlayer().getWorld().getName().equals("world")) {
-                return PlaceholderAPI.setPlaceholders(player, "%rs_temperature%");
+            if(EnableSeasonWorlds.contains(player.getPlayer().getWorld().getName())) {
+                return PlaceholderAPI.setPlaceholders(player, "%rs_temperature%"+"°C");
             }else{
                 return ("不可用");
             }
