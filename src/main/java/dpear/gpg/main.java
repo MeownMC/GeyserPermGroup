@@ -1404,7 +1404,21 @@ public class main extends JavaPlugin {
                 }
 
                 //执行命令
-                Bukkit.dispatchCommand(commandSender, Executer);
+                if (Executer.startsWith("Console~")){
+                    //以后台身份运行
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),Executer.substring(8));
+                }else{
+                    if (Executer.startsWith("Msg~")){
+                        //发送消息
+                        commandSender.sendMessage(Executer.substring(4));
+                    }else{
+                        //执行命令
+                        Bukkit.dispatchCommand(commandSender, Executer);
+                    }
+                }
+
+
+
             }
 
         } else {
@@ -1652,11 +1666,16 @@ public class main extends JavaPlugin {
             List<String> Image = config.getStringList("Menus." + name + ".image");
             for(int i=0 ; i<Button.size() ; i++) {
                 if (Image.get(i).equals("Null")){
-                    //不带图片的
+                    //不带图标的
                     MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)));
                 }else{
-                    //带图片的
-                    MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)), FormImage.Type.URL, Image.get(i));
+                    if (Image.get(i).startsWith("P~")) {
+                        //本地材质
+                        MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)), FormImage.Type.PATH, Image.get(i).substring(2));
+                    }else {
+                        //链接图片
+                        MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)), FormImage.Type.URL, Image.get(i));
+                    }
                 }
             }
 
