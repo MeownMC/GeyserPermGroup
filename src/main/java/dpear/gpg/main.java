@@ -332,7 +332,6 @@ public class main extends JavaPlugin {
             //是否通过验证
             if(UnCheckPlayers.contains(e.getPlayer().getName())){
                 e.setCancelled(true);
-                getLogger().info(e.getMessage());
                 if(e.getMessage().startsWith("/register ")){
                     if(e.getMessage().equals("/register " + e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode())) {
                         UnCheckPlayers.remove((e.getPlayer().getName()));
