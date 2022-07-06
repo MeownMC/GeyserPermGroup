@@ -82,7 +82,7 @@ public class PlaceholderE extends PlaceholderExpansion{
         //世界季节_温度
         if(params.equalsIgnoreCase("rs_temperature")) {
             if(EnableSeasonWorlds.contains(player.getPlayer().getWorld().getName())) {
-                return PlaceholderAPI.setPlaceholders(player, "%rs_temperature%"+"°C");
+                return PlaceholderAPI.setPlaceholders(player, "%rs_temperature%");
             }else{
                 return ("不可用");
             }
