@@ -51,7 +51,7 @@ Version:
       OnPlayerRegister: []
 Command:
   #Command here will execute as console 1500ms after a player join
-  OnPlayerJoin_Delay: 'Null'
+  OnPlayerJoin: 'Null'
   Login: 'login %Password'
 Actions:
   AutoKick:

@@ -4,12 +4,17 @@ import com.viaversion.viaversion.api.Via;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
@@ -27,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -66,6 +72,8 @@ public class main extends JavaPlugin {
     );
 
     PlaceholderE PAPIE = new  PlaceholderE(this);
+
+    public ArrayList<String> UnCheckPlayers = new ArrayList<String>(List.of("notch"));
 
     @Override
     public void onEnable() {
@@ -282,30 +290,60 @@ public class main extends JavaPlugin {
 
     public class EventListener implements Listener {
         @EventHandler
-        public void onPlayerLogin(PlayerLoginEvent Player) {
-            if (getConfig().getString("Command.OnPlayerJoin_Delay").equals("Null")) {
+        public void onPlayerJoin(PlayerJoinEvent Player) {
+
+            if(!AuthMeApi.getInstance().isRegistered(Player.getPlayer().getName())){
+                //只检查未注册玩家
+                if(!FloodgateApi.getInstance().isFloodgatePlayer(Player.getPlayer().getUniqueId())){
+                    //跳过基岩版玩家
+
+                    //添加到未通过测试玩家
+                    UnCheckPlayers.add(Player.getPlayer().getName());
+
+                    //发送验证消息
+                    Player.getPlayer().sendMessage("");
+                    Player.getPlayer().sendMessage("");
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                            " [{\"text\":\"> > > [点我完成真人验证] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
+                            Player.getPlayer().getName().hashCode() + Player.getPlayer().getUniqueId().hashCode()+
+                            "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我完成验证<<\"}}]");
+                    Player.getPlayer().sendMessage("");
+                    Player.getPlayer().sendMessage("");
+
+                }
+            }
+
+            if (getConfig().getString("Command.OnPlayerJoin").equals("Null")) {
                 return;
             }
             ;
-            //设置定时器
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                    Bukkit.dispatchCommand(console,
-                            getConfig().getString("Command.OnPlayerJoin_Delay", "checkplayerbe %Password").
-                                    replace("%PlayerName", Player.getPlayer().getName()).
-                                    replace("%PlayerUUID", Player.getPlayer().getUniqueId().toString())
-                    );
 
-                    timer.cancel(); //执行完毕停止定时器
-                }
-            }, 1500);
+            ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+            Bukkit.dispatchCommand(console,
+                    getConfig().getString("Command.OnPlayerJoin_Delay", "checkplayerbe %Password").
+                            replace("%PlayerName", Player.getPlayer().getName()).
+                            replace("%PlayerUUID", Player.getPlayer().getUniqueId().toString()));
+
         }
 
         @EventHandler
         public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
+
+            //是否通过验证
+            if(UnCheckPlayers.contains(e.getPlayer().getName())){
+                e.setCancelled(true);
+                getLogger().info(e.getMessage());
+                if(e.getMessage().startsWith("/register ")){
+                    if(e.getMessage().equals("/register " + e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode())) {
+                        UnCheckPlayers.remove((e.getPlayer().getName()));
+                        e.getPlayer().sendMessage("§a§l已过人机验证，可以注册了");
+                        return;
+                    }
+                }
+                e.getPlayer().sendMessage("§c§l请点击上面按钮通过人机验证后注册");
+                return;
+            }
+
             //是否被其他插件取消
             if (e.isCancelled()) {
                 return;
@@ -370,6 +408,14 @@ public class main extends JavaPlugin {
 
         @EventHandler
         public void onChatEvent(PlayerChatEvent e){
+
+            //是否通过验证
+            if(UnCheckPlayers.contains(e.getPlayer().getName())){
+                e.setCancelled(true);
+                e.getPlayer().sendMessage("§c§l请点击上面按钮通过人机验证后发送消息");
+                return;
+            }
+
             if (e.getMessage().startsWith("切噜～♪切")){
                 try {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rainbowbc 玩家" + e.getPlayer().getName() + "发送了一条切噜语消息，已自动翻译:"
@@ -383,6 +429,7 @@ public class main extends JavaPlugin {
             }
 
         }
+
 
     }
 
@@ -1417,8 +1464,6 @@ public class main extends JavaPlugin {
                     }
                 }
 
-
-
             }
 
         } else {
@@ -1598,7 +1643,7 @@ public class main extends JavaPlugin {
 
             ModalForm.Builder MFBuilder = ModalForm.builder()
                     .title(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "title")))
-                    .content(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "content")))
+                    .content(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "content").replace("/n","\n")))
                     .button1(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "button1")))
                     .button2(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "button2")))
                     .responseHandler((form, responseData) -> {
