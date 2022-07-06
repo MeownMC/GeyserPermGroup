@@ -305,7 +305,7 @@ public class main extends JavaPlugin {
                     Player.getPlayer().sendMessage("");
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
                             " [{\"text\":\"> > > [点我完成真人验证] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                            Player.getPlayer().getName().hashCode() + Player.getPlayer().getUniqueId().hashCode()+
+                            Player.getPlayer().getName().hashCode() + Player.getPlayer().getUniqueId().hashCode() + Player.getPlayer().getUniqueId()+
                             "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我完成验证<<\"}}]");
                     Player.getPlayer().sendMessage("");
                     Player.getPlayer().sendMessage("");
@@ -333,7 +333,7 @@ public class main extends JavaPlugin {
             if(UnCheckPlayers.contains(e.getPlayer().getName())){
                 e.setCancelled(true);
                 if(e.getMessage().startsWith("/register ")){
-                    if(e.getMessage().equals("/register " + e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode())) {
+                    if(e.getMessage().equals("/register " + e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId())) {
                         UnCheckPlayers.remove((e.getPlayer().getName()));
                         e.getPlayer().sendMessage("§a§l已过人机验证，可以注册了");
                         return;
