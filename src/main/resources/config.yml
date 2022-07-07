@@ -151,4 +151,5 @@ RealisticSeasonsPAPIFix:
     - 'world'
 EliteMobs:
   CustomBossesList:
-    - 'FirstBoss'
+    - 'FirstBossName'
+    - 'SecondBossName'

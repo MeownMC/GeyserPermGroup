@@ -741,7 +741,7 @@ public class main extends JavaPlugin {
 
 
             if (!FloodgateApi.getInstance().isFloodgatePlayer(P.getUniqueId())) {
-                if (P.getName().substring(0, 1).equals(".")) {
+                if (P.getName().charAt(0) == '.') {
                     getLogger().warning("玩家 " + P.getName() + " 使用了非法用户名");
 
                     //检查时候启动踢出
@@ -1493,7 +1493,7 @@ public class main extends JavaPlugin {
         String CommandPathWithoutDot = CommandPath.substring(0,CommandPath.length()-1);
 
         //输出
-        getLogger().info("CommandPath:" + CommandPathWithoutDot);
+        //getLogger().info("CommandPath:" + CommandPathWithoutDot);
 
         //判读表项是否存在
         if(!getConfig().isConfigurationSection(CommandPathWithoutDot)) {
@@ -1516,7 +1516,7 @@ public class main extends JavaPlugin {
         List<String> ExecuteCommands = getConfig().getStringList(CommandPath + "Goal");
 
         //日志
-        getLogger().info("玩家 " + commandSender.getName() + "使用了命令" + s);
+        getLogger().info("玩家 " + commandSender.getName() + "使用了转接命令" + s);
 
         //执行
         if (getConfig().getBoolean(CommandPath + "Replace", false)) {
