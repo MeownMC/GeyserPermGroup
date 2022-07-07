@@ -19,6 +19,7 @@ Version:
     AutoLogin:
       Command: false
       AuthMe: true
+      AuthMe_CommandRegister: true
     AutoPermissionGroup:
       Vault: true
       Group: 'bedefault'
@@ -42,6 +43,7 @@ Version:
     AutoLogin:
       Command: false
       AuthMe: false
+      AuthMe_CommandRegister: false
     Command:
       OnPlayerJoin: []
       OnPlayerRegister: []
@@ -50,9 +52,10 @@ Version:
         - '§8[§4§l系统§8] §6§l欢迎来到喵喵领域服务器'
       OnPlayerRegister: []
 Command:
-  #Command here will execute as console 1500ms after a player join
+  #Command here will execute as console after a player join
   OnPlayerJoin: 'Null'
   Login: 'login %Password'
+  Register: 'register %Password %Password'
 Actions:
   AutoKick:
     Enable: true

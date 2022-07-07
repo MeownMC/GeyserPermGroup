@@ -653,9 +653,8 @@ public class main extends JavaPlugin {
                 }
             }
                 ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                CommandSender PCS = P;
 
-                //计算密码
+            //计算密码
                 int PASSWD = P.getUniqueId().hashCode();
                 String PASSWORD_F = "Meown115141919810-Null" , PASSWORD_S = "";
                 PASSWORD_F = PASSWD+"";
@@ -666,8 +665,19 @@ public class main extends JavaPlugin {
                 if (config.getBoolean("Version." + PlayerVersion + ".AutoLogin.AuthMe",false)){
                     AuthMeApi b = AuthMeApi.getInstance();
                     if(!b.isRegistered(P.getName())){
+
                         //未注册，注册该玩家
-                        b.registerPlayer(P.getName(),PASSWORD_S);
+                        if (config.getBoolean("Version." + PlayerVersion + ".AutoLogin.AuthMe_CommandRegister",false)){
+                            //使用命令注册
+                            Bukkit.dispatchCommand(P,
+                                    config.getString("Command.Register" , "register %Password %Password").
+                                            replace("%PlayerName", P.getName()).
+                                            replace("%PlayerUUID", P.getUniqueId().toString()).
+                                            replace("%Password", PASSWORD_S));
+                        }else{
+                            //使用接口注册
+                            b.registerPlayer(P.getName(),PASSWORD_S);
+                        }
 
                         //得到要发送的字符串的数组并发送
                         List<String> Message = config.getStringList("Version." + PlayerVersion + ".Message.OnPlayerRegister");
@@ -693,7 +703,7 @@ public class main extends JavaPlugin {
 
                 //是否启用指令登录
                 if (config.getBoolean("Version." + PlayerVersion + ".AutoLogin.Command",false)){
-                    Bukkit.dispatchCommand(PCS,
+                    Bukkit.dispatchCommand(P,
                             config.getString("Command.Login" , "login %Password").
                                     replace("%PlayerName", P.getName()).
                                     replace("%PlayerUUID", P.getUniqueId().toString()).
