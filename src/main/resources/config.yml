@@ -94,6 +94,12 @@ Menus:
     action: 'tpa %PlayerName'
     button: '取消'
     buttonaction: 'Null'
+  EliteMobs:
+    type: 'EliteMobsBossesForm'
+    title: '精英怪列表'
+    content: '今天要追踪哪个精英怪呢?'
+    button: '取消'
+    buttonaction: 'Null'
 CommandAlert:
   CommandList:
     tssbb:
@@ -140,3 +146,6 @@ NoTickViewDistance:
 RealisticSeasonsPAPIFix:
   EnabledWorld:
     - 'world'
+EliteMobs:
+  CustomBossesList:
+    - 'FirstBoss'

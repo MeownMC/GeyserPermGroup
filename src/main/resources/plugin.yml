@@ -12,6 +12,7 @@ softdepend:
   - PlugManX
   - ViaVersion
   - Vault
+  - EliteMobs
 commands:
   checkplayerbe:
     usage: "/checkplayerbe <player-name>"

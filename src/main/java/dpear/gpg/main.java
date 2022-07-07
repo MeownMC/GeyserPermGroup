@@ -1,5 +1,9 @@
 package dpear.gpg;
 
+import com.magmaguy.elitemobs.EliteMobs;
+import com.magmaguy.elitemobs.api.EliteMobDeathEvent;
+import com.magmaguy.elitemobs.api.EliteMobRemoveEvent;
+import com.magmaguy.elitemobs.api.EliteMobSpawnEvent;
 import com.viaversion.viaversion.api.Via;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.permission.Permission;
@@ -10,6 +14,7 @@ import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
@@ -74,6 +79,12 @@ public class main extends JavaPlugin {
     PlaceholderE PAPIE = new  PlaceholderE(this);
 
     public ArrayList<String> UnCheckPlayers = new ArrayList<String>(List.of("notch"));
+
+    //精英怪
+    ArrayList<String> CustomBossesList = (ArrayList<String>) getConfig().getStringList("EliteMobs.CustomBossesList");
+
+    public ArrayList<UUID> CustomBossesUUID = new ArrayList(List.of());
+    public ArrayList<String> CustomBossesName = new ArrayList<String>(List.of());
 
     @Override
     public void onEnable() {
@@ -429,6 +440,48 @@ public class main extends JavaPlugin {
 
         }
 
+        @EventHandler
+        public void onEliteMobSpawn(EliteMobSpawnEvent e){
+
+            //检查是不是指定的精英怪
+            for (String NowCheck:CustomBossesList) {
+                if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
+                    CustomBossesUUID.add(e.getEliteMobEntity().getEliteUUID());
+                    CustomBossesName.add(e.getEliteMobEntity().getName());
+                    getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " spawn!Add to list");
+                }
+
+            }
+
+        }
+
+        @EventHandler
+        public void onEliteMobDeath(EliteMobDeathEvent e){
+
+            //检查是不是指定的精英怪
+            for (String NowCheck:CustomBossesList) {
+                if(e.getEliteEntity().getName().endsWith(NowCheck)){
+                    CustomBossesUUID.remove(e.getEliteEntity().getEliteUUID());
+                    CustomBossesName.remove(e.getEliteEntity().getName());
+                    getLogger().info("EliteMob:" + e.getEliteEntity().getEliteUUID() + " death!Remove from list");
+                }
+
+            }
+        }
+
+        @EventHandler
+        public void onEliteMobRemove(EliteMobRemoveEvent e){
+
+            //检查是不是指定的精英怪
+            for (String NowCheck:CustomBossesList) {
+                if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
+                    CustomBossesUUID.remove(e.getEliteMobEntity().getEliteUUID());
+                    CustomBossesName.remove(e.getEliteMobEntity().getName());
+                    getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " removed!Remove from list");
+                }
+
+            }
+        }
 
     }
 
@@ -448,7 +501,7 @@ public class main extends JavaPlugin {
                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
                             Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
                 }
-                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light"));
+                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB"));
             }
 
             if (args.length == 2){
@@ -816,6 +869,9 @@ public class main extends JavaPlugin {
                 getLogger().info("加载RealisticSeasons变量修复世界");
                 PAPIE.EnableSeasonWorlds = getConfig().getStringList("RealisticSeasonsPAPIFix.EnabledWorld");
 
+                getLogger().info("加载基岩版EliteMobs追踪支持");
+                CustomBossesList = (ArrayList<String>) getConfig().getStringList("EliteMobs.CustomBossesList");
+
                 sender.sendMessage("重载完毕");
                 getLogger().info("重载完毕");
                 return true;
@@ -918,7 +974,7 @@ public class main extends JavaPlugin {
             }
 
 
-            //是否cheru
+            //是否打光
             if (args[0].equals("light")){
                 //判断权限
                 if (!sender.hasPermission("dpear.gpg.light")) {
@@ -1010,6 +1066,24 @@ public class main extends JavaPlugin {
             }
 
 
+            //是否清除精英怪菜单
+            if (args[0].equals("clearEMCB")) {
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.clearemcb")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.clearemcb权限");
+                    return false;
+                }
+                ;
+
+                if (args.length != 1) {
+                    sender.sendMessage("参数数量错误");
+                    return false;
+                }
+                ;
+
+                CustomBossesUUID = new ArrayList(List.of());
+                CustomBossesName = new ArrayList<String>(List.of());
+            }
 
             //是否获得剧
             if (args[0].equals("GetDistance")){
@@ -1115,6 +1189,7 @@ public class main extends JavaPlugin {
                 sender.sendMessage("§2强制登入玩家 §a/bemenu authmelogin 玩家名");
                 sender.sendMessage("§2查看协议版本 §a/bemenu version");
                 sender.sendMessage("§2列出所有玩家的版本 §a/bemenu listversion");
+                sender.sendMessage("§2清除精英怪菜单记录 §a/bemenu clearEMCB");
                 sender.sendMessage("§2切噜语翻译 §a/bemenu cheru");
                 sender.sendMessage("§2放置光源 §a/bemenu light");
                 sender.sendMessage("§2重新加载配置 §a/bemenu reload");
@@ -1785,6 +1860,55 @@ public class main extends JavaPlugin {
                                     replace("%PlayerName", player.getName()).
                                     replace("%PlayerUUID", player.getUniqueId().toString()));
                 }
+            }
+
+
+            if (!ReadMenuData (config, name, "button").equals("Null")){
+                MFBuilder = MFBuilder.button(ReadMenuData (config,name, "button"));
+            };
+
+            fa.sendForm(P.getUniqueId(), MFBuilder);
+            return true;
+
+
+        };
+
+        //如果是EliteMobsBossesForm
+        if (type.equals("EliteMobsBossesForm")){
+
+
+            SimpleForm.Builder MFBuilder = SimpleForm.builder()
+                    .title(ReadMenuData (config, name, "title"))
+                    .content(ReadMenuData (config, name, "content"))
+                    .responseHandler((form, responseData) -> {
+                        SimpleFormResponse response = form.parseResponse(responseData);
+
+                        if (!response.isCorrect()) {
+                            //玩家直接关闭菜单或者输入了非法数据
+                            return;
+                        }
+                        if (response.isInvalid()) {
+                            //玩家输入了非法数据
+                            return;
+                        }
+
+                        if (CustomBossesName.size() == response.getClickedButtonId()){
+                            if (!ReadMenuData(config, name, "buttonaction").equals("Null")) {
+                                Bukkit.dispatchCommand(P, ReadMenuData(config, name, "buttonaction"));
+                            }
+                            //选择了取消
+                            return;
+                        }
+
+                        Bukkit.dispatchCommand(P,"em trackcustomboss " + CustomBossesUUID.get(response.getClickedButtonId()));
+
+                        return;
+
+                    });
+
+            for (String Name : CustomBossesName) {
+                //生成button
+                MFBuilder = MFBuilder.button(Name);
             }
 
 
