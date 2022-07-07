@@ -446,9 +446,15 @@ public class main extends JavaPlugin {
             //检查是不是指定的精英怪
             for (String NowCheck:CustomBossesList) {
                 if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
-                    CustomBossesUUID.add(e.getEliteMobEntity().getEliteUUID());
-                    CustomBossesName.add(e.getEliteMobEntity().getName());
-                    getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " spawn!Add to list");
+
+                    //检查是否已经存在
+                    if(!CustomBossesUUID.contains(e.getEliteMobEntity().getEliteUUID())) {
+                        //不存在
+                        CustomBossesUUID.add(e.getEliteMobEntity().getEliteUUID());
+                        CustomBossesName.add(e.getEliteMobEntity().getName());
+                        getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " spawn!Add to list");
+                    }
+
                 }
 
             }
@@ -482,6 +488,7 @@ public class main extends JavaPlugin {
 
             }
         }
+
 
     }
 
@@ -1075,14 +1082,10 @@ public class main extends JavaPlugin {
                 }
                 ;
 
-                if (args.length != 1) {
-                    sender.sendMessage("参数数量错误");
-                    return false;
-                }
-                ;
-
                 CustomBossesUUID = new ArrayList(List.of());
                 CustomBossesName = new ArrayList<String>(List.of());
+                sender.sendMessage("清除成功");
+                return true;
             }
 
             //是否获得剧
