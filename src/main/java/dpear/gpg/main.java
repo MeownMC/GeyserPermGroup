@@ -309,15 +309,53 @@ public class main extends JavaPlugin {
                     //跳过基岩版玩家
 
                     //添加到未通过测试玩家
-                    UnCheckPlayers.add(Player.getPlayer().getName());
+                    if (!UnCheckPlayers.contains(Player.getPlayer().getName())) {
+                        UnCheckPlayers.add(Player.getPlayer().getName());
+                    }
 
                     //发送验证消息
                     Player.getPlayer().sendMessage("");
                     Player.getPlayer().sendMessage("");
+                    ;
+                    int t;
+                    //不要点按钮(Red)
+                    for (t = 0; t<new Random().nextInt(0,3);t = t + 1) {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                                " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
+                                Player.getPlayer().getName().hashCode()+
+                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
+                    }
+
+                    //不要点按钮(Yellow)
+                    for (t = 0; t<new Random().nextInt(0,2);t = t + 1) {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                                " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
+                                Player.getPlayer().getName().hashCode()+
+                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
+                    }
+
+                    //要点的
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
-                            " [{\"text\":\"> > > [点我完成真人验证] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
+                            " [{\"text\":\"> > > [点我完成真人验证] < < <\",\"color\":\"green\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
                             Player.getPlayer().getName().hashCode() + Player.getPlayer().getUniqueId().hashCode() + Player.getPlayer().getUniqueId()+
                             "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我完成验证<<\"}}]");
+
+                    //不要点按钮(Yellow)
+                    for (t = 0; t<new Random().nextInt(0,2);t = t + 1) {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                                " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
+                                Player.getPlayer().getName().hashCode()+
+                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
+                    }
+
+                    //不要点按钮
+                    for (t = 0; t<new Random().nextInt(0,3);t = t + 1) {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                                " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
+                                Player.getPlayer().getName().hashCode()+
+                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
+                    }
+
                     Player.getPlayer().sendMessage("");
                     Player.getPlayer().sendMessage("");
 
@@ -345,12 +383,20 @@ public class main extends JavaPlugin {
                 e.setCancelled(true);
                 if(e.getMessage().startsWith("/register ")){
                     if(e.getMessage().equals("/register " + e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId())) {
-                        UnCheckPlayers.remove((e.getPlayer().getName()));
+                        //通过
+                        UnCheckPlayers.remove(e.getPlayer().getName());
                         e.getPlayer().sendMessage("§a§l已过人机验证，可以注册了");
                         return;
                     }
+                    //不对
+                    if(e.getMessage().equals("/register " + e.getPlayer().getName().hashCode())) {
+                        e.getPlayer().kickPlayer("§c§l都说了不要点人家啦~");
+                        return;
+                    }
+                    e.getPlayer().sendMessage("§c§l请点击上面按钮通过人机验证后注册 §4(看不到消息可以尝试重进服务器)");
+                    return;
                 }
-                e.getPlayer().sendMessage("§c§l请点击上面按钮通过人机验证后注册");
+                e.getPlayer().sendMessage("§c§l请点击上面按钮通过人机验证后使用命令 §4(看不到消息可以尝试重进服务器)");
                 return;
             }
 
@@ -422,7 +468,7 @@ public class main extends JavaPlugin {
             //是否通过验证
             if(UnCheckPlayers.contains(e.getPlayer().getName())){
                 e.setCancelled(true);
-                e.getPlayer().sendMessage("§c§l请点击上面按钮通过人机验证后发送消息");
+                e.getPlayer().sendMessage("§c§l请点击上面按钮通过人机验证后发送消息 §4(看不到消息可以尝试重进服务器)");
                 return;
             }
 
@@ -453,6 +499,7 @@ public class main extends JavaPlugin {
                         CustomBossesUUID.add(e.getEliteMobEntity().getEliteUUID());
                         CustomBossesName.add(e.getEliteMobEntity().getName());
                         getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " spawn!Add to list");
+                        return;
                     }
 
                 }
