@@ -535,8 +535,7 @@ public class main extends JavaPlugin {
 
             }
         }
-
-
+        
     }
 
     public class TabHandler implements TabCompleter {
@@ -1460,81 +1459,12 @@ public class main extends JavaPlugin {
 
     public boolean CommandAlertExecutor(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings){
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("CommandAlert.CommandList.").append(s).append(".");
+
+        //获得命令路径
+        String CommandPath = GetCommandAlertPath(s,strings,commandSender);
 
         //获得玩家实例
-        Player p = Bukkit.getPlayer(commandSender.getName());
-        //确定是玩家支持
-        if (p != null) {
-            //版本
-            if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.PlayerVersion", false)) {
-
-                //获得版本
-                String version = GetVersion(p);
-
-                //表项是否存在
-                if(getConfig().isConfigurationSection(sb + version)){
-                    sb.append(GetVersion(p)).
-                            append(".");
-                }else{
-                    sb.append("Other.");
-                }
-
-
-            }
-
-            //权限组
-            if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.PermissionGroup", false)) {
-
-                //这边可能NullPointer
-                try {
-
-
-                    //只获取第一权限组
-                    String permissiongroup = getServer().getServicesManager().getRegistration(Permission.class).getProvider().getPlayerGroups(p)[0];
-                    //表项是否存在
-                    if(getConfig().isConfigurationSection(sb + permissiongroup)) {
-                        sb.append(permissiongroup).
-                                append(".");
-                    }else{
-                        sb.append("Other.");
-                    }
-
-
-                }catch (Exception e){
-                    getLogger().warning("在获取权限组时出现了异常");
-                    getLogger().warning("以Other继续！");
-                    sb.append("Other.");
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        //参数个数(显然这个不关玩家事)
-        if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.ArgAmount", false)) {
-
-            //获得长度
-            String length = String.valueOf(strings.length);
-
-            //表项是否存在
-            if(getConfig().isConfigurationSection(sb + length)) {
-                sb.append(length).
-                        append(".");
-            }else{
-                sb.append("Other.");
-            }
-        }
-
-        //自定义参数(显然这个也不关玩家事)
-        //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
-        if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.Arg", false)) {
-            for (String c : strings) {
-                sb.append(c).append(".");
-            }
-        }
-
-        String CommandPath = sb.toString();
+        Player p = (Player)commandSender;
 
         //去点
         String CommandPathWithoutDot = CommandPath.substring(0,CommandPath.length()-1);
@@ -1603,7 +1533,18 @@ public class main extends JavaPlugin {
         } else {
             for (String executeCommand : ExecuteCommands) {
                 //执行命令
-                Bukkit.dispatchCommand(commandSender, executeCommand);
+                if (executeCommand.startsWith("Console~")){
+                    //以后台身份运行
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),executeCommand.substring(8));
+                }else{
+                    if (executeCommand.startsWith("Msg~")){
+                        //发送消息
+                        commandSender.sendMessage(executeCommand.substring(4));
+                    }else{
+                        //执行命令
+                        Bukkit.dispatchCommand(commandSender, executeCommand);
+                    }
+                }
             }
         }
         return true;
@@ -1612,82 +1553,8 @@ public class main extends JavaPlugin {
 
     public List<String> CommandAlertTabHandler(CommandSender sender, String s, String[] args) {
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("CommandAlert.CommandList.").append(s).append(".");
 
-            //获得玩家实例
-            Player p = Bukkit.getPlayer(sender.getName());
-
-            //是否是玩家
-            if (p != null) {
-                //版本
-                if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.PlayerVersion", false)) {
-
-                    //获得版本
-                    String version = GetVersion(p);
-
-                    //表项是否存在
-                    if (getConfig().isConfigurationSection(sb + version)) {
-                        sb.append(GetVersion(p)).
-                                append(".");
-                    } else {
-                        sb.append("Other.");
-                    }
-
-
-                }
-
-                //权限组
-                if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.PermissionGroup", false)) {
-
-                    //这边可能NullPointer
-                    try {
-
-
-                        //只获取第一权限组
-                        String permissiongroup = getServer().getServicesManager().getRegistration(Permission.class).getProvider().getPlayerGroups(p)[0];
-                        //表项是否存在
-                        if (getConfig().isConfigurationSection(sb + permissiongroup)) {
-                            sb.append(permissiongroup).
-                                    append(".");
-                        } else {
-                            sb.append("Other.");
-                        }
-
-
-                    } catch (Exception e) {
-                        getLogger().warning("在获取权限组时出现了异常");
-                        getLogger().warning("以Other继续！");
-                        sb.append("Other.");
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            //参数个数(显然这个不关玩家事)
-            if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.ArgAmount", false)) {
-
-                //获得长度
-                String length = String.valueOf(args.length);
-
-                //表项是否存在
-                if (getConfig().isConfigurationSection(sb + length)) {
-                    sb.append(length).
-                            append(".");
-                } else {
-                    sb.append("Other.");
-                }
-            }
-
-            //自定义参数(显然这个也不关玩家事)
-            //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
-            if (getConfig().getBoolean("CommandAlert.CommandList." + s + ".exFunction.Arg", false)) {
-                for (String c : args) {
-                    sb.append(c).append(".");
-                }
-            }
-
-            List<String> TabResults = getConfig().getStringList(sb + "Tab");
+            List<String> TabResults = getConfig().getStringList(GetCommandAlertPath(s,args,sender) + "Tab");
             if (TabResults.size() == 0) {
                 //如果没写对应配置的话
                 return null;
@@ -2012,7 +1879,95 @@ public class main extends JavaPlugin {
         return players_string;
     }
 
+    public String GetCommandAlertPath(String Command,String[] strings,CommandSender commandSender){
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("CommandAlert.CommandList.").append(Command).append(".");
+
+        //获得玩家实例
+        Player p = Bukkit.getPlayer(commandSender.getName());
+        //确定是玩家支持
+        if (p != null) {
+            //版本
+            if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.PlayerVersion", false)) {
+
+                //获得版本
+                String version = GetVersion(p);
+
+                //表项是否存在
+                if(getConfig().isConfigurationSection(sb + version)){
+                    sb.append(version).append(".");
+                }else{
+                    sb.append("Other.");
+                }
+
+
+            }
+
+            //权限组
+            if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.PermissionGroup", false)) {
+
+                //这边可能NullPointer
+                try {
+
+
+                    //只获取第一权限组
+                    String permissiongroup = getServer().getServicesManager().getRegistration(Permission.class).getProvider().getPlayerGroups(p)[0];
+                    //表项是否存在
+                    if(getConfig().isConfigurationSection(sb + permissiongroup)) {
+                        sb.append(permissiongroup).append(".");
+                    }else{
+                        sb.append("Other.");
+                    }
+
+
+                }catch (Exception e){
+                    getLogger().warning("在获取权限组时出现了异常");
+                    getLogger().warning("以Other继续！");
+                    sb.append("Other.");
+                    e.printStackTrace();
+                }
+            }
+
+            //玩家所在世界
+            if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.PlayerWorld", false)) {
+
+                //获得世界
+                String world = p.getWorld().getName();
+
+                //表项是否存在
+                if(getConfig().isConfigurationSection(sb + world)){
+                    sb.append(world).append(".");
+                }else{
+                    sb.append("Other.");
+                }
+            }
+        }
+
+        //参数个数(显然这个不关玩家事)
+        if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.ArgAmount", false)) {
+
+            //获得长度
+            String length = String.valueOf(strings.length);
+
+            //表项是否存在
+            if(getConfig().isConfigurationSection(sb + length)) {
+                sb.append(length).append(".");
+            }else{
+                sb.append("Other.");
+            }
+        }
+
+
+        //自定义参数(显然这个也不关玩家事)
+        //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
+        if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.Arg", false)) {
+            for (String c : strings) {
+                sb.append(c).append(".");
+            }
+        }
+        return sb.toString();
+    }
 
 
 }

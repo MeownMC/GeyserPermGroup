@@ -117,6 +117,7 @@ CommandAlert:
       exFunction:
         PlayerVersion: false
         PermissionGroup: false
+        PlayerWorld: false
         ArgAmount: false
         Arg: false
       Replace: false
