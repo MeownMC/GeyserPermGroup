@@ -554,7 +554,7 @@ public class main extends JavaPlugin {
                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
                             Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
                 }
-                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB"));
+                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo"));
             }
 
             if (args.length == 2){
@@ -576,6 +576,10 @@ public class main extends JavaPlugin {
 
                 if (args[0].equals("cheru")) {
                     return (List.of("encrypt","decrypt","send"));
+                }
+
+                if (args[0].equals("sudo")) {
+                    return null;
                 }
 
             }
@@ -652,12 +656,23 @@ public class main extends JavaPlugin {
                     }
                     return (List.of("What's the next?"));
                 }
+
+                if (args[0].equals("sudo")) {
+                    if(Objects.equals(args[2], "")) {
+                        return (List.of("c:"));
+                    }
+                }
             }
 
             if (args.length == 4){
                 if (args[0].equals("SetDistance")) {
                     return (List.of("2","3","4","5","6","7","8"));
                 }
+
+            }
+
+            if (args[0].equals("sudo")) {
+                return (List.of(""));
             }
 
             return null;
@@ -946,6 +961,52 @@ public class main extends JavaPlugin {
                 return true;
             }
 
+            //是否sudo
+            if (args[0].equals("sudo")){
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.sudo")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.sudo权限");
+                    return false;
+                };
+
+                //判读参数个数
+                if (args.length <= 2) {
+                    sender.sendMessage("参数数量错误");
+                    return false;
+                };
+
+                //判断玩家是否有效
+                Player player = Bukkit.getPlayer(args[1]);
+                if (player == null){
+                    sender.sendMessage("无效玩家");
+                    return false;
+                }
+
+                //生成命令
+                int i;
+                StringBuilder sb = new StringBuilder();
+                for (i=2 ; i<args.length ; i = i + 1){
+                    sb.append(args[i]).append(" ");
+                }
+                String Goal = sb.toString();
+
+                if (Goal.startsWith("c:")){
+                    //聊天
+                    player.chat(Goal.substring(2));
+                    sender.sendMessage("成功让玩家 "+player.getName()+" 发送聊天信息: "+Goal.substring(2));
+                }else{
+                    //执行命令
+                    Bukkit.dispatchCommand(player,Goal);
+                    sender.sendMessage("成功让玩家 "+player.getName()+" 执行命令: "+Goal);
+                }
+
+                return true;
+            }
+
+
+
+
+
             //判断是否是全重载
             if (args[0].equals("plreload")){
 
@@ -1119,7 +1180,10 @@ public class main extends JavaPlugin {
                         return false;
                     };
 
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"sudo " +sender.getName()+ " c:"+CheRu.encrypt(args[2]));
+                    Player p = Bukkit.getPlayer(sender.getName());
+                    if(p != null) {
+                        p.chat(CheRu.encrypt(args[2]));
+                    }
                     return true;
                 }
 
