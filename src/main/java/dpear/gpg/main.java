@@ -810,6 +810,13 @@ public class main extends JavaPlugin {
                                     replace("%Password", PASSWORD_S));
                 };
 
+
+                //判断权限组提供插件是否为null
+                if (rsp == null){
+                    getLogger().info("Oh no!rsp is null!But we fix it:)");
+                    rsp = getServer().getServicesManager().getRegistration(Permission.class);
+                }
+
                 //修改权限组
                 if (config.getBoolean("Version." + PlayerVersion + ".AutoPermissionGroup.Vault" , false)){
                     String pgoal = config.getString("Version." + PlayerVersion + ".AutoPermissionGroup.Group" , "default");
