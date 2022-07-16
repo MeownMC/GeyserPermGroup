@@ -301,65 +301,86 @@ public class main extends JavaPlugin {
 
     public class EventListener implements Listener {
         @EventHandler
-        public void onPlayerJoin(PlayerJoinEvent Player) {
+        public void onPlayerJoin(PlayerJoinEvent e) {
 
-            if(!AuthMeApi.getInstance().isRegistered(Player.getPlayer().getName())){
+            if(!AuthMeApi.getInstance().isRegistered(e.getPlayer().getName())){
                 //只检查未注册玩家
-                if(!FloodgateApi.getInstance().isFloodgatePlayer(Player.getPlayer().getUniqueId())){
+                if(!FloodgateApi.getInstance().isFloodgatePlayer(e.getPlayer().getUniqueId())){
                     //跳过基岩版玩家
 
                     //添加到未通过测试玩家
-                    if (!UnCheckPlayers.contains(Player.getPlayer().getName())) {
-                        UnCheckPlayers.add(Player.getPlayer().getName());
+                    if (!UnCheckPlayers.contains(e.getPlayer().getName())) {
+                        UnCheckPlayers.add(e.getPlayer().getName());
                     }
 
                     //发送验证消息
-                    Player.getPlayer().sendMessage("");
-                    Player.getPlayer().sendMessage("");
+                    e.getPlayer().sendMessage("");
+                    e.getPlayer().sendMessage("");
                     ;
                     int t;
                     //不要点按钮(Red)
                     for (t = 0; t<new Random().nextInt(0,3);t = t + 1) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
                                 " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                Player.getPlayer().getName().hashCode()+
+                                e.getPlayer().getName().hashCode()+
                                 "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
                     }
 
                     //不要点按钮(Yellow)
                     for (t = 0; t<new Random().nextInt(0,2);t = t + 1) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
                                 " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                Player.getPlayer().getName().hashCode()+
+                                e.getPlayer().getName().hashCode()+
                                 "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
                     }
 
                     //要点的
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
                             " [{\"text\":\"> > > [点我完成真人验证] < < <\",\"color\":\"green\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                            Player.getPlayer().getName().hashCode() + Player.getPlayer().getUniqueId().hashCode() + Player.getPlayer().getUniqueId()+
+                            e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId()+
                             "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我完成验证<<\"}}]");
 
                     //不要点按钮(Yellow)
                     for (t = 0; t<new Random().nextInt(0,2);t = t + 1) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
                                 " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                Player.getPlayer().getName().hashCode()+
+                                e.getPlayer().getName().hashCode()+
                                 "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
                     }
 
                     //不要点按钮
                     for (t = 0; t<new Random().nextInt(0,3);t = t + 1) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+Player.getPlayer().getName()+
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
                                 " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                Player.getPlayer().getName().hashCode()+
+                                e.getPlayer().getName().hashCode()+
                                 "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
                     }
 
-                    Player.getPlayer().sendMessage("");
-                    Player.getPlayer().sendMessage("");
+                    e.getPlayer().sendMessage("");
+                    e.getPlayer().sendMessage("");
 
                 }
+            }
+
+            //获取版本
+            String version = Bukkit.getMinecraftVersion();
+
+            //设置视距
+            e.getPlayer().setViewDistance(
+                    getConfig().getInt("ViewDistance."+e.getPlayer().getWorld().getName(),e.getPlayer().getViewDistance())
+            );
+
+            //判断版本
+            if (Integer.parseInt(version.substring(2, 4)) >= 18) {
+                //设置模拟距离
+                e.getPlayer().setSimulationDistance(
+                        getConfig().getInt("SimulationDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getSimulationDistance())
+                );
+            } else {
+                //设置假视距
+                e.getPlayer().setNoTickViewDistance(
+                        getConfig().getInt("NoTickViewDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getNoTickViewDistance())
+                );
             }
 
             if (getConfig().getString("Command.OnPlayerJoin").equals("Null")) {
@@ -370,8 +391,8 @@ public class main extends JavaPlugin {
             ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
             Bukkit.dispatchCommand(console,
                     getConfig().getString("Command.OnPlayerJoin_Delay", "checkplayerbe %Password").
-                            replace("%PlayerName", Player.getPlayer().getName()).
-                            replace("%PlayerUUID", Player.getPlayer().getUniqueId().toString()));
+                            replace("%PlayerName", e.getPlayer().getName()).
+                            replace("%PlayerUUID", e.getPlayer().getUniqueId().toString()));
 
         }
 
@@ -535,7 +556,7 @@ public class main extends JavaPlugin {
 
             }
         }
-        
+
     }
 
     public class TabHandler implements TabCompleter {
