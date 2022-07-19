@@ -8,18 +8,12 @@ import com.viaversion.viaversion.api.Via;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
@@ -37,7 +31,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -85,6 +78,8 @@ public class main extends JavaPlugin {
 
     public ArrayList<UUID> CustomBossesUUID = new ArrayList(List.of());
     public ArrayList<String> CustomBossesName = new ArrayList<String>(List.of());
+
+    ArrayList<Command> RegisterAlertCommands = new ArrayList<Command>();
 
     @Override
     public void onEnable() {
@@ -362,27 +357,6 @@ public class main extends JavaPlugin {
                 }
             }
 
-            //获取版本
-            String version = Bukkit.getMinecraftVersion();
-
-            //设置视距
-            e.getPlayer().setViewDistance(
-                    getConfig().getInt("ViewDistance."+e.getPlayer().getWorld().getName(),e.getPlayer().getViewDistance())
-            );
-
-            //判断版本
-            if (Integer.parseInt(version.substring(2, 4)) >= 18) {
-                //设置模拟距离
-                e.getPlayer().setSimulationDistance(
-                        getConfig().getInt("SimulationDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getSimulationDistance())
-                );
-            } else {
-                //设置假视距
-                e.getPlayer().setNoTickViewDistance(
-                        getConfig().getInt("NoTickViewDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getNoTickViewDistance())
-                );
-            }
-
             if (getConfig().getString("Command.OnPlayerJoin").equals("Null")) {
                 return;
             }
@@ -390,9 +364,10 @@ public class main extends JavaPlugin {
 
             ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
             Bukkit.dispatchCommand(console,
-                    getConfig().getString("Command.OnPlayerJoin_Delay", "checkplayerbe %Password").
+                    getConfig().getString("Command.OnPlayerJoin", "checkplayerbe %PlayerName").
                             replace("%PlayerName", e.getPlayer().getName()).
                             replace("%PlayerUUID", e.getPlayer().getUniqueId().toString()));
+
 
         }
 
@@ -715,6 +690,27 @@ public class main extends JavaPlugin {
             }
 
             Player P = Bukkit.getPlayer(args[0]);
+
+            //获取版本
+            String version = Bukkit.getMinecraftVersion();
+
+            //设置视距
+            P.setViewDistance(
+                    getConfig().getInt("ViewDistance."+P.getWorld().getName(),P.getViewDistance())
+            );
+
+            //判断版本
+            if (Integer.parseInt(version.substring(2, 4)) >= 18) {
+                //设置模拟距离
+                P.setSimulationDistance(
+                        getConfig().getInt("SimulationDistance." + P.getWorld().getName(), P.getSimulationDistance())
+                );
+            } else {
+                //设置假视距
+                P.setNoTickViewDistance(
+                        getConfig().getInt("NoTickViewDistance." + P.getWorld().getName(), P.getNoTickViewDistance())
+                );
+            }
 
             //判断玩家对象是否有效
             if (P == null){return false;};
@@ -1472,7 +1468,7 @@ public class main extends JavaPlugin {
 
         //hard
         getLogger().info("载入指令转接[Hard]");
-        ArrayList Commands_PerAdd = new ArrayList();
+        ArrayList Commands_PerAdd = new ArrayList<Command>();
         HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
 
         for (String s : HardCommandAlert) {
@@ -1486,6 +1482,7 @@ public class main extends JavaPlugin {
                 public List<String> tabComplete(CommandSender sender, String alias, String[] args){
                     return (CommandAlertTabHandler(sender, alias, args));
                 }
+
             };
 
             //将Command实例添加到列表
@@ -1500,6 +1497,8 @@ public class main extends JavaPlugin {
             CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
             cm.registerAll("GeyserPermGroup", Commands_PerAdd);
+
+            RegisterAlertCommands = Commands_PerAdd;
 
             getLogger().info("已注册" + HardCommandAlert.size() + "个命令转接[Hard]");
         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -1535,9 +1534,9 @@ public class main extends JavaPlugin {
             bukkitCommandMap.setAccessible(true);
             CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
-            for (String s : HardCommandAlert) {
+            for (Command c : RegisterAlertCommands) {
                 //检索command
-                cm.getCommand(s).unregister(cm);
+                c.unregister(cm);
             }
 
             getLogger().info("卸载转接指令成功");
@@ -1556,7 +1555,7 @@ public class main extends JavaPlugin {
         String CommandPath = GetCommandAlertPath(s,strings,commandSender);
 
         //获得玩家实例
-        Player p = (Player)commandSender;
+        Player p = Bukkit.getPlayer(commandSender.getName());
 
         //去点
         String CommandPathWithoutDot = CommandPath.substring(0,CommandPath.length()-1);
