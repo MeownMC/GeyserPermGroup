@@ -268,8 +268,8 @@ public class main extends JavaPlugin {
             Bukkit.getPluginCommand("bemenu").setExecutor(new Commander_M());
             getLogger().info("注册指令/bemenu成功");
         }
-        Objects.requireNonNull(Bukkit.getPluginCommand("bemenu")).setTabCompleter(new TabHandler());
-        getLogger().info("注册指令/bemenu补全器完成");
+        //Objects.requireNonNull(Bukkit.getPluginCommand("bemenu")).setTabCompleter(new TabHandler());
+        //getLogger().info("注册指令/bemenu补全器完成");
 
         //加载命令补全
         LoadCommandAlert();
@@ -480,56 +480,6 @@ public class main extends JavaPlugin {
                 e.getPlayer().sendMessage("已将您的消息转换为切噜语");
             }
 
-        }
-
-        @EventHandler
-        public void onEliteMobSpawn(EliteMobSpawnEvent e){
-
-            //检查是不是指定的精英怪
-            for (String NowCheck:CustomBossesList) {
-                if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
-
-                    //检查是否已经存在
-                    if(!CustomBossesUUID.contains(e.getEliteMobEntity().getEliteUUID())) {
-                        //不存在
-                        CustomBossesUUID.add(e.getEliteMobEntity().getEliteUUID());
-                        CustomBossesName.add(e.getEliteMobEntity().getName());
-                        getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " spawn!Add to list");
-                        return;
-                    }
-
-                }
-
-            }
-
-        }
-
-        @EventHandler
-        public void onEliteMobDeath(EliteMobDeathEvent e){
-
-            //检查是不是指定的精英怪
-            for (String NowCheck:CustomBossesList) {
-                if(e.getEliteEntity().getName().endsWith(NowCheck)){
-                    CustomBossesUUID.remove(e.getEliteEntity().getEliteUUID());
-                    CustomBossesName.remove(e.getEliteEntity().getName());
-                    getLogger().info("EliteMob:" + e.getEliteEntity().getEliteUUID() + " death!Remove from list");
-                }
-
-            }
-        }
-
-        @EventHandler
-        public void onEliteMobRemove(EliteMobRemoveEvent e){
-
-            //检查是不是指定的精英怪
-            for (String NowCheck:CustomBossesList) {
-                if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
-                    CustomBossesUUID.remove(e.getEliteMobEntity().getEliteUUID());
-                    CustomBossesName.remove(e.getEliteMobEntity().getName());
-                    getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " removed!Remove from list");
-                }
-
-            }
         }
 
     }
