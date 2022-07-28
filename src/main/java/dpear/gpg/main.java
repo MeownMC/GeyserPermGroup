@@ -274,6 +274,7 @@ public class main extends JavaPlugin {
         getLogger().info("注册指令/bemenu补全器完成");
 
         if (getConfig().getBoolean("EnableIPRegion",false)) {
+
             ipsearch = new IPsearch();
         }
 
@@ -295,6 +296,7 @@ public class main extends JavaPlugin {
     @Override
     public void onDisable(){
 
+        getLogger().info("关闭ip搜索器");
         ipsearch.close();
 
         getLogger().info("注销插件命令");
@@ -1692,7 +1694,13 @@ public class main extends JavaPlugin {
     public List<String> CommandAlertTabHandler(CommandSender sender, String s, String[] args) {
         try {
 
-            List<String> TabResults = getConfig().getStringList(GetCommandAlertPath(s,args,sender) + "Tab");
+            //保存最后一项
+            String LAST = args[args.length-1];
+            //去除最后一项
+            args[args.length-1] = "";
+
+            List<String> TabResults = KeepStartWith (LAST ,getConfig().getStringList(GetCommandAlertPath(s,args,sender) + "Tab"));
+
             if (TabResults.size() == 0) {
                 //如果没写对应配置的话
                 return null;
@@ -2101,7 +2109,10 @@ public class main extends JavaPlugin {
         //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
         if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.Arg", false)) {
             for (String c : strings) {
-                sb.append(c).append(".");
+                //让参数不为空再添加
+                if (!c.equals("")) {
+                    sb.append(c).append(".");
+                }
             }
         }
         return sb.toString();

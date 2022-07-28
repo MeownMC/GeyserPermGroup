@@ -19,6 +19,8 @@ public class IPsearch {
             cBuff = Searcher.loadContentFromFile(dbPath);
         } catch (Exception e) {
             getLogger().warning("无法加载ip数据库,功能不可用!");
+            getLogger().warning("请确保数据库存在并且完整");
+            getLogger().warning("错误信息:");
             e.printStackTrace();
             return;
         }
