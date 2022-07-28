@@ -8,7 +8,7 @@ import static org.bukkit.Bukkit.getLogger;
 
 public class IPsearch {
 
-    static String dbPath = "/plugins/GeyserPermGroup/ip2region.xdb"; //数据库路径
+    static String dbPath = "plugins/GeyserPermGroup/ip2region.xdb"; //数据库路径
     static byte[] cBuff; //缓存文件
     static Searcher searcher; //查询对象
 

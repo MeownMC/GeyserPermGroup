@@ -558,28 +558,28 @@ public class main extends JavaPlugin {
                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
                             Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
                 }
-                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo","ipr"));
+                return (KeepStartWith (args[0] , List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo","ipr")));
             }
 
             if (args.length == 2){
                 if (args[0].equals("piano")) {
-                    return (List.of("bass","snare","hat","basedrum","bell","flute","chime","guitar","xylophone","iron_xylophone", "cow_bell","didgeridoo","bit","banjo","pling","harp"));
+                    return (KeepStartWith (args[1] , List.of("bass","snare","hat","basedrum","bell","flute","chime","guitar","xylophone","iron_xylophone", "cow_bell","didgeridoo","bit","banjo","pling","harp")));
                 }
 
                 if (args[0].equals("SetDistance")) {
-                    return (List.of("NoTickViewDistance","ViewDistance","SimulationDistance"));
+                    return (KeepStartWith (args[1] , List.of("NoTickViewDistance","ViewDistance","SimulationDistance")));
                 }
 
                 if (args[0].equals("GetDistance")) {
-                    return (List.of("NoTickViewDistance","ViewDistance","SimulationDistance"));
+                    return (KeepStartWith (args[1] , List.of("NoTickViewDistance","ViewDistance","SimulationDistance")));
                 }
 
                 if (args[0].equals("light")) {
-                    return (List.of("clear","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"));
+                    return (KeepStartWith (args[1] , List.of("clear","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15")));
                 }
 
                 if (args[0].equals("cheru")) {
-                    return (List.of("encrypt","decrypt","send"));
+                    return (KeepStartWith (args[1] , List.of("encrypt","decrypt","send")));
                 }
 
                 if (args[0].equals("sudo")) {
@@ -670,7 +670,7 @@ public class main extends JavaPlugin {
 
             if (args.length == 4){
                 if (args[0].equals("SetDistance")) {
-                    return (List.of("2","3","4","5","6","7","8"));
+                    return (KeepStartWith (args[3] ,List.of("2","3","4","5","6","7","8","9","10","11","12")));
                 }
 
             }
@@ -1996,7 +1996,7 @@ public class main extends JavaPlugin {
         return (float) Math.pow(2,(float)(Note-12)/12);
     };
 
-    public List GetStringPlayerList(String head){
+    public List<String> GetStringPlayerList(String head){
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
         ArrayList<String> players_string = new ArrayList<>();
 
@@ -2105,6 +2105,17 @@ public class main extends JavaPlugin {
             }
         }
         return sb.toString();
+    }
+
+    public List<String> KeepStartWith(String head,List<String> Strings){
+        ArrayList<String> Wreturned = new ArrayList<>();
+        for (String CheckNow:Strings) {
+            if(CheckNow.startsWith(head)){
+                //匹配
+                Wreturned.add(CheckNow);
+            }
+        }
+        return Wreturned;
     }
 
 
