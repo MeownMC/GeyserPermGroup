@@ -81,6 +81,8 @@ public class main extends JavaPlugin {
 
     ArrayList<Command> RegisterAlertCommands = new ArrayList<Command>();
 
+    public IPsearch ipsearch;
+
     @Override
     public void onEnable() {
         getLogger().info("正在进行预加载");
@@ -271,6 +273,10 @@ public class main extends JavaPlugin {
         Objects.requireNonNull(Bukkit.getPluginCommand("bemenu")).setTabCompleter(new TabHandler());
         getLogger().info("注册指令/bemenu补全器完成");
 
+        if (getConfig().getBoolean("EnableIPRegion",false)) {
+            ipsearch = new IPsearch();
+        }
+
         //加载命令补全
         LoadCommandAlert();
         //LoadCommandAlertTabComplete();
@@ -288,6 +294,8 @@ public class main extends JavaPlugin {
 
     @Override
     public void onDisable(){
+
+        ipsearch.close();
 
         getLogger().info("注销插件命令");
         UnloadCommandAlert();
@@ -550,7 +558,7 @@ public class main extends JavaPlugin {
                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
                             Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
                 }
-                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo"));
+                return (List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo","ipr"));
             }
 
             if (args.length == 2){
@@ -984,6 +992,45 @@ public class main extends JavaPlugin {
                 sender.sendMessage("这是给你弹的，不是命令awa");
                 return true;
             }
+
+            //是否查询归属地
+            if (args[0].equals("ipr")){
+
+                //是否启用
+                if (!getConfig().getBoolean("EnableIPRegion",false)) {
+                    sender.sendMessage("该功能未启用");
+                    return false;
+                }
+
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.ipr")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.ipr权限");
+                    return false;
+                };
+
+                //判读参数个数
+                if (args.length != 2) {
+                    sender.sendMessage("参数数量错误");
+                    return false;
+                };
+
+                Player player = Bukkit.getPlayer(args[1]);
+                if(player == null){
+                    //ip地址
+                    try {
+                        sender.sendMessage("ip: " + args[1] + "的归属地是 " + ipsearch.search(args[1]));
+                        return true;
+                    }catch (Exception e){
+                        sender.sendMessage("无效参数或发生了异常");
+                        return false;
+                    }
+                }else{
+                    //玩家ip归属地
+                    sender.sendMessage("玩家: " + player.getName() + "的归属地是 " + ipsearch.search(player.getAddress().getAddress().getHostAddress()));
+                    return true;
+                }
+            }
+
 
             //是否sudo
             if (args[0].equals("sudo")){

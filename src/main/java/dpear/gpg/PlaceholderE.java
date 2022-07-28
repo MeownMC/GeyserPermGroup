@@ -10,8 +10,9 @@ import dpear.gpg.main;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
-import static org.apache.logging.log4j.LogManager.getLogger;
+import static org.bukkit.Bukkit.getLogger;
 
 public class PlaceholderE extends PlaceholderExpansion{
 
@@ -88,6 +89,97 @@ public class PlaceholderE extends PlaceholderExpansion{
             }
         }
 
+        if (params.startsWith("ipr")){
+            //是否启用
+            if (!plugin.getConfig().getBoolean("EnableIPRegion",false)) {
+                return null;
+            }
+        }
+
+        if(params.equalsIgnoreCase("ipr")) {
+            try{
+                return (plugin.ipsearch.search(player.getPlayer().getAddress().getAddress().getHostAddress()));
+            }catch (Exception e){
+                getLogger().info("查询ip失败");
+                e.printStackTrace();
+                return "";
+            }
+        }
+
+        if(params.equalsIgnoreCase("ipr_0")) {
+            try{
+                String re = plugin.ipsearch.search(player.getPlayer().getAddress().getAddress().getHostAddress()).split("\\|")[0];
+                if (re.equals("0")) {
+                    return ("");
+                }else {
+                    return (re);
+                }
+            }catch (Exception e){
+                getLogger().info("查询ip失败");
+                e.printStackTrace();
+                return "";
+            }
+        }
+
+        if(params.equalsIgnoreCase("ipr_1")) {
+            try{
+                String re = plugin.ipsearch.search(player.getPlayer().getAddress().getAddress().getHostAddress()).split("\\|")[1];
+                if (re.equals("0")) {
+                    return ("");
+                }else {
+                    return (re);
+                }
+            }catch (Exception e){
+                getLogger().info("查询ip失败");
+                e.printStackTrace();
+                return "";
+            }
+        }
+
+        if(params.equalsIgnoreCase("ipr_2")) {
+            try{
+                String re = plugin.ipsearch.search(player.getPlayer().getAddress().getAddress().getHostAddress()).split("\\|")[2];
+                if (re.equals("0")) {
+                    return ("");
+                }else {
+                    return (re);
+                }
+            }catch (Exception e){
+                getLogger().info("查询ip失败");
+                e.printStackTrace();
+                return "";
+            }
+        }
+
+        if(params.equalsIgnoreCase("ipr_3")) {
+            try{
+                String re = plugin.ipsearch.search(player.getPlayer().getAddress().getAddress().getHostAddress()).split("\\|")[3];
+                if (re.equals("0")) {
+                    return ("");
+                }else {
+                    return (re);
+                }
+            }catch (Exception e){
+                getLogger().info("查询ip失败");
+                e.printStackTrace();
+                return "";
+            }
+        }
+
+        if(params.equalsIgnoreCase("ipr_4")) {
+            try{
+                String re = plugin.ipsearch.search(player.getPlayer().getAddress().getAddress().getHostAddress()).split("\\|")[4];
+                if (re.equals("0")) {
+                    return ("");
+                }else {
+                    return (re);
+                }
+            }catch (Exception e){
+                getLogger().info("查询ip失败");
+                e.printStackTrace();
+                return "";
+            }
+        }
 
         return null; // 未知变量
     }
