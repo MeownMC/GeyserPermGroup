@@ -701,6 +701,11 @@ public class main extends JavaPlugin {
 
             Player P = Bukkit.getPlayer(args[0]);
 
+            //判断玩家对象是否有效
+            if (P == null){return false;};
+
+            getLogger().info("玩家 " + P.getUniqueId() + " 加入");
+
             //获取版本
             String version = Bukkit.getMinecraftVersion();
 
@@ -722,11 +727,6 @@ public class main extends JavaPlugin {
                 );
             }
 
-            //判断玩家对象是否有效
-            if (P == null){return false;};
-
-            getLogger().info("玩家 " + P.getUniqueId() + " 加入");
-
             //拉取配置文件等
             String PlayerVersion = GetVersion(P);
             FileConfiguration config = getConfig();
@@ -740,7 +740,14 @@ public class main extends JavaPlugin {
                     return true;
                 }
             }
-                ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+
+            //检测是否Link
+            if (!config.getString("Version." + PlayerVersion + ".Link","").equals("")){
+                PlayerVersion = config.getString("Version." + PlayerVersion + ".Link","");
+                getLogger().info("版本连接至 " + PlayerVersion);
+            }
+
+            ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 
             //计算密码
                 int PASSWD = P.getUniqueId().hashCode();
@@ -2030,6 +2037,17 @@ public class main extends JavaPlugin {
         StringBuilder sb = new StringBuilder();
         sb.append("CommandAlert.CommandList.").append(Command).append(".");
 
+        //判断有没有Link
+        String Link = getConfig().getString(sb + "Link","");
+        if (!Link.equals("")){
+            sb.delete(0,sb.length() - 1);
+
+            //这样应该没问题
+            Command = Link;
+            sb.append("CommandAlert.CommandList.").append(Command).append(".");
+
+        }
+
         //获得玩家实例
         Player p = Bukkit.getPlayer(commandSender.getName());
         //确定是玩家支持
@@ -2047,7 +2065,6 @@ public class main extends JavaPlugin {
                     sb.append("Other.");
                 }
 
-
             }
 
             //权限组
@@ -2055,7 +2072,6 @@ public class main extends JavaPlugin {
 
                 //这边可能NullPointer
                 try {
-
 
                     //只获取第一权限组
                     String permissiongroup = getServer().getServicesManager().getRegistration(Permission.class).getProvider().getPlayerGroups(p)[0];
