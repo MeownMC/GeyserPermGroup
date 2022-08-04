@@ -1,6 +1,5 @@
 package dpear.gpg;
 
-import com.magmaguy.elitemobs.EliteMobs;
 import com.magmaguy.elitemobs.api.EliteMobDeathEvent;
 import com.magmaguy.elitemobs.api.EliteMobRemoveEvent;
 import com.magmaguy.elitemobs.api.EliteMobSpawnEvent;
@@ -41,7 +40,7 @@ public class main extends JavaPlugin {
 
     //全局变量
     public static Boolean PassCheck = false;
-    public static String PluginVersion = "2.1";
+    public static String PluginVersion = "2.2";
     public static String Developer = "MownSoft666";
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
     List <String>HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
