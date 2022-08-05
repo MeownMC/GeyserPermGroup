@@ -1,5 +1,6 @@
 package dpear.gpg;
 
+import com.gmail.olexorus.themis.T;
 import com.magmaguy.elitemobs.api.EliteMobDeathEvent;
 import com.magmaguy.elitemobs.api.EliteMobRemoveEvent;
 import com.magmaguy.elitemobs.api.EliteMobSpawnEvent;
@@ -16,16 +17,11 @@ import org.bukkit.event.player.*;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
-import org.geysermc.cumulus.ModalForm;
-import org.geysermc.cumulus.SimpleForm;
-import org.geysermc.cumulus.response.ModalFormResponse;
-import org.geysermc.cumulus.response.SimpleFormResponse;
-import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.tools.Tool;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 
+import static org.bukkit.Bukkit.getLogger;
+
 
 public class main extends JavaPlugin {
 
@@ -43,8 +41,6 @@ public class main extends JavaPlugin {
     public static String PluginVersion = "2.2";
     public static String Developer = "MownSoft666";
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-    List <String>HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
-    List <String>SoftCommandAlert = getConfig().getStringList("CommandAlert.Soft");
     double[] Music = {0.890899,
             0.890899,0.890899,0.943874,1.059463, //3345
             1.059463,0.943874,0.890899,0.793701, //5432
@@ -56,8 +52,6 @@ public class main extends JavaPlugin {
             0.793701,0.707107,0.707107 //211
     };
 
-    public LocalServer localServer;
-
     ArrayList <String>SoundPad = new ArrayList<>(
             List.of("q", "a", "w", "s", "e", "d", "f", "t", "g", "y", "h", "j", "i", "k", "o", "l", "p", ";", "'", "]",
                     "z", "x", "c", "n", "m")
@@ -68,19 +62,26 @@ public class main extends JavaPlugin {
                     "Z", "X", "C", "N", "M")
     );
 
-    PlaceholderE PAPIE = new  PlaceholderE(this);
+    PlaceholderExtension PAPIE = new PlaceholderExtension(this);
 
     public ArrayList<String> UnCheckPlayers = new ArrayList<String>(List.of("notch"));
 
-    //精英怪
-    ArrayList<String> CustomBossesList = (ArrayList<String>) getConfig().getStringList("EliteMobs.CustomBossesList");
-
-    public ArrayList<UUID> CustomBossesUUID = new ArrayList(List.of());
-    public ArrayList<String> CustomBossesName = new ArrayList<String>(List.of());
-
-    ArrayList<Command> RegisterAlertCommands = new ArrayList<Command>();
-
+    //ip搜索
     public IPsearch ipsearch;
+
+    //工具类
+    public Tools tools = new Tools(this,getConfig());
+
+    //精英怪
+    public ElitemobsHandler elitemobs = null;
+    public boolean isElitemobsHandlerEnabled = false;
+
+    //基岩版菜单
+    public BedrockMenu bedrockMenu = null;
+
+    //命令转接
+    public CommandAlert commandAlert = null;
+    public boolean isCommandAlertEnabled = false;
 
     @Override
     public void onEnable() {
@@ -277,8 +278,8 @@ public class main extends JavaPlugin {
             ipsearch = new IPsearch();
         }
 
-        //加载命令补全
-        LoadCommandAlert();
+        //加载类
+        loadExClass();
         //LoadCommandAlertTabComplete();
 
         if (!PassCheck){
@@ -297,10 +298,6 @@ public class main extends JavaPlugin {
 
         getLogger().info("关闭ip搜索器");
         ipsearch.close();
-
-        getLogger().info("注销插件命令");
-        UnloadCommandAlert();
-        getLogger().info("注销插件命令成功");
     }
 
     public class EventListener implements Listener {
@@ -405,43 +402,17 @@ public class main extends JavaPlugin {
                 return;
             }
 
-            //是否被其他插件取消
-            if (e.isCancelled()) {
-                return;
-            }
-            ;
+            //未被取消
+            if (!e.isCancelled()){
 
-            //解析命令
-            String Command = e.getMessage().split(" ")[0].substring(1);
+                //启用功能
+                if (isCommandAlertEnabled){
 
-            Integer index = SoftCommandAlert.indexOf(Command);
-            if (index == -1) {
-                //不匹配的话
-                return;
-            }
-            ;
-
-            //取消事件
-            e.setCancelled(true);
-
-            if(!e.getMessage().substring(1).equals(Command)) {
-                //有参数的话
-                String[] FullCMD = e.getMessage().substring(Command.length() + 2).split(" ");
-
-                //执行
-                CommandAlertExecutor(e.getPlayer(), Command,FullCMD);
-            }else {
-                //没参数的话
-                String[] FullCMD = {};
-
-                //执行
-                CommandAlertExecutor(e.getPlayer(), Command,FullCMD);
+                    //调用
+                    commandAlert.onPlayerCommand(e.getPlayer(),e.getMessage());
+                }
             }
 
-
-
-
-            return;
         }
 
         @EventHandler
@@ -454,7 +425,7 @@ public class main extends JavaPlugin {
             );
 
             //判断版本
-            if (Integer.parseInt(version.substring(2, 4)) >= 18) {
+            if (tools.isHighVersion) {
                 //设置模拟距离
                 e.getPlayer().setSimulationDistance(
                         getConfig().getInt("SimulationDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getSimulationDistance())
@@ -480,65 +451,15 @@ public class main extends JavaPlugin {
             if (e.getMessage().startsWith("切噜～♪切")){
                 try {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rainbowbc 玩家" + e.getPlayer().getName() + "发送了一条切噜语消息，已自动翻译:"
-                            + CheRu.decrypt(e.getMessage()));
+                            + Cheru.decrypt(e.getMessage()));
                 }catch (Exception ignored){}//不会翻译能不能别翻译[doge]
             }
 
             if (e.getMessage().startsWith("ToCheRu")){
-                e.setMessage(CheRu.encrypt(e.getMessage().substring(7)));
+                e.setMessage(Cheru.encrypt(e.getMessage().substring(7)));
                 e.getPlayer().sendMessage("已将您的消息转换为切噜语");
             }
 
-        }
-
-        @EventHandler
-        public void onEliteMobSpawn(EliteMobSpawnEvent e){
-
-            //检查是不是指定的精英怪
-            for (String NowCheck:CustomBossesList) {
-                if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
-
-                    //检查是否已经存在
-                    if(!CustomBossesUUID.contains(e.getEliteMobEntity().getEliteUUID())) {
-                        //不存在
-                        CustomBossesUUID.add(e.getEliteMobEntity().getEliteUUID());
-                        CustomBossesName.add(e.getEliteMobEntity().getName());
-                        getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " spawn!Add to list");
-                        return;
-                    }
-
-                }
-
-            }
-
-        }
-
-        @EventHandler
-        public void onEliteMobDeath(EliteMobDeathEvent e){
-
-            //检查是不是指定的精英怪
-            for (String NowCheck:CustomBossesList) {
-                if(e.getEliteEntity().getName().endsWith(NowCheck)){
-                    CustomBossesUUID.remove(e.getEliteEntity().getEliteUUID());
-                    CustomBossesName.remove(e.getEliteEntity().getName());
-                    getLogger().info("EliteMob:" + e.getEliteEntity().getEliteUUID() + " death!Remove from list");
-                }
-
-            }
-        }
-
-        @EventHandler
-        public void onEliteMobRemove(EliteMobRemoveEvent e){
-
-            //检查是不是指定的精英怪
-            for (String NowCheck:CustomBossesList) {
-                if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
-                    CustomBossesUUID.remove(e.getEliteMobEntity().getEliteUUID());
-                    CustomBossesName.remove(e.getEliteMobEntity().getName());
-                    getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " removed!Remove from list");
-                }
-
-            }
         }
 
     }
@@ -559,28 +480,28 @@ public class main extends JavaPlugin {
                     ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
                             Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
                 }
-                return (KeepStartWith (args[0] , List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo","ipr")));
+                return (Tools.KeepStartWith (args[0] , List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo","ipr")));
             }
 
             if (args.length == 2){
                 if (args[0].equals("piano")) {
-                    return (KeepStartWith (args[1] , List.of("bass","snare","hat","basedrum","bell","flute","chime","guitar","xylophone","iron_xylophone", "cow_bell","didgeridoo","bit","banjo","pling","harp")));
+                    return (Tools.KeepStartWith (args[1] , List.of("bass","snare","hat","basedrum","bell","flute","chime","guitar","xylophone","iron_xylophone", "cow_bell","didgeridoo","bit","banjo","pling","harp")));
                 }
 
                 if (args[0].equals("SetDistance")) {
-                    return (KeepStartWith (args[1] , List.of("NoTickViewDistance","ViewDistance","SimulationDistance")));
+                    return (Tools.KeepStartWith (args[1] , List.of("NoTickViewDistance","ViewDistance","SimulationDistance")));
                 }
 
                 if (args[0].equals("GetDistance")) {
-                    return (KeepStartWith (args[1] , List.of("NoTickViewDistance","ViewDistance","SimulationDistance")));
+                    return (Tools.KeepStartWith (args[1] , List.of("NoTickViewDistance","ViewDistance","SimulationDistance")));
                 }
 
                 if (args[0].equals("light")) {
-                    return (KeepStartWith (args[1] , List.of("clear","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15")));
+                    return (Tools.KeepStartWith (args[1] , List.of("clear","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15")));
                 }
 
                 if (args[0].equals("cheru")) {
-                    return (KeepStartWith (args[1] , List.of("encrypt","decrypt","send")));
+                    return (Tools.KeepStartWith (args[1] , List.of("encrypt","decrypt","send")));
                 }
 
                 if (args[0].equals("sudo")) {
@@ -609,7 +530,7 @@ public class main extends JavaPlugin {
                             }else {
                                 //高音
                                 player.playSound(((Player) sender).getPlayer().getLocation(),
-                                        "block.note_block."+args[1]+"_1", 1F, GetNote(NoteNumber));
+                                        "block.note_block."+args[1]+"_1", 1F, Tools.GetNote(NoteNumber));
                                 if (player.isOp()) {
                                     if(player.getLevel() == 14514) {
                                         Bukkit.dispatchCommand(player, "summon minecraft:falling_block ~ ~-2 ~1 {BlockState:{Name:\""+BlockName+"\"},Tags:[\"nbs\",\"nbs_1\"],Glowing:1,Time:-120,DropItem:0,Motion:["
@@ -624,7 +545,7 @@ public class main extends JavaPlugin {
                                 if (args[2].charAt(args[2].length() - 2) == '/') {
                                     //低音
                                     player.playSound(player.getLocation(),
-                                            "block.note_block."+args[1]+"_-1", 1F, GetNote(NoteNumber));
+                                            "block.note_block."+args[1]+"_-1", 1F, Tools.GetNote(NoteNumber));
                                     if (player.isOp()) {
                                         if(player.getLevel() == 14514) {
                                             Bukkit.dispatchCommand(player, "summon minecraft:falling_block ~ ~-2 ~1 {BlockState:{Name:\""+BlockName+"\"},Tags:[\"nbs\",\"nbs_1\"],Glowing:1,Time:-120,DropItem:0,Motion:["
@@ -635,7 +556,7 @@ public class main extends JavaPlugin {
                                 } else {
                                     //中音
                                     player.playSound(player.getLocation(),
-                                            "block.note_block."+args[1], 1F, GetNote(NoteNumber));
+                                            "block.note_block."+args[1], 1F, Tools.GetNote(NoteNumber));
                                     if (player.isOp()) {
                                         if(player.getLevel() == 14514) {
                                             Bukkit.dispatchCommand(player, "summon minecraft:falling_block ~ ~-2 ~1 {BlockState:{Name:\""+BlockName+"\"},Tags:[\"nbs\",\"nbs_1\"],Glowing:1,Time:-120,DropItem:0,Motion:["
@@ -648,7 +569,7 @@ public class main extends JavaPlugin {
                             }else {
                                 //中音
                                 player.playSound(player.getLocation(),
-                                        "block.note_block."+args[1], 1F, GetNote(NoteNumber));
+                                        "block.note_block."+args[1], 1F, Tools.GetNote(NoteNumber));
                                 if (player.isOp()) {
                                     if(player.getLevel() == 14514) {
                                         Bukkit.dispatchCommand(player, "summon minecraft:falling_block ~ ~-2 ~1 {BlockState:{Name:\""+BlockName+"\"},Tags:[\"nbs\",\"nbs_1\"],Glowing:1,Time:-120,DropItem:0,Motion:["
@@ -671,7 +592,7 @@ public class main extends JavaPlugin {
 
             if (args.length == 4){
                 if (args[0].equals("SetDistance")) {
-                    return (KeepStartWith (args[3] ,List.of("2","3","4","5","6","7","8","9","10","11","12")));
+                    return (Tools.KeepStartWith (args[3] ,List.of("2","3","4","5","6","7","8","9","10","11","12")));
                 }
 
             }
@@ -714,7 +635,7 @@ public class main extends JavaPlugin {
             );
 
             //判断版本
-            if (Integer.parseInt(version.substring(2, 4)) >= 18) {
+            if (tools.isHighVersion) {
                 //设置模拟距离
                 P.setSimulationDistance(
                         getConfig().getInt("SimulationDistance." + P.getWorld().getName(), P.getSimulationDistance())
@@ -727,7 +648,7 @@ public class main extends JavaPlugin {
             }
 
             //拉取配置文件等
-            String PlayerVersion = GetVersion(P);
+            String PlayerVersion = tools.GetVersion(P);
             FileConfiguration config = getConfig();
 
             getLogger().info("玩家 " + P.getName() + " 版本为 " + PlayerVersion);
@@ -961,6 +882,8 @@ public class main extends JavaPlugin {
                     getLogger().warning("这可能导致意料之外的异常");
                 };
 
+                loadExClass();
+
 //                //载入指令转接补全
 //                getLogger().info("载入指令转接补全");
 //                if (getCommand("PearAliases") == null){
@@ -978,17 +901,14 @@ public class main extends JavaPlugin {
 //                }
 
                 //卸载命令补全
-                UnloadCommandAlert();
+                commandAlert.UnloadCommandAlert();
 
                 //加载命令补全
-                LoadCommandAlert();
+                commandAlert.LoadCommandAlert();
                 //LoadCommandAlertTabComplete();
 
                 getLogger().info("加载RealisticSeasons变量修复世界");
                 PAPIE.EnableSeasonWorlds = getConfig().getStringList("RealisticSeasonsPAPIFix.EnabledWorld");
-
-                getLogger().info("加载基岩版EliteMobs追踪支持");
-                CustomBossesList = (ArrayList<String>) getConfig().getStringList("EliteMobs.CustomBossesList");
 
                 sender.sendMessage("重载完毕");
                 getLogger().info("重载完毕");
@@ -1231,7 +1151,7 @@ public class main extends JavaPlugin {
                         return false;
                     };
 
-                    sender.sendMessage(CheRu.encrypt(args[2]));
+                    sender.sendMessage(Cheru.encrypt(args[2]));
                     return true;
                 }
 
@@ -1243,7 +1163,7 @@ public class main extends JavaPlugin {
                     };
 
                     try {
-                        sender.sendMessage(CheRu.decrypt(args[2]));
+                        sender.sendMessage(Cheru.decrypt(args[2]));
                     }catch (Exception e){
                         sender.sendMessage("切噜~翻译失败了");
                         getLogger().info("切噜翻译时出现异常:");
@@ -1261,7 +1181,7 @@ public class main extends JavaPlugin {
 
                     Player p = Bukkit.getPlayer(sender.getName());
                     if(p != null) {
-                        p.chat(CheRu.encrypt(args[2]));
+                        p.chat(Cheru.encrypt(args[2]));
                     }
                     return true;
                 }
@@ -1281,8 +1201,8 @@ public class main extends JavaPlugin {
                 }
                 ;
 
-                CustomBossesUUID = new ArrayList(List.of());
-                CustomBossesName = new ArrayList<String>(List.of());
+                elitemobs.CustomBossesUUID = new ArrayList(List.of());
+                elitemobs.CustomBossesName = new ArrayList<String>(List.of());
                 sender.sendMessage("清除成功");
                 return true;
             }
@@ -1352,7 +1272,7 @@ public class main extends JavaPlugin {
                 for(int i=0 ; i<PlayerList.size() ; i++) {
                     sender.sendMessage("§b"+PlayerList.get(i).getName()+":");
                     sender.sendMessage("    §6状态: 在线");
-                    sender.sendMessage("    §6版本: "+GetVersion(PlayerList.get(i)));
+                    sender.sendMessage("    §6版本: "+tools.GetVersion(PlayerList.get(i)));
                     sender.sendMessage("    §6地址: "+PlayerList.get(i).getAddress());
                     sender.sendMessage("    §6延迟: "+PlayerList.get(i).getPing()+"ms");
                 }
@@ -1406,7 +1326,7 @@ public class main extends JavaPlugin {
             if (args[0].equals("version")){
                 //判断权限
                 if (sender.hasPermission("dpear.gpg.version")) {
-                    sender.sendMessage("Your version is " + GetVersion(Bukkit.getPlayer(sender.getName())));
+                    sender.sendMessage("Your version is " + tools.GetVersion(Bukkit.getPlayer(sender.getName())));
                     return true;
                 }else {
                     sender.sendMessage("权限不足，您没有dpear.gpg.version权限");
@@ -1496,7 +1416,14 @@ public class main extends JavaPlugin {
                 //判断权限
                 if (sender.hasPermission("dpear.gpg.menu." + args[2])) {
                     //发送菜单
-                    return (SendBedrockForm (P,args[2],sender));
+
+                    if (bedrockMenu.SendFromConfig (P,args[2],sender) == 0){
+                        return true;
+                    }else{
+                        sender.sendMessage("菜单类型错误或不存在");
+                        return false;
+                    }
+
                 }else {
                     sender.sendMessage("权限不足，您没有dpear.gpg.menu." + args[2] + "权限");
                     return false;
@@ -1507,227 +1434,6 @@ public class main extends JavaPlugin {
             };
             return false;
         }
-    }
-
-    public String ReadMenuData(FileConfiguration config , String name , String paf) {
-        return (config.getString("Menus." + name + "." + paf, "Null"));
-    }
-
-    public void LoadCommandAlert() {
-        //注册转接命令
-
-        //soft
-        getLogger().info("载入指令转接[Soft]");
-        SoftCommandAlert = getConfig().getStringList("CommandAlert.Soft");
-        getLogger().info("已注册" + SoftCommandAlert.size() + "个命令转接[Soft]");
-
-        //hard
-        getLogger().info("载入指令转接[Hard]");
-        ArrayList Commands_PerAdd = new ArrayList<Command>();
-        HardCommandAlert = getConfig().getStringList("CommandAlert.Hard");
-
-        for (String s : HardCommandAlert) {
-            //创建Command实例
-            Command PerAdd = new Command(s) {
-                @Override
-                public boolean execute(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings) {
-                    return(CommandAlertExecutor(commandSender,s,strings));
-                }
-
-                public List<String> tabComplete(CommandSender sender, String alias, String[] args){
-                    return (CommandAlertTabHandler(sender, alias, args));
-                }
-
-            };
-
-            //将Command实例添加到列表
-            Commands_PerAdd.add(PerAdd);
-        }
-
-        //反射+置命令
-        try {
-            final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-
-            bukkitCommandMap.setAccessible(true);
-            CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
-
-            cm.registerAll("GeyserPermGroup", Commands_PerAdd);
-
-            RegisterAlertCommands = Commands_PerAdd;
-
-            getLogger().info("已注册" + HardCommandAlert.size() + "个命令转接[Hard]");
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().warning("载入指令转接[Hard]失败！");
-            getLogger().warning("出现了异常");
-            e.printStackTrace();
-        }
-    }
-
-    public void LoadCommandAlertTabComplete(){
-
-        getLogger().info("载入指令转接补全[Hard]");
-        int Success = 0;
-        for (String s : HardCommandAlert){
-            try {
-
-                //Objects.requireNonNull(getCommand(s)).setTabCompleter(CommandAlertTabHandler());
-                Success = Success + 1;
-            }catch (Exception e){
-                getLogger().warning("在注册命令" + s + "时出现异常:");
-                e.printStackTrace();
-            }
-        }
-        getLogger().info("已注册" + Success + "个命令转接补全[Hard]");
-    }
-
-    public void UnloadCommandAlert(){
-
-
-        try {
-            final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-
-            bukkitCommandMap.setAccessible(true);
-            CommandMap cm = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
-
-            for (Command c : RegisterAlertCommands) {
-                //检索command
-                c.unregister(cm);
-            }
-
-            getLogger().info("卸载转接指令成功");
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().warning("卸载转接指令失败！");
-            getLogger().warning("出现了异常");
-            e.printStackTrace();
-        }
-
-    }
-
-    public boolean CommandAlertExecutor(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings){
-
-
-        //获得命令路径
-        String CommandPath = GetCommandAlertPath(s,strings,commandSender);
-
-        //获得玩家实例
-        Player p = Bukkit.getPlayer(commandSender.getName());
-
-        //去点
-        String CommandPathWithoutDot = CommandPath.substring(0,CommandPath.length()-1);
-
-        //输出
-        //getLogger().info("CommandPath:" + CommandPathWithoutDot);
-
-        //判读表项是否存在
-        if(!getConfig().isConfigurationSection(CommandPathWithoutDot)) {
-            commandSender.sendMessage("出现了内部异常，指定的数据不存在，请联系管理员解决");
-            return true;
-        }
-
-        if (!getConfig().getString(CommandPath + "Arg", "0").equals(String.valueOf(strings.length))) {
-            //参数不足的话
-            commandSender.sendMessage("参数数量错误");
-            return false;
-        }
-
-        if (!getConfig().getString(CommandPath + "Permission", "Null").equals("Null")) {
-            if (!commandSender.hasPermission(getConfig().getString(CommandPath + "Permission", "Null"))) {
-                commandSender.sendMessage("权限不足");
-            }
-        }
-
-        List<String> ExecuteCommands = getConfig().getStringList(CommandPath + "Goal");
-
-        //日志
-        getLogger().info("玩家 " + commandSender.getName() + "使用了转接命令" + s);
-
-        //执行
-        if (getConfig().getBoolean(CommandPath + "Replace", false)) {
-
-            for (String executeCommand : ExecuteCommands) {
-
-                //替换参数
-                String Executer = executeCommand;
-                for (int i = 0; i < strings.length; i++) {
-                    Executer = Executer.replace("{" + i + "}", strings[i]);
-                }
-
-                //是否是玩家
-                if (p != null) {
-                    Executer = Executer.
-                            replace("{PlayerName}", p.getName()).
-                            replace("{PlayerUUID}", p.getUniqueId().toString()).
-                            replace("{PlayerWorld}", p.getWorld().toString());
-                }
-
-                //执行命令
-                if (Executer.startsWith("Console~")){
-                    //以后台身份运行
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),Executer.substring(8));
-                }else{
-                    if (Executer.startsWith("Msg~")){
-                        //发送消息
-                        commandSender.sendMessage(Executer.substring(4));
-                    }else{
-                        //执行命令
-                        Bukkit.dispatchCommand(commandSender, Executer);
-                    }
-                }
-
-            }
-
-        } else {
-            for (String executeCommand : ExecuteCommands) {
-                //执行命令
-                if (executeCommand.startsWith("Console~")){
-                    //以后台身份运行
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),executeCommand.substring(8));
-                }else{
-                    if (executeCommand.startsWith("Msg~")){
-                        //发送消息
-                        commandSender.sendMessage(executeCommand.substring(4));
-                    }else{
-                        //执行命令
-                        Bukkit.dispatchCommand(commandSender, executeCommand);
-                    }
-                }
-            }
-        }
-        return true;
-
-    }
-
-    public List<String> CommandAlertTabHandler(CommandSender sender, String s, String[] args) {
-        try {
-
-            //保存最后一项
-            String LAST = args[args.length-1];
-            //去除最后一项
-            args[args.length-1] = "";
-
-            List<String> TabResults = KeepStartWith (LAST ,getConfig().getStringList(GetCommandAlertPath(s,args,sender) + "Tab"));
-
-            if (TabResults.size() == 0) {
-                //如果没写对应配置的话
-                return null;
-            }else{
-                if(TabResults.get(0).equals("Null")){
-                    //不返回
-                    return null;
-                }
-                if (TabResults.get(0).equals("PlayerList")){
-                    //玩家列表
-                    return GetStringPlayerList(args[args.length - 1]);
-                }
-
-                //正常返回
-                return (TabResults);
-            }
-        }catch (Exception e){
-            //有问题就不返回
-            return null;
-        }
-
     }
 
     private static Object getPrivateField(Object object, String field)throws SecurityException,
@@ -1758,392 +1464,136 @@ public class main extends JavaPlugin {
         }
     }
 
-    public String GetVersion(Player player){
-        if(getConfig().getBoolean("VersionCheck.FloodGate", false)){
-            if(FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())){
-                return ("Bedrock");
-            };
+    private void loadExClass(){
+        getLogger().info("开始加载功能");
+
+        //是否启用CommandAlert
+        if(getConfig().getBoolean("EnabledFunction.CommandAlert",false)){
+
+            if (commandAlert == null){
+                getLogger().info("功能CommandAlert已启用");
+                commandAlert = new CommandAlert(this,getConfig());
+            }else{
+                getLogger().info("功能CommandAlert已重载");
+                commandAlert.ReloadConfig(getConfig());
+            }
+
+            isCommandAlertEnabled = true;
+        }else{
+            if (commandAlert != null){
+                getLogger().info("功能CommandAlert已禁用");
+                commandAlert = null;
+            }else{
+                getLogger().info("功能CommandAlert未启用");
+            }
+
+            isCommandAlertEnabled = false;
         }
 
-        if(getConfig().getBoolean("VersionCheck.ViaVersion", false)){
-
-            return (String.valueOf(
-                    Via.getAPI().getPlayerVersion(player.getUniqueId())
-            ));
-        };
-
-        return ("Unknow");
-    }
-
-    public boolean SendBedrockForm(Player P,String name,CommandSender sender){
-
-        //获得API
-        FloodgateApi fa = FloodgateApi.getInstance();
-
-        //获取配置文件
-        FileConfiguration config = getConfig();
-        String type = ReadMenuData (config, name, "type");
-
-        //判断菜单类型
-        if (type.equals("Null")){
-            sender.sendMessage("无效菜单类型");
-            return false;
-        };
 
 
-        //如果是ModalForm
-        if (type.equals("ModalForm")){
+        //是否启用BedrockMenu
+        if(getConfig().getBoolean("EnabledFunction.BedrockMenu",false)){
 
-            ModalForm.Builder MFBuilder = ModalForm.builder()
-                    .title(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "title")))
-                    .content(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "content").replace("/n","\n")))
-                    .button1(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "button1")))
-                    .button2(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "button2")))
-                    .responseHandler((form, responseData) -> {
-                        ModalFormResponse response = form.parseResponse(responseData);
-
-                        if (!response.isCorrect()) {
-                            //玩家直接关闭菜单或者输入了非法数据
-                            return;
-                        }
-                        if (response.isInvalid()) {
-                            //玩家输入了非法数据
-                            return;
-                        }
-
-
-                        if (response.getClickedButtonId() == 0) {
-                            //第一按钮
-                            if (!ReadMenuData (config, name, "action.button1").equals("Null")) {
-                                Bukkit.dispatchCommand(P, ReadMenuData(config, name, "action.button1"));
-                            }
-                            return;
-                        }
-
-                        if (response.getClickedButtonId() == 1) {
-                            //第二按钮
-                            if (!ReadMenuData (config, name, "action.button2").equals("Null")) {
-                                Bukkit.dispatchCommand(P,ReadMenuData (config, name, "action.button2"));
-                            }
-                            return;
-                        }
-
-                    });
-
-            fa.sendForm(P.getUniqueId(), MFBuilder);
-            return true;
-        };
-
-        //如果是SimpleForm
-        if (type.equals("SimpleForm")){
-
-            SimpleForm.Builder MFBuilder = SimpleForm.builder()
-                    .title(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "title")))
-                    .content(PlaceholderAPI.setPlaceholders(P, ReadMenuData (config, name, "content")))
-                    .responseHandler((form, responseData) -> {
-                        SimpleFormResponse response = form.parseResponse(responseData);
-
-                        if (!response.isCorrect()) {
-                            //玩家直接关闭菜单或者输入了非法数据
-                            return;
-                        }
-                        if (response.isInvalid()) {
-                            //玩家输入了非法数据
-                            return;
-                        }
-
-                        List<String> Action = config.getStringList("Menus." + name + ".action");
-                        if (!Action.get(response.getClickedButtonId()).equals("Null")) {
-                            Bukkit.dispatchCommand(P, Action.get(response.getClickedButtonId()));
-                        }
-                        return;
-
-                    });
-
-            List<String> Button = config.getStringList("Menus." + name + ".button");
-            List<String> Image = config.getStringList("Menus." + name + ".image");
-            for(int i=0 ; i<Button.size() ; i++) {
-                if (Image.get(i).equals("Null")){
-                    //不带图标的
-                    MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)));
-                }else{
-                    if (Image.get(i).startsWith("P~")) {
-                        //本地材质
-                        MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)), FormImage.Type.PATH, Image.get(i).substring(2));
-                    }else {
-                        //链接图片
-                        MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(P, Button.get(i)), FormImage.Type.URL, Image.get(i));
-                    }
-                }
-            }
-
-            fa.sendForm(P.getUniqueId(), MFBuilder);
-            return true;
-        };
-
-        //如果是PlayerListForm
-        if (type.equals("PlayerListForm")){
-
-            //获得玩家列表
-            Collection<? extends Player> b = Bukkit.getOnlinePlayers();
-            if (ReadMenuData (config, name, "removeself").equals("true")) {
-                b.remove(P);
-            };
-            List<Player> Button = (List<Player>) b;
-
-            SimpleForm.Builder MFBuilder = SimpleForm.builder()
-                    .title(ReadMenuData (config, name, "title"))
-                    .content(ReadMenuData (config, name, "content"))
-                    .responseHandler((form, responseData) -> {
-                        SimpleFormResponse response = form.parseResponse(responseData);
-
-                        if (!response.isCorrect()) {
-                            //玩家直接关闭菜单或者输入了非法数据
-                            return;
-                        }
-                        if (response.isInvalid()) {
-                            //玩家输入了非法数据
-                            return;
-                        }
-
-                        if (Button.size() == response.getClickedButtonId()){
-                            if (!ReadMenuData(config, name, "buttonaction").equals("Null")) {
-                                Bukkit.dispatchCommand(P, ReadMenuData(config, name, "buttonaction"));
-                            }
-                            //选择了取消
-                            return;
-                        }
-
-                        Bukkit.dispatchCommand(P, ReadMenuData (config, name, "action").
-                                replace("%PlayerName", Button.get(response.getClickedButtonId()).getName()).
-                                replace("%PlayerUUID", Button.get(response.getClickedButtonId()).getUniqueId().toString())
-                        );
-
-                        return;
-
-                    });
-
-            //是否有玩家头像
-            if (ReadMenuData(config, name, "icon").equals("true")) {
-                for (Player player : Button) {
-                    //生成button
-                    MFBuilder = MFBuilder.button(ReadMenuData(config, name, "text").
-                                    replace("%PlayerName", player.getName()).
-                                    replace("%PlayerUUID", player.getUniqueId().toString())
-                            , FormImage.Type.URL, "https://minecraft-api.com/api/skins/" + player.getName() + "/head");
-                }
+            if (bedrockMenu == null) {
+                getLogger().info("功能BedrockMenu已启用");
+                bedrockMenu = new BedrockMenu(this, getConfig());
             }else{
-                for (Player player : Button) {
-                    //生成button
-                    MFBuilder = MFBuilder.button(ReadMenuData(config, name, "text").
-                                    replace("%PlayerName", player.getName()).
-                                    replace("%PlayerUUID", player.getUniqueId().toString()));
-                }
-            }
-
-
-            if (!ReadMenuData (config, name, "button").equals("Null")){
-                MFBuilder = MFBuilder.button(ReadMenuData (config,name, "button"));
-            };
-
-            fa.sendForm(P.getUniqueId(), MFBuilder);
-            return true;
-
-
-        };
-
-        //如果是EliteMobsBossesForm
-        if (type.equals("EliteMobsBossesForm")){
-
-
-            SimpleForm.Builder MFBuilder = SimpleForm.builder()
-                    .title(ReadMenuData (config, name, "title"))
-                    .content(ReadMenuData (config, name, "content"))
-                    .responseHandler((form, responseData) -> {
-                        SimpleFormResponse response = form.parseResponse(responseData);
-
-                        if (!response.isCorrect()) {
-                            //玩家直接关闭菜单或者输入了非法数据
-                            return;
-                        }
-                        if (response.isInvalid()) {
-                            //玩家输入了非法数据
-                            return;
-                        }
-
-                        if (CustomBossesName.size() == response.getClickedButtonId()){
-                            if (!ReadMenuData(config, name, "buttonaction").equals("Null")) {
-                                Bukkit.dispatchCommand(P, ReadMenuData(config, name, "buttonaction"));
-                            }
-                            //选择了取消
-                            return;
-                        }
-
-                        Bukkit.dispatchCommand(P,"em trackcustomboss " + CustomBossesUUID.get(response.getClickedButtonId()));
-
-                        return;
-
-                    });
-
-            for (String Name : CustomBossesName) {
-                //生成button
-                MFBuilder = MFBuilder.button(Name);
-            }
-
-
-            if (!ReadMenuData (config, name, "button").equals("Null")){
-                MFBuilder = MFBuilder.button(ReadMenuData (config,name, "button"));
-            };
-
-            fa.sendForm(P.getUniqueId(), MFBuilder);
-            return true;
-
-
-        };
-
-        //都不匹配
-        sender.sendMessage("无效菜单类型");
-        return false;
-    }
-
-    public float GetNote(int Note){
-        return (float) Math.pow(2,(float)(Note-12)/12);
-    };
-
-    public List<String> GetStringPlayerList(String head){
-        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-        ArrayList<String> players_string = new ArrayList<>();
-
-        //转换
-        if (head.equals("")){
-            //直接添加
-            for (Player player: players) {
-                players_string.add(player.getName());
+                getLogger().info("功能BedrockMenu已重载");
+                bedrockMenu.ReloadConfig(getConfig());
             }
         }else{
-            //检查头相等
-            for (Player player: players) {
-                if (player.getName().startsWith(head)) {
-                    players_string.add(player.getName());
-                }
+            if (bedrockMenu != null){
+                getLogger().info("功能BedrockMenu已禁用");
+                bedrockMenu = null;
+            }else{
+                getLogger().info("功能BedrockMenu未启用");
             }
         }
-        return players_string;
+
+
+
+        //是否启用ElitemobsHandler
+        if(getConfig().getBoolean("EnabledFunction.ElitemobsHandler",false)){
+
+            if (elitemobs == null) {
+                getLogger().info("功能ElitemobsHandler已启用");
+                elitemobs = new ElitemobsHandler(this, getConfig());
+                Bukkit.getPluginManager().registerEvents(new EmEventsListener(),this);
+            }else{
+                getLogger().info("功能ElitemobsHandler已重载");
+                elitemobs.ReloadConfig(getConfig());
+            }
+        }else{
+            if (elitemobs != null){
+                getLogger().info("功能ElitemobsHandler已禁用");
+                elitemobs = null;
+
+                getLogger().info("注销相关事件");
+                EliteMobSpawnEvent.getHandlerList().unregister(this);
+                EliteMobDeathEvent.getHandlerList().unregister(this);
+                EliteMobRemoveEvent.getHandlerList().unregister(this);
+                getLogger().info("相关事件注销完毕");
+            }else{
+                getLogger().info("功能ElitemobsHandler未启用");
+            }
+        }
+
+        getLogger().info("功能加载完毕");
     }
 
-    public String GetCommandAlertPath(String Command,String[] strings,CommandSender commandSender){
+    public class EmEventsListener implements Listener {
+        @EventHandler
+        public void onEliteMobSpawn(EliteMobSpawnEvent e){
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("CommandAlert.CommandList.").append(Command).append(".");
+            //检查是不是指定的精英怪
+            for (String NowCheck:elitemobs.CustomBossesList) {
+                if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
 
-        //判断有没有Link
-        String Link = getConfig().getString(sb + "Link","");
-        if (!Link.equals("")){
-            sb.delete(0,sb.length() - 1);
-
-            //这样应该没问题
-            Command = Link;
-            sb.append("CommandAlert.CommandList.").append(Command).append(".");
-
-        }
-
-        //获得玩家实例
-        Player p = Bukkit.getPlayer(commandSender.getName());
-        //确定是玩家支持
-        if (p != null) {
-            //版本
-            if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.PlayerVersion", false)) {
-
-                //获得版本
-                String version = GetVersion(p);
-
-                //表项是否存在
-                if(getConfig().isConfigurationSection(sb + version)){
-                    sb.append(version).append(".");
-                }else{
-                    sb.append("Other.");
-                }
-
-            }
-
-            //权限组
-            if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.PermissionGroup", false)) {
-
-                //这边可能NullPointer
-                try {
-
-                    //只获取第一权限组
-                    String permissiongroup = getServer().getServicesManager().getRegistration(Permission.class).getProvider().getPlayerGroups(p)[0];
-                    //表项是否存在
-                    if(getConfig().isConfigurationSection(sb + permissiongroup)) {
-                        sb.append(permissiongroup).append(".");
-                    }else{
-                        sb.append("Other.");
+                    //检查是否已经存在
+                    if(!elitemobs.CustomBossesUUID.contains(e.getEliteMobEntity().getEliteUUID())) {
+                        //不存在
+                        elitemobs.CustomBossesUUID.add(e.getEliteMobEntity().getEliteUUID());
+                        elitemobs.CustomBossesName.add(e.getEliteMobEntity().getName());
+                        getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " spawn!Add to list");
+                        return;
                     }
 
-
-                }catch (Exception e){
-                    getLogger().warning("在获取权限组时出现了异常");
-                    getLogger().warning("以Other继续！");
-                    sb.append("Other.");
-                    e.printStackTrace();
                 }
+
             }
 
-            //玩家所在世界
-            if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.PlayerWorld", false)) {
+        }
 
-                //获得世界
-                String world = p.getWorld().getName();
+        @EventHandler
+        public void onEliteMobDeath(EliteMobDeathEvent e){
 
-                //表项是否存在
-                if(getConfig().isConfigurationSection(sb + world)){
-                    sb.append(world).append(".");
-                }else{
-                    sb.append("Other.");
+            //检查是不是指定的精英怪
+            for (String NowCheck:elitemobs.CustomBossesList) {
+                if(e.getEliteEntity().getName().endsWith(NowCheck)){
+                    elitemobs.CustomBossesUUID.remove(e.getEliteEntity().getEliteUUID());
+                    elitemobs.CustomBossesName.remove(e.getEliteEntity().getName());
+                    getLogger().info("EliteMob:" + e.getEliteEntity().getEliteUUID() + " death!Remove from list");
                 }
+
             }
         }
 
-        //参数个数(显然这个不关玩家事)
-        if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.ArgAmount", false)) {
+        @EventHandler
+        public void onEliteMobRemove(EliteMobRemoveEvent e){
 
-            //获得长度
-            String length = String.valueOf(strings.length);
-
-            //表项是否存在
-            if(getConfig().isConfigurationSection(sb + length)) {
-                sb.append(length).append(".");
-            }else{
-                sb.append("Other.");
-            }
-        }
-
-
-        //自定义参数(显然这个也不关玩家事)
-        //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
-        if (getConfig().getBoolean("CommandAlert.CommandList." + Command + ".exFunction.Arg", false)) {
-            for (String c : strings) {
-                //让参数不为空再添加
-                if (!c.equals("")) {
-                    sb.append(c).append(".");
+            //检查是不是指定的精英怪
+            for (String NowCheck:elitemobs.CustomBossesList) {
+                if(e.getEliteMobEntity().getName().endsWith(NowCheck)){
+                    elitemobs.CustomBossesUUID.remove(e.getEliteMobEntity().getEliteUUID());
+                    elitemobs.CustomBossesName.remove(e.getEliteMobEntity().getName());
+                    getLogger().info("EliteMob:" + e.getEliteMobEntity().getEliteUUID() + " removed!Remove from list");
                 }
+
             }
         }
-        return sb.toString();
+
     }
-
-    public List<String> KeepStartWith(String head,List<String> Strings){
-        ArrayList<String> Wreturned = new ArrayList<>();
-        for (String CheckNow:Strings) {
-            if(CheckNow.startsWith(head)){
-                //匹配
-                Wreturned.add(CheckNow);
-            }
-        }
-        return Wreturned;
-    }
-
 
 }
 

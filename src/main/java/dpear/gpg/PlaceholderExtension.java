@@ -2,23 +2,18 @@ package dpear.gpg;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.geysermc.floodgate.api.FloodgateApi;
-import dpear.gpg.main;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static org.bukkit.Bukkit.getLogger;
 
-public class PlaceholderE extends PlaceholderExpansion{
+public class PlaceholderExtension extends PlaceholderExpansion{
 
     public List<String> EnableSeasonWorlds = null;
     private final main plugin;
-    public PlaceholderE(main plugin) {
+    public PlaceholderExtension(main plugin) {
         this.plugin = plugin;
     }
 
@@ -53,7 +48,7 @@ public class PlaceholderE extends PlaceholderExpansion{
 
         //获取玩家版本
         if(params.equalsIgnoreCase("version")) {
-            return plugin.GetVersion(player.getPlayer());
+            return plugin.tools.GetVersion(player.getPlayer());
         }
 
         //是否为基岩版玩家

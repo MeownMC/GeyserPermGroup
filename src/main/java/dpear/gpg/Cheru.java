@@ -3,7 +3,7 @@ package dpear.gpg;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
-public class CheRu{
+public class Cheru {
 
     public static String encrypt(String src) {
         StringBuilder stringBuilder = new StringBuilder(codes[16]);
