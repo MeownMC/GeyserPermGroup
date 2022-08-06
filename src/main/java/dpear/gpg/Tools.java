@@ -93,6 +93,12 @@ public class Tools {
             return;
         }
 
+        //发送聊天
+        if (command.startsWith("Chat~")){
+            player.chat(command.substring(5));
+            return;
+        }
+
         //打开菜单
         if (command.startsWith("Menu~")){
             plugin.bedrockMenu.SendFromConfig(player,command.substring(5),player);

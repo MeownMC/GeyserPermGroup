@@ -6,11 +6,13 @@
 #Thank for use this plugin
 
 ConfigVersion: 2.2
-SCID-C:
+SCID-C: #在此处输入密钥
 EnabledFunction:
   CommandAlert: true
   BedrockMenu: true
   ElitemobsHandler: true
+  VersionCommand: true
+  IP2Region: false
 Register:
   #Warning!Still in develop!DO NOT set to true!
   EventListener: false
@@ -29,10 +31,10 @@ Version:
       Group: 'bedefault'
     Command:
       OnPlayerJoin:
-        - 'authme register %PlayerName %Password'
+        - 'Console~authme register %PlayerName %Password'
       OnPlayerRegister:
-        - 'lp user %PlayerUUID parent set bedefault'
-        - 'authme password %PlayerName %Password'
+        - 'Console~lp user %PlayerUUID parent set bedefault'
+        - 'Console~authme password %PlayerName %Password'
     Message:
       OnPlayerJoin:
         - '§8[§4§l系统§8] §6§l检测到基岩版玩家，已自动为您自动登入'
@@ -55,6 +57,19 @@ Version:
       OnPlayerJoin:
         - '§8[§4§l系统§8] §6§l欢迎来到喵喵领域服务器'
       OnPlayerRegister: []
+  FastLogin:
+    Enable: true
+    AutoLogin:
+      Command: false
+      AuthMe: true
+      AuthMe_CommandRegister: false
+    Command: []
+    Message:
+      - '§8[§4§l系统§8] §6§l检测到您正在使用外置登录，已自动为您登录至喵喵领域服务器'
+      - '§7 '
+      - '§8[§4§l系统§8] §7目前喵喵领域服务器的外置登录还不完善'
+      - '§8[§4§l系统§8] §7如果出现问题可以向服务器团队反馈哦~'
+      - '§7 '
 Command:
   #Command here will execute as console after a player join
   OnPlayerJoin: 'Null'
@@ -158,4 +173,3 @@ EliteMobs:
   CustomBossesList:
     - 'FirstBossName'
     - 'SecondBossName'
-EnableIPRegion: false

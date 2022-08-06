@@ -1,10 +1,8 @@
 package dpear.gpg;
 
-import com.gmail.olexorus.themis.T;
 import com.magmaguy.elitemobs.api.EliteMobDeathEvent;
 import com.magmaguy.elitemobs.api.EliteMobRemoveEvent;
 import com.magmaguy.elitemobs.api.EliteMobSpawnEvent;
-import com.viaversion.viaversion.api.Via;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
@@ -18,10 +16,8 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
 import org.geysermc.floodgate.api.FloodgateApi;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.tools.Tool;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,8 +26,6 @@ import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
-
-import static org.bukkit.Bukkit.getLogger;
 
 
 public class main extends JavaPlugin {
@@ -82,6 +76,10 @@ public class main extends JavaPlugin {
     //命令转接
     public CommandAlert commandAlert = null;
     public boolean isCommandAlertEnabled = false;
+
+    //版本命令
+    public VersionCommand versionCommand = null;
+    public boolean isVersionCommandEnabled = false;
 
     @Override
     public void onEnable() {
@@ -272,11 +270,6 @@ public class main extends JavaPlugin {
         }
         Objects.requireNonNull(Bukkit.getPluginCommand("bemenu")).setTabCompleter(new TabHandler());
         getLogger().info("注册指令/bemenu补全器完成");
-
-        if (getConfig().getBoolean("EnableIPRegion",false)) {
-
-            ipsearch = new IPsearch();
-        }
 
         //加载类
         loadExClass();
@@ -622,16 +615,15 @@ public class main extends JavaPlugin {
             Player P = Bukkit.getPlayer(args[0]);
 
             //判断玩家对象是否有效
-            if (P == null){return false;};
+            if (P == null) {
+                return false;
+            }
 
             getLogger().info("玩家 " + P.getUniqueId() + " 加入");
 
-            //获取版本
-            String version = Bukkit.getMinecraftVersion();
-
             //设置视距
             P.setViewDistance(
-                    getConfig().getInt("ViewDistance."+P.getWorld().getName(),P.getViewDistance())
+                    getConfig().getInt("ViewDistance." + P.getWorld().getName(), P.getViewDistance())
             );
 
             //判断版本
@@ -647,133 +639,10 @@ public class main extends JavaPlugin {
                 );
             }
 
-            //拉取配置文件等
-            String PlayerVersion = tools.GetVersion(P);
-            FileConfiguration config = getConfig();
-
-            getLogger().info("玩家 " + P.getName() + " 版本为 " + PlayerVersion);
-
-            if(!config.getBoolean("Version." + PlayerVersion + ".Enable",false)){
-                if(config.getBoolean("Version.Other.Enable",false)){
-                    PlayerVersion = "Other";
-                }else{
-                    return true;
-                }
+            //版本功能
+            if (isVersionCommandEnabled) {
+                return versionCommand.CheckAndExecute(P);
             }
-
-            //检测是否Link
-            if (!config.getString("Version." + PlayerVersion + ".Link","").equals("")){
-                PlayerVersion = config.getString("Version." + PlayerVersion + ".Link","");
-                getLogger().info("版本连接至 " + PlayerVersion);
-            }
-
-            ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-
-            //计算密码
-                int PASSWD = P.getUniqueId().hashCode();
-                String PASSWORD_F = "Meown115141919810-Null" , PASSWORD_S = "";
-                PASSWORD_F = PASSWD+"";
-                PASSWORD_S = PASSWORD_F.substring(0,8);
-
-
-                //是否启用AuthMe自动登入
-                if (config.getBoolean("Version." + PlayerVersion + ".AutoLogin.AuthMe",false)){
-                    AuthMeApi b = AuthMeApi.getInstance();
-                    if(!b.isRegistered(P.getName())){
-
-                        //未注册，注册该玩家
-                        if (config.getBoolean("Version." + PlayerVersion + ".AutoLogin.AuthMe_CommandRegister",false)){
-                            //使用命令注册
-                            Bukkit.dispatchCommand(P,
-                                    config.getString("Command.Register" , "register %Password %Password").
-                                            replace("%PlayerName", P.getName()).
-                                            replace("%PlayerUUID", P.getUniqueId().toString()).
-                                            replace("%Password", PASSWORD_S));
-                        }else{
-                            //使用接口注册
-                            b.registerPlayer(P.getName(),PASSWORD_S);
-                        }
-
-                        //得到要发送的字符串的数组并发送
-                        List<String> Message = config.getStringList("Version." + PlayerVersion + ".Message.OnPlayerRegister");
-                        for(int i=0 ; i<Message.size() ; i++){
-                            P.sendMessage(Message.get(i));
-                        };
-
-                        //得到要执行的命令并执行
-                        List<String> Commands = config.getStringList("Version." + PlayerVersion + ".Command.OnPlayerRegister");
-                        for(int i=0 ; i<Commands.size() ; i++){
-                            Bukkit.dispatchCommand(console,
-                                    Commands.get(i).
-                                            replace("%PlayerName", P.getName()).
-                                            replace("%PlayerUUID", P.getUniqueId().toString()).
-                                            replace("%Password", PASSWORD_S));
-                            return true;
-                        };
-                    }else{
-                        //已注册，登录
-                        b.forceLogin(P);
-                    }
-                }
-
-                //是否启用指令登录
-                if (config.getBoolean("Version." + PlayerVersion + ".AutoLogin.Command",false)){
-                    Bukkit.dispatchCommand(P,
-                            config.getString("Command.Login" , "login %Password").
-                                    replace("%PlayerName", P.getName()).
-                                    replace("%PlayerUUID", P.getUniqueId().toString()).
-                                    replace("%Password", PASSWORD_S)
-                    );
-
-                };
-
-                //得到要发送的字符串的数组并发送
-                List<String> Message = config.getStringList("Version." + PlayerVersion + ".Message.OnPlayerJoin");
-                for(int i=0 ; i<Message.size() ; i++){
-                    P.sendMessage(Message.get(i));
-                };
-
-                //得到要执行的命令并执行
-                List<String> Commands = config.getStringList("Version." + PlayerVersion + ".Command.OnPlayerJoin");
-                for(int i=0 ; i<Commands.size() ; i++){
-                    Bukkit.dispatchCommand(console,
-                            Commands.get(i).
-                                    replace("%PlayerName",P.getName()).
-                                    replace("%PlayerUUID", P.getUniqueId().toString()).
-                                    replace("%Password", PASSWORD_S));
-                };
-
-
-                //判断权限组提供插件是否为null
-                if (rsp == null){
-                    getLogger().info("Oh no!rsp is null!But we fix it:)");
-                    rsp = getServer().getServicesManager().getRegistration(Permission.class);
-                }
-
-                //修改权限组
-                if (config.getBoolean("Version." + PlayerVersion + ".AutoPermissionGroup.Vault" , false)){
-                    String pgoal = config.getString("Version." + PlayerVersion + ".AutoPermissionGroup.Group" , "default");
-                    String now = rsp.getProvider().getPlayerGroups(P)[0];
-                    if(!now.equals(pgoal)){
-                        rsp.getProvider().playerRemoveGroup(P,now);
-                        rsp.getProvider().playerAddGroup(P,pgoal);
-                        getLogger().info("移除了玩家 " + P.getName() + " 的权限组" + now + "，添加至 " + pgoal);
-                    }
-                }
-
-
-            if (!FloodgateApi.getInstance().isFloodgatePlayer(P.getUniqueId())) {
-                if (P.getName().charAt(0) == '.') {
-                    getLogger().warning("玩家 " + P.getName() + " 使用了非法用户名");
-
-                    //检查时候启动踢出
-                    if(getConfig().getBoolean("Actions.AutoKick.Enable")) {
-                        P.kickPlayer(getConfig().getString("Actions.AutoKick.KickMessage" , "[Meown]You are NOT a bedrock player!"));
-                        getLogger().info("玩家 " + P.getName() + " 已被踢出");
-                    };
-                }
-                ;
-            };
             return true;
         }
     }
@@ -1512,7 +1381,6 @@ public class main extends JavaPlugin {
         }
 
 
-
         //是否启用ElitemobsHandler
         if(getConfig().getBoolean("EnabledFunction.ElitemobsHandler",false)){
 
@@ -1538,6 +1406,50 @@ public class main extends JavaPlugin {
                 getLogger().info("功能ElitemobsHandler未启用");
             }
         }
+
+        //是否启用VersionCommand
+        if(getConfig().getBoolean("EnabledFunction.VersionCommand",false)){
+
+            if (versionCommand == null){
+                getLogger().info("功能CommandAlert已启用");
+                versionCommand = new VersionCommand(this,getConfig());
+            }else{
+                getLogger().info("功能CommandAlert已重载");
+                versionCommand.ReloadConfig(getConfig());
+            }
+
+            isVersionCommandEnabled = true;
+        }else{
+            if (versionCommand != null){
+                getLogger().info("功能CommandAlert已禁用");
+                versionCommand = null;
+            }else{
+                getLogger().info("功能CommandAlert未启用");
+            }
+
+            isVersionCommandEnabled = false;
+        }
+
+        //是否启用IP2Region
+        if(getConfig().getBoolean("EnabledFunction.IP2Region",false)){
+
+            if (ipsearch == null) {
+                getLogger().info("功能IP2Region已启用");
+                ipsearch = new IPsearch();
+            }else{
+                getLogger().info("功能IP2Region没啥好重载的");
+            }
+        }else{
+            if (ipsearch != null){
+                getLogger().info("功能IP2Region已禁用");
+                ipsearch = null;
+            }else{
+                getLogger().info("功能IP2Region未启用");
+            }
+        }
+
+
+
 
         getLogger().info("功能加载完毕");
     }
