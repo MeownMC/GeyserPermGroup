@@ -138,7 +138,7 @@ public class CommandAlert {
             }
         }
 
-        List<String> ExecuteCommands = config.getStringList(CommandPath + "Goal");
+        List<String> ExecuteCommands = config.getStringList(CommandPath + "Target");
 
         //日志
         getLogger().info("玩家 " + commandSender.getName() + "使用了转接命令" + s);

@@ -1448,7 +1448,8 @@ public class main extends JavaPlugin {
             }
         }
 
-
+        getLogger().info("重载工具");
+        tools.ReloadConfig(getConfig());
 
 
         getLogger().info("功能加载完毕");

@@ -155,7 +155,12 @@ Menus:
         type: 'Toggle'
         title: 'Click Me'
         default: true
-    Target: []
+    Target:
+      - 'Msg~你认为第一个控件{Placeholder:C~0}({Placeholder:0})是一个Dropdown'
+      - 'Msg~你在第二个地方输入了: {Placeholder:2}'
+      - 'Msg~你的数值是: {Placeholder:4}'
+      - 'Msg~你最喜欢的语言是: {Placeholder:C~6}({Placeholder:6})'
+      - 'Msg~按钮的选项是: {Placeholder:8}'
   tpa:
     type: 'PlayerListForm'
     title: '玩家互传'
@@ -178,7 +183,7 @@ CommandAlert:
       Replace: false
       Arg: 0
       Permission: Null
-      Goal:
+      Target:
         - 'gm 0'
         - 'say 我是生存模式'
       Tab: []
@@ -192,14 +197,14 @@ CommandAlert:
       Replace: false
       Arg: 0
       Permission: Null
-      Goal:
+      Target:
         - 'gm 1'
         - 'say 我是创造模式'
     wssbb:
       Replace: true
       Arg: 1
       Permission: Null
-      Goal:
+      Target:
         - 'gm {0}'
         - 'say 我是{0}模式'
   Hard:
