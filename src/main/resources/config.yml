@@ -106,6 +106,56 @@ Menus:
       - 'warp spawn'
       - 'warp dy'
       - 'warp md'
+  example_c:
+    type: 'CustomForm'
+    title: 'CustomFormExample'
+    Form:
+      - 'a'
+      - 'c'
+      - 'b'
+      - 'c'
+      - 'd'
+      - 'c'
+      - 'e'
+      - 'c'
+      - 'f'
+    Components:
+      a:
+        type: 'Dropdown'
+        text: '我是一个Dropdown'
+        options:
+          - '没错'
+          - '可能吧'
+          - '不对'
+      b:
+        type: 'Input'
+        text: '输入点东西'
+        content: '->'
+      c:
+        type: 'Label'
+        text: '-----分割-----'
+      d:
+        type: 'Slider'
+        title: '数值'
+        left: 0
+        right: 25
+        step: 1
+        default: 16
+      e:
+        type: 'StepSlide'
+        text: '你最喜欢的语言?'
+        steps:
+          - 'C'
+          - 'C++'
+          - 'java'
+          - 'C#'
+          - 'python'
+        default: 2
+      f:
+        type: 'Toggle'
+        title: 'Click Me'
+        default: true
+    Target: []
   tpa:
     type: 'PlayerListForm'
     title: '玩家互传'
