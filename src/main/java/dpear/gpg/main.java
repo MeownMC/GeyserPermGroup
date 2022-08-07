@@ -22,6 +22,7 @@ public final class main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new spammer(),this);
         getLogger().info("Spammer 全自动处罚模块成功加载");
         saveConfig();
+        getLogger().info("成功加载配置，食用愉快~");
 
         BukkitRunnable runbale = new BukkitRunnable() {
             @Override
