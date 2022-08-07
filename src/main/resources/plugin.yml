@@ -14,18 +14,8 @@ softdepend:
   - Vault
   - EliteMobs
 commands:
-  checkplayerbe:
-    usage: "/checkplayerbe <player-name>"
-    description: "Auto change the permission group if the player is using BE"
-    permission: ""
-    permission-message: "You cannot do that!"
-  regbeplayer:
-    usage: "/regbeplayer <be-player-name>"
-    description: "Auto register if BE player"
-    permission: ""
-    permission-message: "You cannot do that!"
   bemenu:
-    usage: "Use /bemenu help tp show usages."
+    usage: "Use /bemenu help to show usages."
     description: "Open a be form"
     permission: "dpear.gpg"
-    permission-message: "You have no permission"
+    permission-message: "输你妈输"
