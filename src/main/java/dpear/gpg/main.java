@@ -439,11 +439,11 @@ public class main extends JavaPlugin {
                 if (isCommandAlertEnabled){
 
                     //调用
-                    commandAlert.onPlayerCommand(e.getPlayer(),e.getMessage());
-                    e.setCancelled(true);
+                    if (commandAlert.onPlayerCommand(e.getPlayer(),e.getMessage())){
+                        e.setCancelled(true);
+                    }
                 }
             }
-
         }
 
         @EventHandler
