@@ -17,12 +17,23 @@ public final class main extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        getLogger().info("你的服务器真帅，我加载的时候都射了");
+        getLogger().info("GeyserPermGroup Powered by");
+        getLogger().info("                                                 ");
+        getLogger().info("    __  ___                         __  _________");
+        getLogger().info("   /  |/  /__  ____ _      ______  /  |/  / ____/");
+        getLogger().info("  / /|_/ / _ \\/ __ \\ | /| / / __ \\/ /|_/ / /  ");
+        getLogger().info(" / /  / /  __/ /_/ / |/ |/ / / / / /  / / /___   ");
+        getLogger().info("/_/  /_/\\___/\\____/|__/|__/_/ /_/_/  /_/\\____/");
+        getLogger().info("                                                 ");
+        getLogger().info("Authors: Dameng23333 × D-Pear");
+        getLogger().info("Our github: https://github.com/MeownMC");
+        getLogger().info("啊♡...哥哥的♡...大肉棒♡...进来了♡...");
+        getLogger().info("♡今天的我...也会好好伺候哥哥的哟♡");
         // Register Events
         getServer().getPluginManager().registerEvents(new spammer(),this);
-        getLogger().info("Spammer 全自动处罚模块成功加载");
+        getLogger().info("插件基本功能已经初始化完毕");
         saveConfig();
-        getLogger().info("成功加载配置，食用愉快~");
+        getLogger().info("成功从插件文件夹读取最新配置");
 
         BukkitRunnable runbale = new BukkitRunnable() {
             @Override
@@ -31,15 +42,17 @@ public final class main extends JavaPlugin {
             }
         };
 
-        getLogger().info("定时优化模块启动");
+        getLogger().info("启动服务器定时优化模块");
         runbale.runTaskTimer(this,100,1000);
+        getLogger().info("插件已经加载完成。欢迎使用！");
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        getLogger().info("服务器处于关闭阶段，正在卸载 PearTools 扩展");
-        getLogger().info("你的服务器真帅，我卸载的时候都还没射完");
+        getLogger().info("正在卸载 GeyserPermGroup");
+        getLogger().info("啊♡...身体里♡...已经满是哥哥的爱液了♡...");
+        getLogger().info("下次也请哥哥...用大肉棒...好好调教我哟♡♡");
     }
 
     public class spammer implements Listener {
