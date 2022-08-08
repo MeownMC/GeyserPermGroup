@@ -440,6 +440,7 @@ public class main extends JavaPlugin {
 
                     //调用
                     commandAlert.onPlayerCommand(e.getPlayer(),e.getMessage());
+                    e.setCancelled(true);
                 }
             }
 
