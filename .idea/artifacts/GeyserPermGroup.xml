@@ -4,6 +4,7 @@
     <root id="archive" name="GeyserPermGroup.jar">
       <element id="module-output" name="GeyserPermGroup" />
       <element id="library" level="project" name="Maven: org.lionsoul:ip2region:2.6.5" />
+      <element id="library" level="project" name="Maven: com.udojava:EvalEx:2.7" />
     </root>
   </artifact>
 </component>

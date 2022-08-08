@@ -204,9 +204,12 @@ CommandAlert:
       Replace: true
       Arg: 1
       Permission: Null
+      Expression: Null
       Target:
         - 'gm {0}'
         - 'say 我是{0}模式'
+      Target-no-permission: []
+      Target-fail-expression: []
   Hard:
     - 'tssbb'
     - 'nssbb'

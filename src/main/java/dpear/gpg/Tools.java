@@ -1,5 +1,7 @@
 package dpear.gpg;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.viaversion.viaversion.api.Via;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
@@ -20,6 +22,9 @@ public class Tools {
     //版本判断变量
     public boolean isHighVersion = false;
 
+    //BC通信
+    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+
     public Tools(main plugin,FileConfiguration config) {
         this.plugin = plugin;
         this.config = config;
@@ -35,7 +40,6 @@ public class Tools {
     public void ReloadConfig(FileConfiguration config){
         this.config = config;
     }
-
 
     public static List<String> KeepStartWith(String head, List<String> Strings){
         ArrayList<String> Wreturned = new ArrayList<>();
@@ -105,6 +109,12 @@ public class Tools {
             return;
         }
 
+        //BC切换
+        if (command.startsWith("Server~")){
+            SendPlayerBungee(player,command.substring(7));
+            return;
+        }
+
         //执行命令
         Bukkit.dispatchCommand(player, command);
 
@@ -125,6 +135,12 @@ public class Tools {
         };
 
         return ("Unknow");
+    }
+
+    public void SendPlayerBungee(Player player,String serverName){
+        out.writeUTF("Connect");
+        out.writeUTF(serverName);
+        player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
 }

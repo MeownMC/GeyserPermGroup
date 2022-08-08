@@ -89,6 +89,27 @@ public class main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
+        //打印logo
+        getLogger().info("");
+        getLogger().info(plugin.getName() + " Powered by ");
+        getLogger().info("    __  ___                         __  _________");
+        getLogger().info("   /  |/  /__  ____ _      ______  /  |/  / ____/");
+        getLogger().info("  / /|_/ / _ \\/ __ \\ | /| / / __ \\/ /|_/ / /     ");
+        getLogger().info(" / /  / /  __/ /_/ / |/ |/ / / / / /  / / /___   ");
+        getLogger().info("/_/  /_/\\___/\\____/|__/|__/_/ /_/_/  /_/\\____/");
+        getLogger().info("Our Github: https://github.com/MeownMC");
+        getLogger().info("");
+
+        //生成作者列表
+        StringBuilder sb = new StringBuilder();
+        sb.append("Author: ");
+        for (String au : plugin.getDescription().getAuthors()) {
+            sb.append(au+" ");
+        }
+        getLogger().info(sb.toString());
+
+        getLogger().info("");
         getLogger().info("正在进行预加载");
 
         PluginVersion = this.getDescription().getVersion();
@@ -277,6 +298,9 @@ public class main extends JavaPlugin {
         Objects.requireNonNull(Bukkit.getPluginCommand("bemenu")).setTabCompleter(new TabHandler());
         getLogger().info("注册指令/bemenu补全器完成");
 
+        getLogger().info("注册BungeeCord通道");
+        plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+
         //加载类
         loadExClass();
         //LoadCommandAlertTabComplete();
@@ -297,6 +321,9 @@ public class main extends JavaPlugin {
 
         getLogger().info("关闭ip搜索器");
         ipsearch.close();
+
+        getLogger().info("注销BungeeCord通道");
+        plugin.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, "BungeeCord");
     }
 
     public class EventListener implements Listener {
@@ -779,12 +806,6 @@ public class main extends JavaPlugin {
 //                    }
 //                }
 
-                //卸载命令补全
-                commandAlert.UnloadCommandAlert();
-
-                //加载命令补全
-                commandAlert.LoadCommandAlert();
-                //LoadCommandAlertTabComplete();
 
                 getLogger().info("加载RealisticSeasons变量修复世界");
                 PAPIE.EnableSeasonWorlds = getConfig().getStringList("RealisticSeasonsPAPIFix.EnabledWorld");

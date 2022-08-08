@@ -3,6 +3,7 @@ package dpear.gpg;
 import com.magmaguy.elitemobs.api.EliteMobDeathEvent;
 import com.magmaguy.elitemobs.api.EliteMobRemoveEvent;
 import com.magmaguy.elitemobs.api.EliteMobSpawnEvent;
+import com.udojava.evalex.Expression;
 import fr.xephi.authme.api.v3.AuthMeApi;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
@@ -132,16 +133,35 @@ public class CommandAlert {
             return false;
         }
 
+        //日志
+        getLogger().info("玩家 " + commandSender.getName() + "使用了转接命令" + s);
+
+        List<String> ExecuteCommands = null;
+
         if (!config.getString(CommandPath + "Permission", "Null").equals("Null")) {
             if (!commandSender.hasPermission(config.getString(CommandPath + "Permission", "Null"))) {
-                commandSender.sendMessage("权限不足");
+                ExecuteCommands = config.getStringList(CommandPath + "Target-no-permission");
             }
         }
 
-        List<String> ExecuteCommands = config.getStringList(CommandPath + "Target");
+        if (p != null) {
+            //玩家走表达式
+            if (!config.getString(CommandPath + "Expression", "Null").equals("Null")) {
+                Expression expression = new Expression(Tools.ReplacePlaceholder(p,config.getString(CommandPath + "Expression", "Null")));
+                if (expression.eval().intValue() == 1) {
+                    ExecuteCommands = config.getStringList(CommandPath + "Target");
+                } else {
+                    ExecuteCommands = config.getStringList(CommandPath + "Target-fail-expression");
+                }
+            }
+        }
 
-        //日志
-        getLogger().info("玩家 " + commandSender.getName() + "使用了转接命令" + s);
+
+        //判断上面正不正常
+        if (ExecuteCommands == null){
+            getLogger().info("运算转接命令的时候出现错误");
+            ExecuteCommands = config.getStringList(CommandPath + "Target");
+        }
 
         //执行
         if (config.getBoolean(CommandPath + "Replace", false)) {
