@@ -4,6 +4,9 @@ import com.magmaguy.elitemobs.api.EliteMobDeathEvent;
 import com.magmaguy.elitemobs.api.EliteMobRemoveEvent;
 import com.magmaguy.elitemobs.api.EliteMobSpawnEvent;
 import fr.xephi.authme.api.v3.AuthMeApi;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -12,9 +15,11 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.*;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -34,6 +39,7 @@ public class main extends JavaPlugin {
     public static Boolean PassCheck = false;
     public static String PluginVersion = "2.2";
     public static String Developer = "MownSoft666";
+    Plugin plugin = this;
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
     double[] Music = {0.890899,
             0.890899,0.890899,0.943874,1.059463, //3345
@@ -310,44 +316,44 @@ public class main extends JavaPlugin {
                     //发送验证消息
                     e.getPlayer().sendMessage("");
                     e.getPlayer().sendMessage("");
-                    ;
+
                     int t;
+
                     //不要点按钮(Red)
+                    BaseComponent Red = new TextComponent("> > > [不要点我] < < <");
+                    Red.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击我被踢出服务器<<")));
+                    Red.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register "+ e.getPlayer().getName().hashCode()));
+                    Red.setColor(ChatColor.RED);
+
                     for (t = 0; t<new Random().nextInt(0,3);t = t + 1) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                e.getPlayer().getName().hashCode()+
-                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
+                        e.getPlayer().sendMessage(Red);
                     }
 
                     //不要点按钮(Yellow)
+                    BaseComponent Yellow = new TextComponent("> > > [不要点我啦~] < < <");
+                    Yellow.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击人家被踢出服务器<<")));
+                    Yellow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register "+ e.getPlayer().getName().hashCode()));
+                    Yellow.setColor(ChatColor.YELLOW);
+
                     for (t = 0; t<new Random().nextInt(0,2);t = t + 1) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                e.getPlayer().getName().hashCode()+
-                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
+                        e.getPlayer().sendMessage(Yellow);
                     }
 
                     //要点的
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                            " [{\"text\":\"> > > [点我完成真人验证] < < <\",\"color\":\"green\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                            e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId()+
-                            "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我完成验证<<\"}}]");
+                    BaseComponent Green = new TextComponent("> > > [点我完成真人验证] < < <");
+                    Green.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击我完成验证<<")));
+                    Green.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register "+ e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId()));
+                    Green.setColor(ChatColor.GREEN);
+                    e.getPlayer().sendMessage(Green);
 
                     //不要点按钮(Yellow)
                     for (t = 0; t<new Random().nextInt(0,2);t = t + 1) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                e.getPlayer().getName().hashCode()+
-                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
+                        e.getPlayer().sendMessage(Yellow);
                     }
 
-                    //不要点按钮
+                    //不要点按钮(Red)
                     for (t = 0; t<new Random().nextInt(0,3);t = t + 1) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                e.getPlayer().getName().hashCode()+
-                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
+                        e.getPlayer().sendMessage(Red);
                     }
 
                     e.getPlayer().sendMessage("");
@@ -356,18 +362,22 @@ public class main extends JavaPlugin {
                 }
             }
 
-            if (getConfig().getString("Command.OnPlayerJoin").equals("Null")) {
+            if (getConfig().getString("Command.OnPlayerJoin","Null").equals("Null")) {
                 return;
             }
-            ;
 
-            ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-            Bukkit.dispatchCommand(console,
-                    getConfig().getString("Command.OnPlayerJoin", "checkplayerbe %PlayerName").
-                            replace("%PlayerName", e.getPlayer().getName()).
-                            replace("%PlayerUUID", e.getPlayer().getUniqueId().toString()));
-
-
+            //延迟执行
+            BukkitRunnable Runable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+                    Bukkit.dispatchCommand(console,
+                            getConfig().getString("Command.OnPlayerJoin", "checkplayerbe %PlayerName").
+                                    replace("%PlayerName", e.getPlayer().getName()).
+                                    replace("%PlayerUUID", e.getPlayer().getUniqueId().toString()));
+                }
+            };
+            Runable.runTaskLater(plugin,500);
         }
 
         @EventHandler

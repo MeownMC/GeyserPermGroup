@@ -6,6 +6,7 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.util.List;
@@ -126,10 +127,18 @@ public class VersionCommand {
             ;
         };
 
-        //外置玩家判断
-        if (PlaceholderAPI.setPlaceholders(player,"%fastlogin_status%").equals("Premium")) {
-            WelcomePlayer(player, "FastLogin", "", PASSWORD_S);
-        }
+        //延迟判断
+        String finalPASSWORD_S = PASSWORD_S;
+        BukkitRunnable Runable = new BukkitRunnable() {
+            @Override
+            public void run() {
+                //外置玩家判断
+                if (PlaceholderAPI.setPlaceholders(player,"%fastlogin_status%").equals("Premium")) {
+                    WelcomePlayer(player, "FastLogin", "", finalPASSWORD_S);
+                }
+            }
+        };
+        Runable.runTaskLater(plugin,1500);
 
         return true;
     }
