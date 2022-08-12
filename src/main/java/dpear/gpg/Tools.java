@@ -2,6 +2,7 @@ package dpear.gpg;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.udojava.evalex.Expression;
 import com.viaversion.viaversion.api.Via;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
@@ -29,16 +30,19 @@ public class Tools {
         this.plugin = plugin;
         this.config = config;
 
-        //判断版本
-        try {
-            if (Integer.parseInt(Bukkit.getMinecraftVersion()) >=18) {
-                isHighVersion = true;
-            }
-        }catch (Exception ignored){}//别管他
+        if (!config.getBoolean("OldMinecraftVersion",false)) {
+            isHighVersion = true;
+        }
     }
+
+
 
     public void ReloadConfig(FileConfiguration config){
         this.config = config;
+
+        if (!config.getBoolean("OldMinecraftVersion",false)) {
+            isHighVersion = true;
+        }
     }
 
     public static List<String> KeepStartWith(String head, List<String> Strings){
@@ -84,6 +88,13 @@ public class Tools {
     public void Execute(Player player,String command){
 
         command = ReplacePlaceholder(player, command);
+
+        //嵌套调用
+        ExecuteWithoutPlaceholder (player,command);
+
+    }
+
+    public void ExecuteWithoutPlaceholder(Player player,String command){
 
         //以后台身份运行
         if (command.startsWith("Console~")){
@@ -141,6 +152,29 @@ public class Tools {
         out.writeUTF("Connect");
         out.writeUTF(serverName);
         player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+    }
+
+    public static String EvalexReplace(String input) {
+
+        //处理命令
+        int LastIndex = 0;
+
+        while (true) {
+            int StartIndex = input.indexOf("${", LastIndex);
+
+            if (StartIndex == -1) {
+                break;
+            }
+
+            int EndIndex = input.indexOf("}$", StartIndex);
+
+            Expression expression = new Expression (input.substring(StartIndex + 2, EndIndex));
+
+            input = input.substring(0, StartIndex) + String.valueOf(expression.eval().intValue()) + input.substring(EndIndex + 2);
+
+        }
+
+        return input;
     }
 
 }

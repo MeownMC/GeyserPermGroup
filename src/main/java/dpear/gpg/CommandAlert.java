@@ -147,7 +147,17 @@ public class CommandAlert {
         if (p != null) {
             //玩家走表达式
             if (!config.getString(CommandPath + "Expression", "Null").equals("Null")) {
-                Expression expression = new Expression(Tools.ReplacePlaceholder(p,config.getString(CommandPath + "Expression", "Null")));
+                String EXPString = Tools.ReplacePlaceholder(p,config.getString(CommandPath + "Expression", "Null"));
+
+                //如果启用
+                if (config.getBoolean(CommandPath + "Replace", false)) {
+                    //替换参数
+                    for (int i = 0; i < strings.length; i++) {
+                        EXPString = EXPString.replace("{" + i + "}", strings[i]);
+                    }
+                }
+
+                Expression expression = new Expression(EXPString);
                 if (expression.eval().intValue() == 1) {
                     ExecuteCommands = config.getStringList(CommandPath + "Target");
                 } else {
@@ -159,9 +169,10 @@ public class CommandAlert {
 
         //判断上面正不正常
         if (ExecuteCommands == null){
-            getLogger().info("运算转接命令的时候出现错误");
             ExecuteCommands = config.getStringList(CommandPath + "Target");
         }
+
+
 
         //执行
         if (config.getBoolean(CommandPath + "Replace", false)) {
@@ -183,7 +194,7 @@ public class CommandAlert {
                 }
 
                 //执行命令
-                plugin.tools.Execute(p,Executer);
+                plugin.tools.ExecuteWithoutPlaceholder(p,Tools.EvalexReplace(Tools.ReplacePlaceholder(p,Executer)));
 
             }
 
@@ -193,6 +204,7 @@ public class CommandAlert {
                 plugin.tools.Execute(p,executeCommand);
             }
         }
+
         return true;
 
     }

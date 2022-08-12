@@ -92,7 +92,7 @@ public class main extends JavaPlugin {
 
         //打印logo
         getLogger().info("");
-        getLogger().info(plugin.getName() + " Powered by ");
+        getLogger().info(plugin.getName() + "(Ver " + plugin.getDescription().getVersion() + ") Powered by ");
         getLogger().info("    __  ___                         __  _________");
         getLogger().info("   /  |/  /__  ____ _      ______  /  |/  / ____/");
         getLogger().info("  / /|_/ / _ \\/ __ \\ | /| / / __ \\/ /|_/ / /     ");
@@ -283,6 +283,11 @@ public class main extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new EventListener(), this);
             getLogger().info("事件监听器注册成功");
         }
+        if(getConfig().getBoolean("Register.Bungeecord", false)){
+            plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+            getLogger().info("BungeeCord通道注册成功");
+        }
+
         if (Bukkit.getPluginCommand("checkplayerbe") != null) {
             Bukkit.getPluginCommand("checkplayerbe").setExecutor(new Commander_L());
             getLogger().info("注册指令/checkplayerbe成功");
@@ -298,15 +303,14 @@ public class main extends JavaPlugin {
         Objects.requireNonNull(Bukkit.getPluginCommand("bemenu")).setTabCompleter(new TabHandler());
         getLogger().info("注册指令/bemenu补全器完成");
 
-        getLogger().info("注册BungeeCord通道");
-        plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-
         //加载类
         loadExClass();
         //LoadCommandAlertTabComplete();
 
         if (!PassCheck){
-            getLogger().info("Fail in checking SCID-C");
+            getConfig().set("SCID",ComputerCode_SHA);
+            saveConfig();
+            getLogger().info("SCID-C校验失败");
             getServer().getPluginManager().disablePlugin(this);
         }else{
             getLogger().info("插件加载完毕！感谢使用");
@@ -459,15 +463,9 @@ public class main extends JavaPlugin {
             if (tools.isHighVersion) {
                 //设置模拟距离
                 e.getPlayer().setSimulationDistance(
-                        getConfig().getInt("SimulationDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getSimulationDistance())
-                );
-            } else {
-                //设置假视距
-                e.getPlayer().setNoTickViewDistance(
-                        getConfig().getInt("NoTickViewDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getNoTickViewDistance())
-                );
+                        getConfig().getInt("SimulationDistance." + e.getPlayer().getWorld().getName(), e.getPlayer().getSimulationDistance()));
+                }
             }
-        }
 
         @EventHandler
         public void onChatEvent(PlayerChatEvent e){
@@ -669,11 +667,6 @@ public class main extends JavaPlugin {
                 //设置模拟距离
                 P.setSimulationDistance(
                         getConfig().getInt("SimulationDistance." + P.getWorld().getName(), P.getSimulationDistance())
-                );
-            } else {
-                //设置假视距
-                P.setNoTickViewDistance(
-                        getConfig().getInt("NoTickViewDistance." + P.getWorld().getName(), P.getNoTickViewDistance())
                 );
             }
 

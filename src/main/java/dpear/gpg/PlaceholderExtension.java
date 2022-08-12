@@ -67,7 +67,6 @@ public class PlaceholderExtension extends PlaceholderExpansion{
 
         //世界季节_当前季节
         if(params.equalsIgnoreCase("rs_season")) {
-
             if(EnableSeasonWorlds.contains(player.getPlayer().getWorld().getName())) {
                 return PlaceholderAPI.setPlaceholders(player, "%rs_season%");
             }else{

@@ -143,7 +143,6 @@ public class VersionCommand {
         return true;
     }
 
-
     private void WelcomePlayer(Player player, String version, String type, String password){
 
         //得到要发送的字符串的数组并发送

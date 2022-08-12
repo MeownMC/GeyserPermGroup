@@ -7,6 +7,7 @@
 
 ConfigVersion: 2.2
 SCID-C: #在此处输入密钥
+OldMinecraftVersion: false
 EnabledFunction:
   CommandAlert: true
   BedrockMenu: true
@@ -14,8 +15,8 @@ EnabledFunction:
   VersionCommand: true
   IP2Region: false
 Register:
-  #Warning!Still in develop!DO NOT set to true!
   EventListener: false
+  Bungeecord: true
 VersionCheck:
   FloodGate: true
   ViaVersion: false
@@ -221,9 +222,6 @@ SimulationDistance:
 ViewDistance:
   world: 5
   plotworld: 4
-NoTickViewDistance:
-  world: 6
-  plotworld: 5
 RealisticSeasonsPAPIFix:
   EnabledWorld:
     - 'world'

@@ -352,7 +352,6 @@ public class BedrockMenu {
 
                         }
 
-
                     });
 
             fa.sendForm(player.getUniqueId(), CFBuilder);
