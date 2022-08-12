@@ -363,11 +363,11 @@ public class BedrockMenu {
         if (type.equals("PlayerListForm")){
 
             //获得玩家列表
-            Collection<? extends Player> b = Bukkit.getOnlinePlayers();
-            if (ReadMenuData ( name, "removeself").equals("true")) {
-                b.remove(player);
+            List<Player> Button = (List<Player>) Bukkit.getOnlinePlayers();
+
+            if (ReadMenuData (name, "removeself").equals("true")) {
+                Button.remove(player);
             };
-            List<Player> Button = (List<Player>) b;
 
             SimpleForm.Builder MFBuilder = SimpleForm.builder()
                     .title(Tools.ReplacePlaceholder (player,ReadMenuData (name, "title")))
@@ -396,8 +396,6 @@ public class BedrockMenu {
                                 replace("%PlayerName", Button.get(response.getClickedButtonId()).getName()).
                                 replace("%PlayerUUID", Button.get(response.getClickedButtonId()).getUniqueId().toString())
                         );
-
-                        return;
 
                     });
 

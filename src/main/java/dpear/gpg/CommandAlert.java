@@ -217,23 +217,23 @@ public class CommandAlert {
             //去除最后一项
             args[args.length-1] = "";
 
-            List<String> TabResults = Tools.KeepStartWith (LAST ,config.getStringList(GetCommandAlertPath(s,args,sender) + "Tab"));
+            List<String> TabResults = config.getStringList(GetCommandAlertPath(s,args,sender) + "Tab");
 
             if (TabResults.size() == 0) {
                 //如果没写对应配置的话
                 return null;
             }else{
-                if(TabResults.get(0).equals("Null")){
+                if(TabResults.get(0).equals("#Null")){
                     //不返回
                     return null;
                 }
-                if (TabResults.get(0).equals("PlayerList")){
+                if (TabResults.get(0).equals("#PlayerList")){
                     //玩家列表
-                    return Tools.GetStringPlayerList(args[args.length - 1]);
+                    return Tools.GetStringPlayerList(LAST);
                 }
 
                 //正常返回
-                return (TabResults);
+                return (Tools.KeepStartWith (LAST, TabResults));
             }
         }catch (Exception e){
             //有问题就不返回

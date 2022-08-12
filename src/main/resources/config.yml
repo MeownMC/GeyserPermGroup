@@ -61,9 +61,7 @@ Version:
   FastLogin:
     Enable: true
     AutoLogin:
-      Command: false
       AuthMe: true
-      AuthMe_CommandRegister: false
     Command: []
     Message:
       - '§8[§4§l系统§8] §6§l检测到您正在使用外置登录，已自动为您登录至喵喵领域服务器'

@@ -50,10 +50,29 @@ public class VersionCommand {
 
         //计算密码
         int PASSWD = player.getUniqueId().hashCode();
-        String PASSWORD_F = "Meown115141919810-Null" , PASSWORD_S = "";
+        String PASSWORD_F = "Meown115141919810-Null";
         PASSWORD_F = PASSWD+"";
-        PASSWORD_S = PASSWORD_F.substring(0,8);
+        String PASSWORD_S = PASSWORD_F.substring(0,8);
 
+        //延迟判断
+        BukkitRunnable Runable = new BukkitRunnable() {
+            @Override
+            public void run() {
+                //外置玩家判断
+                getLogger().info("玩家 " + player.getName() + " 的FastLogin状态为 " + PlaceholderAPI.setPlaceholders(player,"%fastlogin_status%"));
+                if (PlaceholderAPI.setPlaceholders(player,"%fastlogin_status%").equals("Premium")) {
+                    //是否启用
+                    if(config.getBoolean("Version.FastLogin.Enable",false)){
+                        if (config.getBoolean("Version.FastLogin.AutoLogin.AuthMe",false)) {
+                            AuthMeApi.getInstance().forceLogin(player);
+                        }
+                        WelcomePlayer(player, "FastLogin", "", PASSWORD_S);
+                    }
+                }
+            }
+        };
+
+        Runable.runTaskLater(plugin,20);
 
         //是否启用AuthMe自动登入
         if (config.getBoolean("Version." + PlayerVersion + ".AutoLogin.AuthMe",false)){
@@ -126,20 +145,6 @@ public class VersionCommand {
             }
             ;
         };
-
-        //延迟判断
-        String finalPASSWORD_S = PASSWORD_S;
-        BukkitRunnable Runable = new BukkitRunnable() {
-            @Override
-            public void run() {
-                //外置玩家判断
-                if (PlaceholderAPI.setPlaceholders(player,"%fastlogin_status%").equals("Premium")) {
-                    WelcomePlayer(player, "FastLogin", "", finalPASSWORD_S);
-                }
-            }
-        };
-        Runable.runTaskLater(plugin,1500);
-
         return true;
     }
 

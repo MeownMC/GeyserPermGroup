@@ -393,10 +393,11 @@ public class main extends JavaPlugin {
                 }
             }
 
-            if (getConfig().getString("Command.OnPlayerJoin","Null").equals("Null")) {
+            if (getConfig().getString("Command.OnPlayerJoin","checkplayerbe %PlayerName").equals("Null")) {
                 return;
             }
 
+            getLogger().info("TEST");
             //延迟执行
             BukkitRunnable Runable = new BukkitRunnable() {
                 @Override
@@ -408,7 +409,8 @@ public class main extends JavaPlugin {
                                     replace("%PlayerUUID", e.getPlayer().getUniqueId().toString()));
                 }
             };
-            Runable.runTaskLater(plugin,500);
+
+            Runable.runTaskLater(plugin,1);
         }
 
         @EventHandler
@@ -504,10 +506,11 @@ public class main extends JavaPlugin {
 
             if (args.length == 1){
                 //((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),Sound.BLOCK_NOTE_BLOCK_HARP, 1,((float)(args[0].length()+1)/4)%2);
-
-                if (args[0].length() < Music.length) {
-                    ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
-                            Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
+                if (tools.isHighVersion) {
+                    if (args[0].length() < Music.length) {
+                        ((Player) sender).getPlayer().playSound(((Player) sender).getPlayer().getLocation(),
+                                Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
+                    }
                 }
                 return (Tools.KeepStartWith (args[0] , List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo","ipr")));
             }
