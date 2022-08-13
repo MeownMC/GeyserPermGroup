@@ -85,7 +85,7 @@ public class PlaceholderExtension extends PlaceholderExpansion{
 
         if (params.startsWith("ipr")){
             //是否启用
-            if (!plugin.getConfig().getBoolean("EnableIPRegion",false)) {
+            if (!plugin.getConfig().getBoolean("EnabledFunction.IP2Region",false)) {
                 return null;
             }
         }
