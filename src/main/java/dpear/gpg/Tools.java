@@ -49,7 +49,7 @@ public class Tools {
     public static List<String> KeepStartWith(String head, List<String> Strings){
         ArrayList<String> Wreturned = new ArrayList<>();
         for (String CheckNow:Strings) {
-            if(CheckNow.startsWith(head)){
+            if(CheckNow.toLowerCase().startsWith(head.toLowerCase())){
                 //匹配
                 Wreturned.add(CheckNow);
             }
@@ -70,7 +70,7 @@ public class Tools {
         }else{
             //检查头相等
             for (Player player: players) {
-                if (player.getName().startsWith(head)) {
+                if (player.getName().toLowerCase().startsWith(head.toLowerCase())) {
                     players_string.add(player.getName());
                 }
             }
