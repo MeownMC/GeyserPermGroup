@@ -146,8 +146,11 @@ Hard:处理玩家执行该命令的事件，并独立以玩家身份执行命令
 > 无前缀:作为命令执行<br>
 > Console~:以控制台身份执行<br>
 > Msg~:给玩家发送消息<br>
+> ActionBar~:给玩家发送ActionBar消息<br>
+> Title~主标题;副标题:给玩家发送标题
 > Chat~:以玩家身份发送消息<br>
 > Menu~:直接打开菜单<br>
 > Server~:Bungeecord切换子服<br>
+> Delay~延迟~命令(支持格式):延迟指定时间后执行<br>
 
 7.现在Tab补全会根据玩家已经输入的命令返回不同的内容

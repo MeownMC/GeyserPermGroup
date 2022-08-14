@@ -8,6 +8,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.util.ArrayList;
@@ -108,6 +109,22 @@ public class Tools {
             return;
         }
 
+        //发送ActionBar
+        if (command.startsWith("ActionBar~")){
+            player.sendActionBar(command.substring(10));
+            return;
+        }
+
+        //发送Title
+        if (command.startsWith("Title~")){
+            String[] Titles = command.substring(6).split(";");
+            if (Titles.length == 2){
+                player.sendTitle(Titles[0],Titles[1]);
+                return;
+            }
+            //参数不够不当Title处理
+        }
+
         //发送聊天
         if (command.startsWith("Chat~")){
             player.chat(command.substring(5));
@@ -124,6 +141,28 @@ public class Tools {
         if (command.startsWith("Server~")){
             SendPlayerBungee(player,command.substring(7));
             return;
+        }
+
+        //延迟执行
+        if (command.startsWith("Delay~")){
+
+            //分割
+            String content = command.substring(6);
+            int DelayEnd = content.indexOf ("~");
+
+            //生成runable
+            BukkitRunnable runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    //应该不会死循环
+                    ExecuteWithoutPlaceholder(player,content.substring(DelayEnd + 1));
+                }
+            };
+
+            //运行runable
+            runnable.runTaskLater(plugin,Integer.parseInt(content.substring(0,DelayEnd)));
+            return;
+
         }
 
         //执行命令
@@ -170,7 +209,7 @@ public class Tools {
 
             Expression expression = new Expression (input.substring(StartIndex + 2, EndIndex));
 
-            input = input.substring(0, StartIndex) + String.valueOf(expression.eval().intValue()) + input.substring(EndIndex + 2);
+            input = input.substring(0, StartIndex) + expression.eval().intValue() + input.substring(EndIndex + 2);
 
         }
 
