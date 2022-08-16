@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.udojava.evalex.Expression;
 import com.viaversion.viaversion.api.Via;
+import de.themoep.minedown.MineDown;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -105,13 +106,13 @@ public class Tools {
 
         //发送消息
         if (command.startsWith("Msg~")){
-            player.sendMessage(command.substring(4));
+            player.sendMessage(MineDown.parse(command.substring(4)));
             return;
         }
 
         //发送ActionBar
         if (command.startsWith("ActionBar~")){
-            player.sendActionBar(command.substring(10));
+            player.sendActionBar(MineDown.parse(command.substring(10)));
             return;
         }
 
@@ -128,6 +129,12 @@ public class Tools {
         //发送聊天
         if (command.startsWith("Chat~")){
             player.chat(command.substring(5));
+            return;
+        }
+
+        //发送公屏
+        if (command.startsWith("Broadcast~")){
+            Bukkit.broadcast(MineDown.parse(command.substring(10)));
             return;
         }
 
