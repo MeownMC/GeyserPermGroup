@@ -279,6 +279,13 @@ public class main extends JavaPlugin {
             getLogger().info("已检测到Vault相关功能可用");
         };
 
+        //检查有没有MinedownPlugin
+        if(Bukkit.getPluginManager().getPlugin("MinedownPlugin") == null){
+            getLogger().warning("未检测到MinedownPlugin相关功能不可用");
+        }else{
+            getLogger().info("已检测到MinedownPlugin相关功能可用");
+        };
+
         if(getConfig().getBoolean("Register.EventListener", false)){
             getServer().getPluginManager().registerEvents(new EventListener(), this);
             getLogger().info("事件监听器注册成功");

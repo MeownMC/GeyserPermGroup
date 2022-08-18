@@ -13,6 +13,7 @@ softdepend:
   - ViaVersion
   - Vault
   - EliteMobs
+  - MinedownPlugin
 commands:
   checkplayerbe:
     usage: "/checkplayerbe <player-name>"
