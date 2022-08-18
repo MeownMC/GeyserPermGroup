@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 
+import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -222,5 +223,142 @@ public class Tools {
 
         return input;
     }
+
+    public void CheckSCID(){
+        //获取机器码
+        getLogger().info("正在获取CID");
+        String OsName = System.getProperties().getProperty("os.name");
+
+        String ComputerCode = "FAILURE";
+        String ComputerCode_SHA = "";
+
+
+        //如果使用Windows
+        if (OsName.startsWith("Windows")){
+            getLogger().info("您正在使用Windows");
+
+            try {
+                Process process = Runtime.getRuntime().exec(new String[] { "wmic", "cpu", "get", "ProcessorId" });
+                process.getOutputStream().close();
+                Scanner sc = new Scanner(process.getInputStream());
+
+                ComputerCode = sc.next();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //如果使用Linux
+        if (OsName.equals("Linux")){
+            getLogger().info("您正在使用Linux/GNU");
+
+            try {
+                Process process = Runtime.getRuntime().exec("sudo dmidecode -s system-uuid");
+                InputStream in;
+                BufferedReader br;
+                in = process.getInputStream();
+                br = new BufferedReader(new InputStreamReader(in));
+                while (in.read() != -1) {
+                    ComputerCode = br.readLine();
+                }
+                br.close();
+                in.close();
+                process.destroy();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (Objects.equals(ComputerCode, "FAILURE")){
+            getLogger().warning("CID获取失败");
+            getLogger().warning("没有以管理员身份运行或不受支持的操作系统");
+            ComputerCode = new Random().toString();
+        }
+
+        getLogger().info("正在加密CID");
+        try {
+            byte[] encrypted = MessageDigest.getInstance("SHA-256").digest(ComputerCode.getBytes(StandardCharsets.UTF_8));
+            StringBuilder SHA = new StringBuilder();
+            for (byte b : encrypted) {
+                SHA.append(String.format("%02x", b));
+            }
+            ComputerCode_SHA = SHA.toString();
+            getLogger().info("您的SCID: " + ComputerCode_SHA);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        getLogger().info("正在比对SCID-C");
+        checkSCIDC (ComputerCode_PMD);
+        if (plugin.PassCheck){return;};
+        checkSCIDC_TL (ComputerCode_PMD);
+
+    }
+
+    private void checkSCIDC(String ComputerCode_PMD){
+
+        String ComputerCode_PMD = ComputerCode_SHA + this.getName() + plugin.PluginVersion + plugin.Developer;
+        String ComputerCode_MD = "FAILURE";
+
+        try {
+            byte[] encrypted = MessageDigest.getInstance("md5").digest(ComputerCode_PMD.getBytes(StandardCharsets.UTF_8));
+            StringBuilder MD = new StringBuilder();
+            for (byte b : encrypted) {
+                MD.append(String.format("%02x", b));
+            }
+            ComputerCode_MD = MD.toString();
+
+        }catch (Exception e){
+            ComputerCode_MD = "FAILURE";
+            e.printStackTrace();
+        }
+
+        if (ComputerCode_MD.equals("FAILURE")){
+            getLogger().warning("SCID-C获取失败");
+            ComputerCode_MD = new Random().toString();
+        }
+        if(config.getString("SCID-C", "Null").equals(ComputerCode_MD)){
+            getLogger().info("SCID-C校验成功");
+            plugin.PassCheck = true;
+        }
+    }
+
+
+    private void checkSCIDC_TL(String ComputerCode_PMD){
+
+        Calendar cal = Calendar.getInstance();
+        int month = cal.get(Calendar.MONTH) + 1;
+        int qur = 0;
+        
+        if (month >= 1 && month <= 3){qur = 1};
+        if (month >= 4 && month <= 6){qur = 2};
+        if (month >= 7 && month <= 9){qur = 3};
+        if (month >= 10 && month <= 12){qur = 4};
+
+        String ComputerCode_PMD = ComputerCode_SHA + this.getName() + plugin.PluginVersion + "|" + qur + plugin.Developer;
+        String ComputerCode_MD = "FAILURE";
+
+        try {
+            byte[] encrypted = MessageDigest.getInstance("md5").digest(ComputerCode_PMD.getBytes(StandardCharsets.UTF_8));
+            StringBuilder MD = new StringBuilder();
+            for (byte b : encrypted) {
+                MD.append(String.format("%02x", b));
+            }
+            ComputerCode_MD = MD.toString();
+
+        }catch (Exception e){
+            ComputerCode_MD = "FAILURE";
+            e.printStackTrace();
+        }
+
+        if(config.getString("SCID-C", "Null").equals(ComputerCode_MD)){
+            getLogger().info("SCID-C校验成功");
+            plugin.PassCheck = true;
+        }else{
+            getLogger().info("SCID-C校验失败");
+        }
+    }
+
 
 }

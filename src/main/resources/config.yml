@@ -1,8 +1,8 @@
-#This plugin is made by D-Pear[QQ:1448360624]
-#You can visit my Minecraft server 'mc.meown.top'(JE) or 'be.meown.top'(BE)
+#This plugin is made by D-Pear
+#You can visit my Minecraft server 'meown.top'(JE) or 'be.meown.top'(BE)
 #This plugin is still in developing, if not necessary please don't use this in produced environment
 #YOU CAN REPORT BUGS IN THE GITHUB
-#https://github.com/D-Pear/GeyserPermGroup
+#https://github.com/MeownMC/GeyserPermGroup
 #Thank for use this plugin
 
 ConfigVersion: 2.2
@@ -13,9 +13,9 @@ EnabledFunction:
   BedrockMenu: true
   ElitemobsHandler: true
   VersionCommand: true
-  IP2Region: false
+  IP2Region: false    #需自行下载数据库
 Register:
-  EventListener: false
+  EventListener: true
   Bungeecord: true
 VersionCheck:
   FloodGate: true
@@ -71,7 +71,7 @@ Version:
       - '§7 '
 Command:
   #Command here will execute as console after a player join
-  OnPlayerJoin: 'Null'
+  OnPlayerJoin: 'checkplayerbe %PlayerName'
   Login: 'login %Password'
   Register: 'register %Password %Password'
 Actions:

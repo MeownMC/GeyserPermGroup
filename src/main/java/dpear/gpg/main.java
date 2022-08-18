@@ -123,99 +123,9 @@ public class main extends JavaPlugin {
             getLogger().warning("这可能导致意料之外的异常");
         };
 
-        //获取机器码
-        getLogger().info("正在获取CID");
-        String OsName = System.getProperties().getProperty("os.name");
+        //检查机器码
+        tools.checkSCID ();
 
-        String ComputerCode = "FAILURE";
-        String ComputerCode_SHA = "";
-
-
-        //如果使用Windows
-        if (OsName.startsWith("Windows")){
-            getLogger().info("您正在使用Windows");
-
-            try {
-                Process process = Runtime.getRuntime().exec(new String[] { "wmic", "cpu", "get", "ProcessorId" });
-                process.getOutputStream().close();
-                Scanner sc = new Scanner(process.getInputStream());
-
-                ComputerCode = sc.next();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //如果使用Linux
-        if (OsName.equals("Linux")){
-            getLogger().info("您正在使用Linux/GNU");
-
-            try {
-                Process process = Runtime.getRuntime().exec("sudo dmidecode -s system-uuid");
-                InputStream in;
-                BufferedReader br;
-                in = process.getInputStream();
-                br = new BufferedReader(new InputStreamReader(in));
-                while (in.read() != -1) {
-                    ComputerCode = br.readLine();
-                }
-                br.close();
-                in.close();
-                process.destroy();
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (Objects.equals(ComputerCode, "FAILURE")){
-            getLogger().warning("CID获取失败");
-            getLogger().warning("没有以管理员身份运行或不受支持的操作系统");
-            ComputerCode = new Random().toString();
-        }
-
-        getLogger().info("正在加密CID");
-        try {
-            byte[] encrypted = MessageDigest.getInstance("SHA-256").digest(ComputerCode.getBytes(StandardCharsets.UTF_8));
-            StringBuilder SHA = new StringBuilder();
-            for (byte b : encrypted) {
-                SHA.append(String.format("%02x", b));
-            }
-            ComputerCode_SHA = SHA.toString();
-            getLogger().info("您的SCID: " + ComputerCode_SHA);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-
-        getLogger().info("正在比对SCID-C");
-        String ComputerCode_PMD = ComputerCode_SHA + this.getName() + PluginVersion + Developer;
-        String ComputerCode_MD = "FAILURE";
-
-
-        try {
-            byte[] encrypted = MessageDigest.getInstance("md5").digest(ComputerCode_PMD.getBytes(StandardCharsets.UTF_8));
-            StringBuilder MD = new StringBuilder();
-            for (byte b : encrypted) {
-                MD.append(String.format("%02x", b));
-            }
-            ComputerCode_MD = MD.toString();
-
-        }catch (Exception e){
-            ComputerCode_MD = "FAILURE";
-            e.printStackTrace();
-        }
-
-        if (ComputerCode_MD.equals("FAILURE")){
-            getLogger().warning("SCID-C获取失败");
-            ComputerCode_MD = new Random().toString();
-        }
-        if(getConfig().getString("SCID-C", "Null").equals(ComputerCode_MD)){
-            getLogger().info("SCID-C校验成功");
-            PassCheck = true;
-        }else{
-            getLogger().info("SCID-C校验失败");
-        }
 
         getLogger().info("插件已验证，开始加载");
 
@@ -280,10 +190,10 @@ public class main extends JavaPlugin {
         };
 
         //检查有没有MinedownPlugin
-        if(Bukkit.getPluginManager().getPlugin("MinedownPlugin") == null){
-            getLogger().warning("未检测到MinedownPlugin相关功能不可用");
+        if(Bukkit.getPluginManager().getPlugin("MineDownPlugin") == null){
+            getLogger().warning("未检测到MineDownPlugin相关功能不可用");
         }else{
-            getLogger().info("已检测到MinedownPlugin相关功能可用");
+            getLogger().info("已检测到MineDownPlugin相关功能可用");
         };
 
         if(getConfig().getBoolean("Register.EventListener", false)){
@@ -440,7 +350,7 @@ public class main extends JavaPlugin {
                 }
             }
 
-            if (getConfig().getString("Command.OnPlayerJoin","checkplayerbe %PlayerName").equals("Null")) {
+            if (getConfig().getString("Command.OnPlayerJoin","Null").equals("Null")) {
                 return;
             }
 
