@@ -175,6 +175,10 @@ public class PlaceholderExtension extends PlaceholderExpansion{
             }
         }
 
+        if (params.startsWith("Evalex_")){
+            return (Tools.EvalexReplace(params.substring(7)));
+        }
+
         return null; // 未知变量
     }
 
