@@ -36,9 +36,9 @@ import java.util.*;
 public class main extends JavaPlugin {
 
     //全局变量
-    public static Boolean PassCheck = false;
-    public static String PluginVersion = "2.2";
-    public static String Developer = "MownSoft666";
+    public Boolean PassCheck = false;
+    public String PluginVersion = "2.2";
+    public String Developer = "MownSoft666";
     Plugin plugin = this;
     public RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
     double[] Music = {0.890899,
@@ -74,7 +74,6 @@ public class main extends JavaPlugin {
 
     //精英怪
     public ElitemobsHandler elitemobs = null;
-    public boolean isElitemobsHandlerEnabled = false;
 
     //基岩版菜单
     public BedrockMenu bedrockMenu = null;
@@ -124,8 +123,7 @@ public class main extends JavaPlugin {
         };
 
         //检查机器码
-        tools.checkSCID ();
-
+        tools.CheckSCID();
 
         getLogger().info("插件已验证，开始加载");
 
@@ -225,8 +223,6 @@ public class main extends JavaPlugin {
         //LoadCommandAlertTabComplete();
 
         if (!PassCheck){
-            getConfig().set("SCID",ComputerCode_SHA);
-            saveConfig();
             getLogger().info("SCID-C校验失败");
             getServer().getPluginManager().disablePlugin(this);
         }else{

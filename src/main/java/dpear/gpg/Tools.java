@@ -12,10 +12,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 
-import java.util.Calendar;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.*;
+
+import static org.bukkit.Bukkit.getLogger;
 
 public class Tools {
 
@@ -290,15 +295,15 @@ public class Tools {
         }
 
         getLogger().info("正在比对SCID-C");
-        checkSCIDC (ComputerCode_PMD);
+        checkSCIDC (ComputerCode_SHA);
         if (plugin.PassCheck){return;};
-        checkSCIDC_TL (ComputerCode_PMD);
+        checkSCIDC_TL (ComputerCode_SHA);
 
     }
 
-    private void checkSCIDC(String ComputerCode_PMD){
+    private void checkSCIDC(String ComputerCode_SHA){
 
-        String ComputerCode_PMD = ComputerCode_SHA + this.getName() + plugin.PluginVersion + plugin.Developer;
+        String ComputerCode_PMD = ComputerCode_SHA + plugin.getName() + plugin.PluginVersion + plugin.Developer;
         String ComputerCode_MD = "FAILURE";
 
         try {
@@ -325,18 +330,18 @@ public class Tools {
     }
 
 
-    private void checkSCIDC_TL(String ComputerCode_PMD){
+    private void checkSCIDC_TL(String ComputerCode_SHA){
 
         Calendar cal = Calendar.getInstance();
         int month = cal.get(Calendar.MONTH) + 1;
-        int qur = 0;
+        int qur_ = 0;
         
-        if (month >= 1 && month <= 3){qur = 1};
-        if (month >= 4 && month <= 6){qur = 2};
-        if (month >= 7 && month <= 9){qur = 3};
-        if (month >= 10 && month <= 12){qur = 4};
+        if (month <= 3){qur_ = 1;};
+        if (month >= 4 && month <= 6){qur_ = 2;};
+        if (month >= 7 && month <= 9){qur_ = 3;};
+        if (month >= 10){qur_ = 4;};
 
-        String ComputerCode_PMD = ComputerCode_SHA + this.getName() + plugin.PluginVersion + "|" + qur + plugin.Developer;
+        String ComputerCode_PMD = ComputerCode_SHA + plugin.getName() + plugin.PluginVersion + "|" + qur_ + plugin.Developer;
         String ComputerCode_MD = "FAILURE";
 
         try {

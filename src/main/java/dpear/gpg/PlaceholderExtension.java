@@ -30,7 +30,7 @@ public class PlaceholderExtension extends PlaceholderExpansion{
 
     @Override
     public String getVersion() {
-        return main.PluginVersion;
+        return plugin.PluginVersion;
     }
 
     @Override
