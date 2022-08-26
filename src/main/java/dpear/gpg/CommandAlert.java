@@ -338,12 +338,16 @@ public class CommandAlert {
 
 
         //自定义参数(显然这个也不关玩家事)
-        //这个就不用添加时判定存不存在了，不存在直接执行不存在的部分
         if (config.getBoolean("CommandAlert.CommandList." + Command + ".exFunction.Arg", false)) {
             for (String c : strings) {
-                //让参数不为空再添加
-                if (!c.equals("")) {
-                    sb.append(c).append(".");
+                //表项是否存在
+                if (config.isConfigurationSection(sb + c)) {
+                    //让参数不为空再添加
+                    if (!c.equals("")) {
+                        sb.append(c).append(".");
+                    }
+                }else{
+                    sb.append("Other.");
                 }
             }
         }
