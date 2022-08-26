@@ -19,6 +19,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.bukkit.Bukkit.getLogger;
 
@@ -329,7 +331,6 @@ public class Tools {
         }
     }
 
-
     private void checkSCIDC_TL(String ComputerCode_SHA){
 
         Calendar cal = Calendar.getInstance();
@@ -365,5 +366,10 @@ public class Tools {
         }
     }
 
+    public static boolean isNumber(String str) {
+        Pattern pattern = Pattern.compile("-?[0-9]+\\.?[0-9]*");
+        Matcher isNum = pattern.matcher(str);
+        return isNum.matches();
+    }
 
 }

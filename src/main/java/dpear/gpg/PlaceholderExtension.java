@@ -179,6 +179,19 @@ public class PlaceholderExtension extends PlaceholderExpansion{
             return (Tools.EvalexReplace(params.substring(7)));
         }
 
+        if (params.equalsIgnoreCase("rank")){
+            String DTag = PlaceholderAPI.setPlaceholders(player, "%deluxetags_tag%");
+            //判断有没有独立称号
+            if (DTag.equals("")){
+                //没有返回cmi的RANK
+                return PlaceholderAPI.setPlaceholders(player, "%cmi_user_rank_displayname%");
+            }else{
+                //有返回独立称号
+                return DTag;
+            }
+        }
+
+
         return null; // 未知变量
     }
 

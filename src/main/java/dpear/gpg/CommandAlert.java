@@ -105,6 +105,7 @@ public class CommandAlert {
             ;
         }
 
+
     }
 
     public boolean CommandAlertExecutor(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings){
@@ -133,8 +134,13 @@ public class CommandAlert {
             return false;
         }
 
-        //日志
-        getLogger().info("玩家 " + commandSender.getName() + "使用了转接命令" + s);
+        //判断是否是数字,防止注入
+        for (Integer checknow:config.getIntegerList(CommandPath + "Require-Number")) {
+            if(!Tools.isNumber(strings[checknow])){
+                commandSender.sendMessage("非法参数");
+                return false;
+            }
+        }
 
         List<String> ExecuteCommands = null;
 
@@ -343,7 +349,6 @@ public class CommandAlert {
         }
         return sb.toString();
     }
-
 
     public void LoadCommandAlert() {
         //注册转接命令
