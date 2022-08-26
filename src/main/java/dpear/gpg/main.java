@@ -86,6 +86,9 @@ public class main extends JavaPlugin {
     public VersionCommand versionCommand = null;
     public boolean isVersionCommandEnabled = false;
 
+    //人机验证
+    public boolean Captcha = false;
+
     @Override
     public void onEnable() {
 
@@ -115,7 +118,7 @@ public class main extends JavaPlugin {
 
         //localServer = new LocalServer();
 
-        //saveDefaultConfig();
+        saveDefaultConfig();
 
         if(!getConfig().getString("ConfigVersion", "0").equals(PluginVersion)){
             getLogger().warning("过期的配置文件版本!请将旧版本配置文件迁移至新版本");
@@ -247,102 +250,105 @@ public class main extends JavaPlugin {
         @EventHandler
         public void onPlayerJoin(PlayerJoinEvent e) {
 
-            if(!AuthMeApi.getInstance().isRegistered(e.getPlayer().getName())){
-                //只检查未注册玩家
-                if(!FloodgateApi.getInstance().isFloodgatePlayer(e.getPlayer().getUniqueId())){
-                    //跳过基岩版玩家
+            //是否启用人机验证
+            if (Captcha) {
+                if (!AuthMeApi.getInstance().isRegistered(e.getPlayer().getName())) {
+                    //只检查未注册玩家
+                    if (!FloodgateApi.getInstance().isFloodgatePlayer(e.getPlayer().getUniqueId())) {
+                        //跳过基岩版玩家
 
-                    //添加到未通过测试玩家
-                    if (!UnCheckPlayers.contains(e.getPlayer().getName())) {
-                        UnCheckPlayers.add(e.getPlayer().getName());
+                        //添加到未通过测试玩家
+                        if (!UnCheckPlayers.contains(e.getPlayer().getName())) {
+                            UnCheckPlayers.add(e.getPlayer().getName());
+                        }
+
+                        //发送验证消息
+                        e.getPlayer().sendMessage("");
+                        e.getPlayer().sendMessage("");
+
+                        int t;
+
+                        if (tools.isHighVersion) {
+                            //不要点按钮(Red)
+                            BaseComponent Red = new TextComponent("> > > [不要点我] < < <");
+                            Red.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击我被踢出服务器<<")));
+                            Red.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register " + e.getPlayer().getName().hashCode()));
+                            Red.setColor(ChatColor.RED);
+
+                            for (t = 0; t < new Random().nextInt(0, 3); t = t + 1) {
+                                e.getPlayer().sendMessage(Red);
+                            }
+
+                            //不要点按钮(Yellow)
+                            BaseComponent Yellow = new TextComponent("> > > [不要点我啦~] < < <");
+                            Yellow.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击人家被踢出服务器<<")));
+                            Yellow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register " + e.getPlayer().getName().hashCode()));
+                            Yellow.setColor(ChatColor.YELLOW);
+
+                            for (t = 0; t < new Random().nextInt(0, 2); t = t + 1) {
+                                e.getPlayer().sendMessage(Yellow);
+                            }
+
+                            //要点的
+                            BaseComponent Green = new TextComponent("> > > [点我完成真人验证] < < <");
+                            Green.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击我完成验证<<")));
+                            Green.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register " + e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId()));
+                            Green.setColor(ChatColor.GREEN);
+                            e.getPlayer().sendMessage(Green);
+
+                            //不要点按钮(Yellow)
+                            for (t = 0; t < new Random().nextInt(0, 2); t = t + 1) {
+                                e.getPlayer().sendMessage(Yellow);
+                            }
+
+                            //不要点按钮(Red)
+                            for (t = 0; t < new Random().nextInt(0, 3); t = t + 1) {
+                                e.getPlayer().sendMessage(Red);
+                            }
+                        } else {
+                            //不要点按钮(Red)
+                            for (t = 0; t < new Random().nextInt(0, 3); t = t + 1) {
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + e.getPlayer().getName() +
+                                        " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register " +
+                                        e.getPlayer().getName().hashCode() +
+                                        "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
+                            }
+
+                            //不要点按钮(Yellow)
+                            for (t = 0; t < new Random().nextInt(0, 2); t = t + 1) {
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + e.getPlayer().getName() +
+                                        " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register " +
+                                        e.getPlayer().getName().hashCode() +
+                                        "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
+                            }
+
+                            //要点的
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + e.getPlayer().getName() +
+                                    " [{\"text\":\"> > > [点我完成真人验证] < < <\",\"color\":\"green\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register " +
+                                    e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId() +
+                                    "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我完成验证<<\"}}]");
+
+                            //不要点按钮(Yellow)
+                            for (t = 0; t < new Random().nextInt(0, 2); t = t + 1) {
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + e.getPlayer().getName() +
+                                        " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register " +
+                                        e.getPlayer().getName().hashCode() +
+                                        "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
+                            }
+
+                            //不要点按钮
+                            for (t = 0; t < new Random().nextInt(0, 3); t = t + 1) {
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + e.getPlayer().getName() +
+                                        " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register " +
+                                        e.getPlayer().getName().hashCode() +
+                                        "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
+                            }
+                        }
+
+                        e.getPlayer().sendMessage("");
+                        e.getPlayer().sendMessage("");
+
                     }
-
-                    //发送验证消息
-                    e.getPlayer().sendMessage("");
-                    e.getPlayer().sendMessage("");
-
-                    int t;
-
-                    if (tools.isHighVersion) {
-                        //不要点按钮(Red)
-                        BaseComponent Red = new TextComponent("> > > [不要点我] < < <");
-                        Red.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击我被踢出服务器<<")));
-                        Red.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register " + e.getPlayer().getName().hashCode()));
-                        Red.setColor(ChatColor.RED);
-
-                        for (t = 0; t < new Random().nextInt(0, 3); t = t + 1) {
-                            e.getPlayer().sendMessage(Red);
-                        }
-
-                        //不要点按钮(Yellow)
-                        BaseComponent Yellow = new TextComponent("> > > [不要点我啦~] < < <");
-                        Yellow.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击人家被踢出服务器<<")));
-                        Yellow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register " + e.getPlayer().getName().hashCode()));
-                        Yellow.setColor(ChatColor.YELLOW);
-
-                        for (t = 0; t < new Random().nextInt(0, 2); t = t + 1) {
-                            e.getPlayer().sendMessage(Yellow);
-                        }
-
-                        //要点的
-                        BaseComponent Green = new TextComponent("> > > [点我完成真人验证] < < <");
-                        Green.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§d>>点击我完成验证<<")));
-                        Green.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/register " + e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId()));
-                        Green.setColor(ChatColor.GREEN);
-                        e.getPlayer().sendMessage(Green);
-
-                        //不要点按钮(Yellow)
-                        for (t = 0; t < new Random().nextInt(0, 2); t = t + 1) {
-                            e.getPlayer().sendMessage(Yellow);
-                        }
-
-                        //不要点按钮(Red)
-                        for (t = 0; t < new Random().nextInt(0, 3); t = t + 1) {
-                            e.getPlayer().sendMessage(Red);
-                        }
-                    }else{
-                        //不要点按钮(Red)
-                        for (t = 0; t<new Random().nextInt(0,3);t = t + 1) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                    " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                    e.getPlayer().getName().hashCode()+
-                                    "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
-                        }
-
-                        //不要点按钮(Yellow)
-                        for (t = 0; t<new Random().nextInt(0,2);t = t + 1) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                    " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                    e.getPlayer().getName().hashCode()+
-                                    "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
-                        }
-
-                        //要点的
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                " [{\"text\":\"> > > [点我完成真人验证] < < <\",\"color\":\"green\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId()+
-                                "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我完成验证<<\"}}]");
-
-                        //不要点按钮(Yellow)
-                        for (t = 0; t<new Random().nextInt(0,2);t = t + 1) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                    " [{\"text\":\"> > > [不要点我啦~] < < <\",\"color\":\"yellow\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                    e.getPlayer().getName().hashCode()+
-                                    "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击人家被踢出服务器<<\"}}]");
-                        }
-
-                        //不要点按钮
-                        for (t = 0; t<new Random().nextInt(0,3);t = t + 1) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"tellraw "+e.getPlayer().getName()+
-                                    " [{\"text\":\"> > > [不要点我] < < <\",\"color\":\"red\",\"bold\":true,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"obfuscated\":false,\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/register "+
-                                    e.getPlayer().getName().hashCode()+
-                                    "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"§d>>点击我被踢出服务器<<\"}}]");
-                        }
-                    }
-
-                    e.getPlayer().sendMessage("");
-                    e.getPlayer().sendMessage("");
-
                 }
             }
 
@@ -1426,6 +1432,15 @@ public class main extends JavaPlugin {
             }else{
                 getLogger().info("功能IP2Region未启用");
             }
+        }
+
+        //是否启用RegisterCaptcha
+        if(getConfig().getBoolean("EnabledFunction.RegisterCaptcha",false)){
+            Captcha = true;
+            getLogger().info("功能RegisterCaptcha已启用");
+        }else{
+            Captcha = false;
+            getLogger().info("功能RegisterCaptcha已禁用");
         }
 
         getLogger().info("重载工具");

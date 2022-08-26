@@ -358,12 +358,12 @@ public class CommandAlert {
         //注册转接命令
 
         //soft
-        getLogger().info("载入指令转接[Soft]");
+        getLogger().info("[GeyserPermGroup] [CA] 载入指令转接[Soft]");
         SoftCommandAlert = config.getStringList("CommandAlert.Soft");
-        getLogger().info("已注册" + SoftCommandAlert.size() + "个命令转接[Soft]");
+        getLogger().info("[GeyserPermGroup] [CA] 已注册" + SoftCommandAlert.size() + "个命令转接[Soft]");
 
         //hard
-        getLogger().info("载入指令转接[Hard]");
+        getLogger().info("[GeyserPermGroup] [CA] 载入指令转接[Hard]");
         ArrayList Commands_PerAdd = new ArrayList<Command>();
         HardCommandAlert = config.getStringList("CommandAlert.Hard");
 
@@ -396,10 +396,10 @@ public class CommandAlert {
 
             RegisterAlertCommands = Commands_PerAdd;
 
-            getLogger().info("已注册" + HardCommandAlert.size() + "个命令转接[Hard]");
+            getLogger().info("[GeyserPermGroup] [CA] 已注册" + HardCommandAlert.size() + "个命令转接[Hard]");
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().warning("载入指令转接[Hard]失败！");
-            getLogger().warning("出现了异常");
+            getLogger().warning("[GeyserPermGroup] 载入指令转接[Hard]失败！");
+            getLogger().warning("[GeyserPermGroup] 出现了异常");
             e.printStackTrace();
         }
     }

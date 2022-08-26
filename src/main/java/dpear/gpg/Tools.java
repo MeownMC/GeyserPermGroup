@@ -233,7 +233,7 @@ public class Tools {
 
     public void CheckSCID(){
         //获取机器码
-        getLogger().info("正在获取CID");
+        getLogger().info("[GeyserPermGroup] [SC] 正在获取CID");
         String OsName = System.getProperties().getProperty("os.name");
 
         String ComputerCode = "FAILURE";
@@ -242,7 +242,7 @@ public class Tools {
 
         //如果使用Windows
         if (OsName.startsWith("Windows")){
-            getLogger().info("您正在使用Windows");
+            getLogger().info("[GeyserPermGroup] [SC] 您正在使用Windows");
 
             try {
                 Process process = Runtime.getRuntime().exec(new String[] { "wmic", "cpu", "get", "ProcessorId" });
@@ -257,7 +257,7 @@ public class Tools {
 
         //如果使用Linux
         if (OsName.equals("Linux")){
-            getLogger().info("您正在使用Linux/GNU");
+            getLogger().info("[GeyserPermGroup] [SC] 您正在使用Linux/GNU");
 
             try {
                 Process process = Runtime.getRuntime().exec("sudo dmidecode -s system-uuid");
@@ -277,12 +277,12 @@ public class Tools {
         }
 
         if (Objects.equals(ComputerCode, "FAILURE")){
-            getLogger().warning("CID获取失败");
-            getLogger().warning("没有以管理员身份运行或不受支持的操作系统");
+            getLogger().warning("[GeyserPermGroup] [SC] CID获取失败");
+            getLogger().warning("[GeyserPermGroup] [SC] 没有以管理员身份运行或不受支持的操作系统");
             ComputerCode = new Random().toString();
         }
 
-        getLogger().info("正在加密CID");
+        getLogger().info("[GeyserPermGroup] [SC] 正在加密CID");
         try {
             byte[] encrypted = MessageDigest.getInstance("SHA-256").digest(ComputerCode.getBytes(StandardCharsets.UTF_8));
             StringBuilder SHA = new StringBuilder();
@@ -290,13 +290,13 @@ public class Tools {
                 SHA.append(String.format("%02x", b));
             }
             ComputerCode_SHA = SHA.toString();
-            getLogger().info("您的SCID: " + ComputerCode_SHA);
+            getLogger().info("[GeyserPermGroup] [SC] 您的SCID: " + ComputerCode_SHA);
 
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        getLogger().info("正在比对SCID-C");
+        getLogger().info("[GeyserPermGroup] [SC] 正在比对SCID-C");
         checkSCIDC (ComputerCode_SHA);
         if (plugin.PassCheck){return;};
         checkSCIDC_TL (ComputerCode_SHA);
@@ -322,11 +322,11 @@ public class Tools {
         }
 
         if (ComputerCode_MD.equals("FAILURE")){
-            getLogger().warning("SCID-C获取失败");
+            getLogger().warning("[GeyserPermGroup] [SC] SCID-C获取失败");
             ComputerCode_MD = new Random().toString();
         }
         if(config.getString("SCID-C", "Null").equals(ComputerCode_MD)){
-            getLogger().info("SCID-C校验成功");
+            getLogger().info("[GeyserPermGroup] [SC] SCID-C校验成功");
             plugin.PassCheck = true;
         }
     }
@@ -359,10 +359,10 @@ public class Tools {
         }
 
         if(config.getString("SCID-C", "Null").equals(ComputerCode_MD)){
-            getLogger().info("SCID-C校验成功");
+            getLogger().info("[GeyserPermGroup] [SC] SCID-C校验成功");
             plugin.PassCheck = true;
         }else{
-            getLogger().info("SCID-C校验失败");
+            getLogger().info("[GeyserPermGroup] [SC] SCID-C校验失败");
         }
     }
 
