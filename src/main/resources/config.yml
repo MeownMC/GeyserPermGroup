@@ -181,6 +181,7 @@ CommandAlert:
     tssbb:
       Replace: false
       Arg: 0
+      Require-Number: []
       Permission: Null
       Target:
         - 'gm 0'
