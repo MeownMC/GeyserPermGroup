@@ -1,10 +1,7 @@
 package dpear.gpg;
 
-import com.gmail.olexorus.themis.A;
-import com.gmail.olexorus.themis.E;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -12,7 +9,6 @@ import org.geysermc.cumulus.CustomForm;
 import org.geysermc.cumulus.ModalForm;
 import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.component.DropdownComponent;
-import org.geysermc.cumulus.component.SliderComponent;
 import org.geysermc.cumulus.component.StepSliderComponent;
 import org.geysermc.cumulus.response.CustomFormResponse;
 import org.geysermc.cumulus.response.ModalFormResponse;
@@ -20,9 +16,8 @@ import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.bukkit.Bukkit.getLogger;
@@ -37,6 +32,7 @@ public class BedrockMenu {
     private ArrayList<ModalForm.Builder> MFCache = new ArrayList<ModalForm.Builder>();
     private ArrayList<SimpleForm.Builder> SFCache = new ArrayList<SimpleForm.Builder>();
     private ArrayList<CustomForm.Builder> CFCache = new ArrayList<CustomForm.Builder>();
+    private HashMap<String, Integer> CacheMap = new HashMap<String, Integer>();
 
 
     public BedrockMenu(main plugin, FileConfiguration config) {
@@ -46,6 +42,8 @@ public class BedrockMenu {
 
     public void ReloadConfig(FileConfiguration config){
         this.config = config;
+        getLogger().info("[GeyserPermGroup] [BM] 清除所有菜单缓存!");
+        ClearCache_ALL();
     }
 
     public Integer SendFromConfig(Player player, String name, CommandSender sender){
@@ -61,6 +59,22 @@ public class BedrockMenu {
             sender.sendMessage("无效菜单类型");
             return -1;
         };
+
+        //缓存
+        boolean isCache = false;
+        if(config.getBoolean("Menus." + name + ".Cache",false)){
+            if(CacheMap.containsKey(name)){
+                Integer CODE = SendFromCache(player,CacheMap.get(name),sender);
+                if(CODE == 0){
+                    return 0;
+                }else {
+                    getLogger().info("[GeyserPermGroup] [BM] 缓存读取错误[" + CODE + "], 重新生成");
+                    isCache = true;
+                }
+            }else{
+                isCache = true;
+            }
+        }
 
         //如果是ModalForm
         if (type.equals("ModalForm")){
@@ -100,6 +114,11 @@ public class BedrockMenu {
                         }
 
                     });
+
+            //保存缓存
+            if (isCache){
+                CacheMap.put(name,SaveCache_ModalForm(MFBuilder));
+            }
 
             fa.sendForm(player.getUniqueId(), MFBuilder);
             return 0;
@@ -146,6 +165,11 @@ public class BedrockMenu {
                         MFBuilder = MFBuilder.button(PlaceholderAPI.setPlaceholders(player, Button.get(i)), FormImage.Type.URL, Image.get(i));
                     }
                 }
+            }
+
+            //保存缓存
+            if (isCache){
+                CacheMap.put(name,SaveCache_SimpleForm(MFBuilder));
             }
 
             fa.sendForm(player.getUniqueId(), MFBuilder);
@@ -354,6 +378,11 @@ public class BedrockMenu {
 
                     });
 
+            //保存缓存
+            if (isCache){
+                CacheMap.put(name,SaveCache_CustomForm(CFBuilder));
+            }
+
             fa.sendForm(player.getUniqueId(), CFBuilder);
             return 0;
 
@@ -422,6 +451,11 @@ public class BedrockMenu {
                 MFBuilder = MFBuilder.button(ReadMenuData (name, "button"));
             };
 
+            //保存缓存
+            if (isCache){
+                CacheMap.put(name,SaveCache_SimpleForm(MFBuilder));
+            }
+
             fa.sendForm(player.getUniqueId(), MFBuilder);
             return 0;
 
@@ -471,9 +505,13 @@ public class BedrockMenu {
                 MFBuilder = MFBuilder.button(ReadMenuData (name, "button"));
             };
 
+            //保存缓存
+            if (isCache){
+                CacheMap.put(name,SaveCache_SimpleForm(MFBuilder));
+            }
+
             fa.sendForm(player.getUniqueId(), MFBuilder);
             return 0;
-
 
         };
 
@@ -507,11 +545,11 @@ public class BedrockMenu {
 
         //懒得判断下标了,这样写一起捕获异常
         }catch (IndexOutOfBoundsException e){
-            getLogger().warning("[BedrockMenu] 请求了不存在的缓存" + subscript + "[" + Type + "," + FinalSubscript +" ]");
+            getLogger().warning("[GeyserPermGroup] [BM] 请求了不存在的缓存" + subscript + "[" + Type + "," + FinalSubscript +"]");
             e.printStackTrace();
             return -2;
         }catch (Exception oe){
-            getLogger().warning("[BedrockMenu] 读取缓存时出现错误");
+            getLogger().warning("[GeyserPermGroup] [BM] 读取缓存时出现错误");
             oe.printStackTrace();
             return -3;
         }
@@ -520,17 +558,51 @@ public class BedrockMenu {
 
     public Integer SaveCache_ModalForm(ModalForm.Builder builder){
         MFCache.add(builder);
-        return MFCache.size() * 3;
+        return (MFCache.size()-1) * 3;
     }
 
     public Integer SaveCache_SimpleForm(SimpleForm.Builder builder){
         SFCache.add(builder);
-        return (SFCache.size() * 3) + 1;
+        return ((SFCache.size()-1) * 3) + 1;
     }
 
     public Integer SaveCache_CustomForm(CustomForm.Builder builder){
         CFCache.add(builder);
-        return (CFCache.size() * 3) + 2;
+        return ((CFCache.size()-1) * 3) + 2;
+    }
+
+    public boolean ClearCache(Integer Number){
+        if (Number < 0){
+            //非法缓存位置
+            return false;
+        }
+
+        //拆分数据
+        int Type = Number % 3;
+        int FinalSubscript = Number / 3;
+
+        //清除对应缓存
+        try {
+            if (Type == 0) {
+                MFCache.remove(FinalSubscript);
+            }
+            if (Type == 1) {
+                SFCache.remove(FinalSubscript);
+            }
+            if (Type == 2) {
+                CFCache.remove(FinalSubscript);
+            }
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    public void ClearCache_ALL(){
+        MFCache.clear();
+        SFCache.clear();
+        CFCache.clear();
+        CacheMap.clear();
     }
 
     private String ReadMenuData ( String name , String paf) {

@@ -1273,9 +1273,22 @@ public class main extends JavaPlugin {
                 if (sender.hasPermission("dpear.gpg.menu." + args[2])) {
                     //发送菜单
 
+                    long START = System.nanoTime();
                     if (bedrockMenu.SendFromConfig (P,args[2],sender) == 0){
+
+                        //输出运行时间
+                        long END = System.nanoTime();
+                        long TIME = END - START;
+                        getLogger().info("消耗时间:" + (int)TIME);
+
                         return true;
                     }else{
+
+                        //输出运行时间
+                        long END = System.nanoTime();
+                        long TIME = END - START;
+                        getLogger().info("消耗时间:" + (int)TIME);
+
                         sender.sendMessage("菜单类型错误或不存在");
                         return false;
                     }

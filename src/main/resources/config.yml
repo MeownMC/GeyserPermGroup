@@ -108,6 +108,7 @@ Menus:
       - 'warp md'
   example_c:
     type: 'CustomForm'
+    Cache: true
     title: 'CustomFormExample'
     Form:
       - 'a'
