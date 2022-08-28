@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="EliteMobs-7.3.18">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/api/EliteMobs-7.3.18.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

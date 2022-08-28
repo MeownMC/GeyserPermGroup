@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Explosive;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.*;
