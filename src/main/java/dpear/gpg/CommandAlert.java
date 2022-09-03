@@ -163,6 +163,9 @@ public class CommandAlert {
                     }
                 }
 
+                //替换变量
+                EXPString = plugin.tools.VariableReplace(p.getUniqueId(),EXPString);
+
                 Expression expression = new Expression(EXPString);
                 if (expression.eval().intValue() == 1) {
                     ExecuteCommands = config.getStringList(CommandPath + "Target");
@@ -200,7 +203,10 @@ public class CommandAlert {
                 }
 
                 //执行命令
-                plugin.tools.ExecuteWithoutPlaceholder(p,Tools.EvalexReplace(Tools.ReplacePlaceholder(p,Executer)));
+                plugin.tools.ExecuteWithoutPlaceholder(p,
+                        Tools.EvalexReplace(
+                        Tools.ReplacePlaceholder(p,
+                        plugin.tools.VariableReplace(p.getUniqueId(),Executer))));
 
             }
 

@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Explosive;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.*;
@@ -24,13 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.*;
 
 
@@ -89,6 +82,9 @@ public class main extends JavaPlugin {
 
     //人机验证
     public boolean Captcha = false;
+
+    //变量
+    public VariableCore variableCore = null;
 
     @Override
     public void onEnable() {
@@ -240,11 +236,19 @@ public class main extends JavaPlugin {
     @Override
     public void onDisable(){
 
-        getLogger().info("关闭ip搜索器");
+        getLogger().info("[DA] 关闭ip搜索器");
         ipsearch.close();
 
-        getLogger().info("注销BungeeCord通道");
+        getLogger().info("[DA] 注销BungeeCord通道");
         plugin.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, "BungeeCord");
+
+        getLogger().info("[DA] 保存变量中");
+        //保存
+        if(variableCore.SaveHashMapToFile()){
+            getLogger().info("[DA] 成功将变量保存到文件");
+        }else{
+            getLogger().info("[DA] 无法将变量保存到文件");
+        }
     }
 
     public class EventListener implements Listener {
@@ -471,7 +475,7 @@ public class main extends JavaPlugin {
                                 Sound.BLOCK_NOTE_BLOCK_HARP, 1F, (float) Music[args[0].length()]);
                     }
                 }
-                return (Tools.KeepStartWith (args[0] , List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","sudo","ipr")));
+                return (Tools.KeepStartWith (args[0] , List.of("gc","open","help","about","reload","version","plreload","authmelogin","listversion","piano","SetDistance","GetDistance","cheru","light","clearEMCB","clearVar","clearMenuCache","sudo","ipr","debug")));
             }
 
             if (args.length == 2){
@@ -497,6 +501,10 @@ public class main extends JavaPlugin {
 
                 if (args[0].equals("sudo")) {
                     return null;
+                }
+
+                if (args[0].equals("debug")) {
+                    return (Tools.KeepStartWith (args[1] , List.of("SaveVar","LoadVar","SetVar","GetVar","ListVar")));
                 }
 
             }
@@ -577,6 +585,31 @@ public class main extends JavaPlugin {
                 if (args[0].equals("sudo")) {
                     if(Objects.equals(args[2], "")) {
                         return (List.of("c:"));
+                    }
+                }
+
+                if (args[0].equals("debug")) {
+                    if(args[1].endsWith("Var")){
+                        //生成数组
+                        ArrayList<String> RESULT = new ArrayList<>();
+
+                        for (Player player:Bukkit.getOnlinePlayers()) {
+
+                            //玩家名
+                            if (player.getName().startsWith(args[2])){
+                                RESULT.add(player.getName());
+                                RESULT.add(player.getUniqueId().toString());
+                            }
+
+                            //UUID
+                            if (player.getUniqueId().toString().startsWith(args[2])){
+                                RESULT.add(player.getName());
+                                RESULT.add(player.getUniqueId().toString());
+                            }
+                        }
+
+                        //返回
+                        return RESULT;
                     }
                 }
             }
@@ -1063,6 +1096,114 @@ public class main extends JavaPlugin {
                 return true;
             }
 
+            //是否清除菜单缓存
+            if (args[0].equals("clearMenuCache")) {
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.clearmenucache")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.clearmenucache权限");
+                    return false;
+                }
+                ;
+
+                bedrockMenu.ClearCache_ALL();
+                sender.sendMessage("清除成功");
+                return true;
+            }
+
+            //是否清除变量数据
+            if (args[0].equals("clearVar")) {
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.clearvar")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.clearvar权限");
+                    return false;
+                }
+                ;
+
+                variableCore.ClearAll();
+                sender.sendMessage("清除成功");
+                return true;
+            }
+
+            if (args[0].equals("debug")) {
+                //判断权限
+                if (!sender.hasPermission("dpear.gpg.debug")) {
+                    sender.sendMessage("权限不足，您没有dpear.gpg.debug权限");
+                    return false;
+                };
+
+                if (args.length > 1){
+                    if (args[1].equals("SaveVar")){
+                        variableCore.SaveHashMapToFile();
+                        return true;
+                    }
+                    if (args[1].equals("LoadVar")){
+                        variableCore.LoadHashMapFromFile();
+                        return true;
+                    }
+                    if (args[1].equals("SetVar")){
+                        if (args.length==5) {
+                            if (args[2].equals("@s")){
+                                Player player = Bukkit.getPlayer(sender.getName());
+                                //判断玩家是否有效
+                                if (player == null){return false;}
+                                variableCore.SetVariable(player.getUniqueId(),args[3],args[4]);
+                            }else {
+                                variableCore.SetVariable(UUID.fromString(args[2]), args[3], args[4]);
+                            }
+                            return true;
+                        }
+                    }
+                    if (args[1].equals("GetVar")){
+                        if (args.length==4) {
+                            if (args[2].equals("@s")){
+                                Player player = Bukkit.getPlayer(sender.getName());
+                                //判断玩家是否有效
+                                if (player == null){return false;}
+                                sender.sendMessage(variableCore.GetVariable(player.getUniqueId(),args[3]));
+                            }else {
+                                sender.sendMessage(variableCore.GetVariable(UUID.fromString(args[2]),args[3]));
+                            }
+                            return true;
+                        }
+                    }
+                    if (args[1].equals("ListVar")) {
+                        if (args.length==3) {
+
+                            //获取
+                            HashMap<String, String> PH;
+                            if (args[2].equals("@s")){
+                                Player player = Bukkit.getPlayer(sender.getName());
+                                //判断玩家是否有效
+                                if (player == null){return false;}
+                                PH = variableCore.GetPlayerHashMap (player.getUniqueId());
+                            }else {
+                                PH = variableCore.GetPlayerHashMap (UUID.fromString(args[2]));
+                            }
+
+                            if (PH == null){
+                                sender.sendMessage("This UUID has no variable");
+                                return true;
+                            }
+                            //遍历并输出
+                            Set KEYS = PH.keySet();
+                            sender.sendMessage("variables:");
+                            sender.sendMessage("Key | Value");
+                            for (Object Now:KEYS) {
+                                sender.sendMessage(Now + " | " + PH.get(Now));
+                            }
+
+                            return true;
+                        }
+                    }
+
+                }else {
+                    sender.sendMessage("参数数量不足");
+                    return false;
+                }
+            }
+
+
+
             //是否获得剧
             if (args[0].equals("GetDistance")){
 
@@ -1334,49 +1475,48 @@ public class main extends JavaPlugin {
     }
 
     private void loadExClass(){
-        getLogger().info("开始加载功能");
+        getLogger().info("[CL] 开始加载功能");
 
         //是否启用CommandAlert
         if(getConfig().getBoolean("EnabledFunction.CommandAlert",false)){
 
             if (commandAlert == null){
-                getLogger().info("功能CommandAlert已启用");
+                getLogger().info("[CL] 功能CommandAlert已启用");
                 commandAlert = new CommandAlert(this,getConfig());
             }else{
-                getLogger().info("功能CommandAlert已重载");
+                getLogger().info("[CL] 功能CommandAlert已重载");
                 commandAlert.ReloadConfig(getConfig());
             }
 
             isCommandAlertEnabled = true;
         }else{
             if (commandAlert != null){
-                getLogger().info("功能CommandAlert已禁用");
+                getLogger().info("[CL] 功能CommandAlert已禁用");
                 commandAlert = null;
             }else{
-                getLogger().info("功能CommandAlert未启用");
+                getLogger().info("[CL] 功能CommandAlert未启用");
             }
 
             isCommandAlertEnabled = false;
         }
 
 
-
         //是否启用BedrockMenu
         if(getConfig().getBoolean("EnabledFunction.BedrockMenu",false)){
 
             if (bedrockMenu == null) {
-                getLogger().info("功能BedrockMenu已启用");
+                getLogger().info("[CL] 功能BedrockMenu已启用");
                 bedrockMenu = new BedrockMenu(this, getConfig());
             }else{
-                getLogger().info("功能BedrockMenu已重载");
+                getLogger().info("[CL] 功能BedrockMenu已重载");
                 bedrockMenu.ReloadConfig(getConfig());
             }
         }else{
             if (bedrockMenu != null){
-                getLogger().info("功能BedrockMenu已禁用");
+                getLogger().info("[CL] 功能BedrockMenu已禁用");
                 bedrockMenu = null;
             }else{
-                getLogger().info("功能BedrockMenu未启用");
+                getLogger().info("[CL] 功能BedrockMenu未启用");
             }
         }
 
@@ -1385,25 +1525,25 @@ public class main extends JavaPlugin {
         if(getConfig().getBoolean("EnabledFunction.ElitemobsHandler",false)){
 
             if (elitemobs == null) {
-                getLogger().info("功能ElitemobsHandler已启用");
+                getLogger().info("[CL] 功能ElitemobsHandler已启用");
                 elitemobs = new ElitemobsHandler(this, getConfig());
                 Bukkit.getPluginManager().registerEvents(new EmEventsListener(),this);
             }else{
-                getLogger().info("功能ElitemobsHandler已重载");
+                getLogger().info("[CL] 功能ElitemobsHandler已重载");
                 elitemobs.ReloadConfig(getConfig());
             }
         }else{
             if (elitemobs != null){
-                getLogger().info("功能ElitemobsHandler已禁用");
+                getLogger().info("[CL] 功能ElitemobsHandler已禁用");
                 elitemobs = null;
 
-                getLogger().info("注销相关事件");
+                getLogger().info("[CL] 注销相关事件");
                 EliteMobSpawnEvent.getHandlerList().unregister(this);
                 EliteMobDeathEvent.getHandlerList().unregister(this);
                 EliteMobRemoveEvent.getHandlerList().unregister(this);
-                getLogger().info("相关事件注销完毕");
+                getLogger().info("[CL] 相关事件注销完毕");
             }else{
-                getLogger().info("功能ElitemobsHandler未启用");
+                getLogger().info("[CL] 功能ElitemobsHandler未启用");
             }
         }
 
@@ -1411,20 +1551,20 @@ public class main extends JavaPlugin {
         if(getConfig().getBoolean("EnabledFunction.VersionCommand",false)){
 
             if (versionCommand == null){
-                getLogger().info("功能CommandAlert已启用");
+                getLogger().info("[CL] 功能CommandAlert已启用");
                 versionCommand = new VersionCommand(this,getConfig());
             }else{
-                getLogger().info("功能CommandAlert已重载");
+                getLogger().info("[CL] 功能CommandAlert已重载");
                 versionCommand.ReloadConfig(getConfig());
             }
 
             isVersionCommandEnabled = true;
         }else{
             if (versionCommand != null){
-                getLogger().info("功能CommandAlert已禁用");
+                getLogger().info("[CL] 功能CommandAlert已禁用");
                 versionCommand = null;
             }else{
-                getLogger().info("功能CommandAlert未启用");
+                getLogger().info("[CL] 功能CommandAlert未启用");
             }
 
             isVersionCommandEnabled = false;
@@ -1434,33 +1574,71 @@ public class main extends JavaPlugin {
         if(getConfig().getBoolean("EnabledFunction.IP2Region",false)){
 
             if (ipsearch == null) {
-                getLogger().info("功能IP2Region已启用");
+                getLogger().info("[CL] 功能IP2Region已启用");
                 ipsearch = new IPsearch();
             }else{
-                getLogger().info("功能IP2Region没啥好重载的");
+                getLogger().info("[CL] 功能IP2Region没啥好重载的");
             }
         }else{
             if (ipsearch != null){
-                getLogger().info("功能IP2Region已禁用");
+                getLogger().info("[CL] 功能IP2Region已禁用");
                 ipsearch = null;
             }else{
-                getLogger().info("功能IP2Region未启用");
+                getLogger().info("[CL] 功能IP2Region未启用");
             }
         }
 
         //是否启用RegisterCaptcha
         if(getConfig().getBoolean("EnabledFunction.RegisterCaptcha",false)){
             Captcha = true;
-            getLogger().info("功能RegisterCaptcha已启用");
+            getLogger().info("[CL] 功能RegisterCaptcha已启用");
         }else{
             Captcha = false;
-            getLogger().info("功能RegisterCaptcha已禁用");
+            getLogger().info("[CL] 功能RegisterCaptcha已禁用");
         }
 
-        getLogger().info("重载工具");
+        //是否启用VariableCore
+        if(getConfig().getBoolean("EnabledFunction.VariableCore",false)){
+
+            if (variableCore == null){
+                getLogger().info("[CL] 功能VariableCore已启用");
+                variableCore = new VariableCore();
+
+                getLogger().info("[CL] 加载变量中");
+                //加载
+                if(variableCore.LoadHashMapFromFile()){
+                    getLogger().info("[CL] 成功从文件中加载变量");
+                }else{
+                    getLogger().info("[CL] 无法从文件中加载变量");
+                }
+
+
+            }else{
+                getLogger().info("[CL] 功能VariableCore已经启用");
+            }
+        }else{
+            if (variableCore != null){
+
+                getLogger().info("[CL] 保存变量中");
+                //保存
+                if(variableCore.SaveHashMapToFile()){
+                    getLogger().info("[CL] 成功将变量保存到文件");
+                }else{
+                    getLogger().info("[CL] 无法将变量保存到文件");
+                }
+
+
+                getLogger().info("[CL] 功能VariableCore已禁用");
+                variableCore = null;
+            }else{
+                getLogger().info("[CL] 功能VariableCore未启用");
+            }
+        }
+
+        getLogger().info("[CL] 重载工具");
         tools.ReloadConfig(getConfig());
 
-        getLogger().info("功能加载完毕");
+        getLogger().info("[CL] 功能加载完毕");
     }
 
     public class EmEventsListener implements Listener {

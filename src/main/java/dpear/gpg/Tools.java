@@ -7,6 +7,7 @@ import com.viaversion.viaversion.api.Via;
 import de.themoep.minedown.MineDown;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -155,6 +156,18 @@ public class Tools {
         //BC切换
         if (command.startsWith("Server~")){
             SendPlayerBungee(player,command.substring(7));
+            return;
+        }
+
+        //写变量
+        if (command.startsWith("Setvar~")){
+
+            //分割
+            String content = command.substring(7);
+            int DelayEnd = content.indexOf ("~");
+
+            //写变量
+            plugin.variableCore.SetVariable(player.getUniqueId(),content.substring(0,DelayEnd),content.substring(DelayEnd + 1));
             return;
         }
 
@@ -370,6 +383,29 @@ public class Tools {
         Pattern pattern = Pattern.compile("-?[0-9]+\\.?[0-9]*");
         Matcher isNum = pattern.matcher(str);
         return isNum.matches();
+    }
+
+    public String VariableReplace(UUID PlayerUUID,String input) {
+
+        //处理命令
+        int LastIndex = 0;
+
+        while (true) {
+            int StartIndex = input.indexOf("#{", LastIndex);
+
+            if (StartIndex == -1) {
+                break;
+            }
+
+            int EndIndex = input.indexOf("}#", StartIndex);
+
+            input = input.substring(0, StartIndex) +
+                    plugin.variableCore.GetVariable(PlayerUUID,input.substring(StartIndex + 2, EndIndex)) +
+                    input.substring(EndIndex + 2);
+
+        }
+
+        return input;
     }
 
 }
