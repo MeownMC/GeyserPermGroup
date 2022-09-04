@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.bukkit.Bukkit.getLogger;
 
@@ -191,6 +192,17 @@ public class PlaceholderExtension extends PlaceholderExpansion{
             }
         }
 
+        if (params.startsWith("var_")){
+            String varMix = params.substring(4);
+            String[] varSpl = varMix.split("~");
+            if (varSpl.length == 2){
+                //取某个UUID的变量
+                return (plugin.variableCore.GetVariable(UUID.fromString(varSpl[0]),varSpl[1]));
+            }else{
+                //返回玩家的UUID
+                return (plugin.variableCore.GetVariable(player.getUniqueId(),varMix));
+            }
+        }
 
         return null; // 未知变量
     }

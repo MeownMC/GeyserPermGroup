@@ -81,7 +81,7 @@ public class BedrockMenu {
 
             ModalForm.Builder MFBuilder = ModalForm.builder()
                     .title(Tools.ReplacePlaceholder(player, ReadMenuData (name, "title")))
-                    .content(plugin.tools.VariableReplace(player.getUniqueId(),Tools.ReplacePlaceholder(player, ReadMenuData (name, "content")))) //测试
+                    .content(Tools.ReplacePlaceholder(player, ReadMenuData (name, "content")))
                     .button1(Tools.ReplacePlaceholder(player, ReadMenuData (name, "button1")))
                     .button2(Tools.ReplacePlaceholder(player, ReadMenuData (name, "button2")))
                     .responseHandler((form, responseData) -> {

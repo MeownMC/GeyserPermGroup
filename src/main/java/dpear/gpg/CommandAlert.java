@@ -200,13 +200,14 @@ public class CommandAlert {
                             replace("{PlayerName}", p.getName()).
                             replace("{PlayerUUID}", p.getUniqueId().toString()).
                             replace("{PlayerWorld}", p.getWorld().toString());
+
+                    Executer = plugin.tools.VariableReplace(p.getUniqueId(),Executer);
                 }
 
                 //执行命令
                 plugin.tools.ExecuteWithoutPlaceholder(p,
                         Tools.EvalexReplace(
-                        Tools.ReplacePlaceholder(p,
-                        plugin.tools.VariableReplace(p.getUniqueId(),Executer))));
+                        Tools.ReplacePlaceholder(p, Executer)));
 
             }
 

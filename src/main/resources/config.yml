@@ -16,6 +16,7 @@ EnabledFunction:
   IP2Region: false    #需自行下载数据库
   RegisterCaptcha: false
   VariableCore: true    #别关这个, 除非你觉得你很幽默
+VariableAutoSavePeriod: 0
 Register:
   EventListener: true
   Bungeecord: true

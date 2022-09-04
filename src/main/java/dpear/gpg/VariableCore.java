@@ -1,6 +1,7 @@
 package dpear.gpg;
 
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.*;
 import java.lang.reflect.Array;
@@ -11,7 +12,22 @@ import java.util.UUID;
 import static org.bukkit.Bukkit.getLogger;
 
 public class VariableCore {
+    //储存核心
     private HashMap<UUID, HashMap<String,String>> PlayerMap = new HashMap<>();
+
+    //自动保存
+    public final BukkitRunnable AutoSave = new BukkitRunnable() {
+        @Override
+        public void run() {
+            if (SaveHashMapToFile()){
+                //成功保存
+                getLogger().info("[GeyserPermGroup] [VC] Variable Saved");
+            }else{
+                //保存失败
+                getLogger().warning("[GeyserPermGroup] [VC] Cannot Save Variable!");
+            }
+        }
+    };
 
     public String GetVariable (UUID PlayerUUID,String VariableName){
         //有异常直接额返回空

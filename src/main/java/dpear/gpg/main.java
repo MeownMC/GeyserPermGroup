@@ -1612,12 +1612,24 @@ public class main extends JavaPlugin {
                     getLogger().info("[CL] 无法从文件中加载变量");
                 }
 
+                //自动保存
+                int ASPeriod = getConfig().getInt("VariableAutoSavePeriod");
+                if (ASPeriod < 1){
+                    getLogger().info("[VC] 自动保存已禁用");
+                }else{
+                    getLogger().info("[VC] 自动保存已启用, 周期:" + ASPeriod);
+                    variableCore.AutoSave.runTaskTimer(this,ASPeriod,ASPeriod);
+                }
+
 
             }else{
                 getLogger().info("[CL] 功能VariableCore已经启用");
             }
         }else{
             if (variableCore != null){
+
+                variableCore.AutoSave.cancel();
+                getLogger().info("[VC] 自动保存已关闭");
 
                 getLogger().info("[CL] 保存变量中");
                 //保存
@@ -1626,7 +1638,6 @@ public class main extends JavaPlugin {
                 }else{
                     getLogger().info("[CL] 无法将变量保存到文件");
                 }
-
 
                 getLogger().info("[CL] 功能VariableCore已禁用");
                 variableCore = null;
