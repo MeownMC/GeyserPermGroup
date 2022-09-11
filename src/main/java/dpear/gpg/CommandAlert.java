@@ -150,7 +150,7 @@ public class CommandAlert {
             }
         }
 
-        if (p != null) {
+        if (p != null && ExecuteCommands == null) {
             //玩家走表达式
             if (!config.getString(CommandPath + "Expression", "Null").equals("Null")) {
                 String EXPString = Tools.ReplacePlaceholder(p,config.getString(CommandPath + "Expression", "Null"));
@@ -174,6 +174,7 @@ public class CommandAlert {
                 }
             }
         }
+
 
 
         //判断上面正不正常

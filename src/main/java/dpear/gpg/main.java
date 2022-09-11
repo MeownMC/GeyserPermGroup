@@ -504,7 +504,7 @@ public class main extends JavaPlugin {
                 }
 
                 if (args[0].equals("debug")) {
-                    return (Tools.KeepStartWith (args[1] , List.of("SaveVar","LoadVar","SetVar","GetVar","ListVar")));
+                    return (Tools.KeepStartWith (args[1] , List.of("SaveVar","LoadVar","SetVar","GetVar","ListVar","ClearVar")));
                 }
 
             }
@@ -1194,6 +1194,10 @@ public class main extends JavaPlugin {
 
                             return true;
                         }
+                    }
+                    if (args[1].equals("CleaVar")){
+                        variableCore.ClearAll();
+                        return true;
                     }
 
                 }else {
