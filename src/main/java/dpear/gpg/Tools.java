@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -96,16 +97,16 @@ public class Tools {
         return PlaceholderAPI.setPlaceholders(player,input).replace("\\n","\n");
     }
 
-    public void Execute(Player player,String command){
+    public void Execute(Player player,String command, String[]... Args){
 
         command = ReplacePlaceholder(player, command);
 
         //嵌套调用
-        ExecuteWithoutPlaceholder (player,command);
+        ExecuteWithoutPlaceholder (player,command,Args);
 
     }
 
-    public void ExecuteWithoutPlaceholder(Player player,String command){
+    public final void ExecuteWithoutPlaceholder(Player player, String command, String[]... Args){
 
         //以后台身份运行
         if (command.startsWith("Console~")){
@@ -171,6 +172,35 @@ public class Tools {
             return;
         }
 
+        //直接调用配置
+        if (command.startsWith("DLink~")){
+
+            //是否传递原始参数
+            if (Args.length == 1){
+
+                //直接调用
+                plugin.commandAlert.CommandAlertExecutorDirect(player,command.substring(6),Args[0]);
+                return;
+            }
+        }
+
+        //任务执行
+        if (command.startsWith("Task~")){
+
+            //生成runable
+            BukkitRunnable runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    //应该不会死循环
+                    ExecuteWithoutPlaceholder(player,command.substring(5));
+                }
+            };
+
+            //运行runable
+            runnable.runTask(plugin);
+            return;
+        }
+
         //延迟执行
         if (command.startsWith("Delay~")){
 
@@ -192,6 +222,8 @@ public class Tools {
             return;
 
         }
+
+
 
         //执行命令
         Bukkit.dispatchCommand(player, command);

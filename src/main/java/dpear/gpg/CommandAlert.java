@@ -113,14 +113,18 @@ public class CommandAlert {
         //获得命令路径
         String CommandPath = GetCommandAlertPath(s,strings,commandSender);
 
+        //去点并调用
+        return (CommandAlertExecutorDirect (commandSender,CommandPath.substring(0,CommandPath.length()-1),strings));
+
+    }
+
+    public boolean CommandAlertExecutorDirect(@NotNull CommandSender commandSender, @NotNull String CommandPathWithoutDot, @NotNull String[] strings){
+
+        //获得带点的
+        String CommandPath = CommandPathWithoutDot + ".";
+
         //获得玩家实例
         Player p = Bukkit.getPlayer(commandSender.getName());
-
-        //去点
-        String CommandPathWithoutDot = CommandPath.substring(0,CommandPath.length()-1);
-
-        //输出
-        //getLogger().info("CommandPath:" + CommandPathWithoutDot);
 
         //判读表项是否存在
         if(!config.isConfigurationSection(CommandPathWithoutDot)) {
@@ -128,7 +132,8 @@ public class CommandAlert {
             return true;
         }
 
-        if (!config.getString(CommandPath + "Arg", "0").equals(String.valueOf(strings.length))) {
+        String ArgAmountRequire = config.getString(CommandPath + ".Arg", "-1");
+        if (!ArgAmountRequire.equals("-1") && !ArgAmountRequire.equals(String.valueOf(strings.length))) {
             //参数不足的话
             commandSender.sendMessage("参数数量错误");
             return false;
@@ -208,14 +213,14 @@ public class CommandAlert {
                 //执行命令
                 plugin.tools.ExecuteWithoutPlaceholder(p,
                         Tools.EvalexReplace(
-                        Tools.ReplacePlaceholder(p, Executer)));
+                        Tools.ReplacePlaceholder(p, Executer)),strings);
 
             }
 
         } else {
             for (String executeCommand : ExecuteCommands) {
                 //执行命令
-                plugin.tools.Execute(p,executeCommand);
+                plugin.tools.Execute(p,executeCommand,strings);
             }
         }
 
