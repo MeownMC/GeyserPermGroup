@@ -25,7 +25,7 @@ public final class main extends JavaPlugin {
         getLogger().info(" / /  / /  __/ /_/ / |/ |/ / / / / /  / / /___   ");
         getLogger().info("/_/  /_/\\___/\\____/|__/|__/_/ /_/_/  /_/\\____/");
         getLogger().info("                                                 ");
-        getLogger().info("Authors: Dameng23333 × D-Pear");
+        getLogger().info("Authors: Dameng23333");
         getLogger().info("Our github: https://github.com/MeownMC");
         getLogger().info("啊♡...哥哥的♡...大肉棒♡...进来了♡...");
         getLogger().info("♡今天的我...也会好好伺候哥哥的哟♡");
