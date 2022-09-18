@@ -1,5 +1,6 @@
 package dpear.gpg;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -14,6 +15,7 @@ import static org.bukkit.Bukkit.getLogger;
 public class VariableCore {
     //储存核心
     private HashMap<UUID, HashMap<String,String>> PlayerMap = new HashMap<>();
+    private HashMap<String,String> TriggerMap = new HashMap<>();
 
     //自动保存
     public final BukkitRunnable AutoSave = new BukkitRunnable() {
@@ -67,6 +69,8 @@ public class VariableCore {
                 PlayerMap.put(PlayerUUID,PlayerVar);
             }
 
+            //检查触发器
+            Trig (PlayerUUID,VariableName);
 
             //成功返回true
             return true;
@@ -104,14 +108,29 @@ public class VariableCore {
             FileOutputStream fos = null;
             ObjectOutputStream oos = null;
             oos = new ObjectOutputStream(new FileOutputStream(file));
-            oos.writeObject(new Inner(PlayerMap));
+            oos.writeObject(new Inner(PlayerMap,TriggerMap));
             oos.flush();
             oos.close();
             return true;
         }catch (Exception e){
-            getLogger().warning("[GeyserPermGroup] [VC] 变量文件写入失败");
-            e.printStackTrace();
-            return false;
+            getLogger().warning("[GeyserPermGroup] [VC] 变量文件写入失败, 尝试兼容模式");
+
+            //尝试兼容就版本配置
+            try {
+                File file = new File("plugins/GeyserPermGroup/Variables.dat");
+                //写出到文件
+                FileOutputStream fos = null;
+                ObjectOutputStream oos = null;
+                oos = new ObjectOutputStream(new FileOutputStream(file));
+                oos.writeObject(new Inner(PlayerMap,TriggerMap));
+                oos.flush();
+                oos.close();
+                return true;
+            }catch (Exception e2){
+                getLogger().warning("[GeyserPermGroup] [VC] 兼容模式变量文件写入失败");
+                e2.printStackTrace();
+                return false;
+            }
         }
     }
 
@@ -124,7 +143,8 @@ public class VariableCore {
             Inner inner = null;
             try {
                 inner = (Inner) ois.readObject();
-                PlayerMap = inner.hashMap;
+                PlayerMap = inner.PlayerMap;
+                TriggerMap = inner.TriggerMap;
                 //关闭
                 ois.close();
                 return true;
@@ -156,14 +176,46 @@ public class VariableCore {
         return (PlayerMap.get(PlayerUUID));
     }
 
+    public void SetTrigger (String VariableName, String Target) {
+        TriggerMap.put(VariableName,Target);
+    }
+
+    public String GetTrigger (String VariableName) {
+        return (TriggerMap.get(VariableName));
+    }
+
+    public void RemoveTrigger (String VariableName){
+        TriggerMap.remove(VariableName);
+    }
+
+    public void Trig (UUID PlayerUUID, String VariableName) {
+
+        String Trigger = GetTrigger(VariableName);
+
+        if (Trigger != null){
+
+            Player player = Bukkit.getPlayer(PlayerUUID);
+
+            //判断玩家存不存在
+            if (player != null){
+
+                //执行命令
+                Bukkit.dispatchCommand(player, Trigger);
+            }
+
+        }
+    }
+
 }
 
 class Inner implements Serializable {
 
     private static final long serialVersionUID = 2L;
-    HashMap<UUID, HashMap<String,String>> hashMap;
+    HashMap<UUID, HashMap<String,String>> PlayerMap;
+    HashMap<String,String> TriggerMap;
 
-    public Inner(HashMap<UUID, HashMap<String,String>> hashMap) {
-        this.hashMap = hashMap;
+    public Inner(HashMap<UUID, HashMap<String,String>> playerMap, HashMap<String,String> triggerMap) {
+        this.PlayerMap = playerMap;
+        this.TriggerMap = triggerMap;
     }
 }

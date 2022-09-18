@@ -184,6 +184,12 @@ public class Tools {
             }
         }
 
+        //播放声音
+        if (command.startsWith("PlaySound~")){
+            //直接用PAPI播放
+            PlaceholderAPI.setPlaceholders(player,"%Sound_" + command.substring(10) + "%");
+        }
+
         //任务执行
         if (command.startsWith("Task~")){
 

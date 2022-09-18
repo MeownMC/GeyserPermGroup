@@ -236,8 +236,6 @@ public class main extends JavaPlugin {
     @Override
     public void onDisable(){
 
-        getLogger().info("[DA] 关闭ip搜索器");
-        ipsearch.close();
 
         getLogger().info("[DA] 注销BungeeCord通道");
         plugin.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, "BungeeCord");
@@ -249,6 +247,15 @@ public class main extends JavaPlugin {
         }else{
             getLogger().info("[DA] 无法将变量保存到文件");
         }
+
+        getLogger().info("[DA] 关闭类中");
+        ipsearch.close();
+        ipsearch = null;
+        bedrockMenu = null;
+        commandAlert = null;
+        elitemobs = null;
+        variableCore = null;
+        versionCommand = null;
     }
 
     public class EventListener implements Listener {
@@ -504,7 +511,7 @@ public class main extends JavaPlugin {
                 }
 
                 if (args[0].equals("debug")) {
-                    return (Tools.KeepStartWith (args[1] , List.of("SaveVar","LoadVar","SetVar","GetVar","ListVar","ClearVar")));
+                    return (Tools.KeepStartWith (args[1] , List.of("SaveVar","LoadVar","SetVar","GetVar","ListVar","SetTrigger","ClearVar")));
                 }
 
             }
@@ -1198,6 +1205,19 @@ public class main extends JavaPlugin {
                     if (args[1].equals("CleaVar")){
                         variableCore.ClearAll();
                         return true;
+                    }
+                    if (args[1].equals("SetTrigger")) {
+                        if (args.length >= 4) {
+
+                            //合并命令
+                            StringBuilder sb = new StringBuilder();
+                            for (int i = 3; i<args.length; i = i + 1){
+                                sb.append(args[i]).append(" ");
+                            }
+
+                            variableCore.SetTrigger(args[2], String.valueOf(sb));
+                            return true;
+                        }
                     }
 
                 }else {
