@@ -188,6 +188,7 @@ public class Tools {
         if (command.startsWith("PlaySound~")){
             //直接用PAPI播放
             PlaceholderAPI.setPlaceholders(player,"%Sound_" + command.substring(10) + "%");
+            return;
         }
 
         //任务执行

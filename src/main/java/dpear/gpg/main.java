@@ -14,6 +14,7 @@ import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -463,6 +464,56 @@ public class main extends JavaPlugin {
 
         }
 
+        //@EventHandler
+        //public void onEntitySpawn(CreatureSpawnEvent e){
+        //    if(e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL){
+        //        if (new Random().nextInt(0,9) != 0){
+        //            e.setCancelled(true);
+        //        }
+        //    }
+        //}
+
+    }
+
+    public class DamageDown implements Listener {
+        @EventHandler
+        public void onDamage(EntityDamageByEntityEvent e){
+
+            //获得玩家
+            Player player = Bukkit.getPlayer(e.getDamager().getUniqueId());
+
+            //不是玩家不管
+            if (player == null){return;}
+
+            double Damage = e.getDamage();
+            if (Damage > 100){
+                //一次衰减
+                Damage = 100 + (Damage - 100) * 0.8;
+            }else {
+                //返回
+                return;
+            }
+
+            if (Damage > 200){
+                //二次衰减
+                Damage = 200 + (Damage - 200) * 0.6;
+
+            }else {
+                //返回
+                e.setDamage(Damage);
+                return;
+            }
+
+            if (Damage > 300){
+                //三次衰减
+                Damage = 300 + (Damage - 300) * 0.4;
+            }
+
+            //设置伤害
+            e.setDamage(Damage);
+
+
+        }
     }
 
     public class TabHandler implements TabCompleter {
@@ -1668,6 +1719,25 @@ public class main extends JavaPlugin {
             }else{
                 getLogger().info("[CL] 功能VariableCore未启用");
             }
+        }
+
+        //是否启用DamageDown
+        if(getConfig().getBoolean("EnabledFunction.DamageDown",false)){
+
+            //启用
+            getLogger().info("[CL] 功能DamageDown已启用");
+
+            getLogger().info("[CL] 注销相关事件");
+            EntityDamageByEntityEvent.getHandlerList().unregister(this);
+            getLogger().info("[CL] 注册相关事件");
+            Bukkit.getPluginManager().registerEvents(new DamageDown(),this);
+        }else{
+
+            //不启用
+            getLogger().info("[CL] 功能DamageDown已禁用");
+            getLogger().info("[CL] 注销相关事件");
+            EntityDamageByEntityEvent.getHandlerList().unregister(this);
+            getLogger().info("[CL] 相关事件注销完毕");
         }
 
         getLogger().info("[CL] 重载工具");
