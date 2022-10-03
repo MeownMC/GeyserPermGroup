@@ -17,6 +17,7 @@ EnabledFunction:
   RegisterCaptcha: false
   VariableCore: true    #别关这个, 除非你觉得你很幽默
   DamageDown: true
+  WebServer: true
 VariableAutoSavePeriod: 0
 Register:
   EventListener: true
@@ -233,3 +234,9 @@ EliteMobs:
   CustomBossesList:
     - 'FirstBossName'
     - 'SecondBossName'
+WebServer:
+  Port: 9090
+  ResponseList:
+    example:
+      - 'playerid➩%player_name%'
+      - 'playerping➩%player_ping%'

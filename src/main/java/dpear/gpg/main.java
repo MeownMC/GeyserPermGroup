@@ -87,6 +87,9 @@ public class main extends JavaPlugin {
     //变量
     public VariableCore variableCore = null;
 
+    //网页服务器
+    public WebServer webServer = null;
+
     @Override
     public void onEnable() {
 
@@ -249,6 +252,9 @@ public class main extends JavaPlugin {
             getLogger().info("[DA] 无法将变量保存到文件");
         }
 
+        getLogger().info("[DA] 关闭网页服务器");
+        webServer.Disable();
+
         getLogger().info("[DA] 关闭类中");
         ipsearch.close();
         ipsearch = null;
@@ -257,6 +263,7 @@ public class main extends JavaPlugin {
         elitemobs = null;
         variableCore = null;
         versionCommand = null;
+        webServer = null;
     }
 
     public class EventListener implements Listener {
@@ -1727,10 +1734,8 @@ public class main extends JavaPlugin {
             //启用
             getLogger().info("[CL] 功能DamageDown已启用");
 
-            getLogger().info("[CL] 注销相关事件");
-            EntityDamageByEntityEvent.getHandlerList().unregister(this);
             getLogger().info("[CL] 注册相关事件");
-            Bukkit.getPluginManager().registerEvents(new DamageDown(),this);
+            getServer().getPluginManager().registerEvents(new DamageDown(),this);
         }else{
 
             //不启用
@@ -1738,6 +1743,42 @@ public class main extends JavaPlugin {
             getLogger().info("[CL] 注销相关事件");
             EntityDamageByEntityEvent.getHandlerList().unregister(this);
             getLogger().info("[CL] 相关事件注销完毕");
+        }
+
+        //是否启用WebServer
+        if(getConfig().getBoolean("EnabledFunction.WebServer",false)){
+
+            if (webServer == null){
+
+                //实例化
+                webServer = new WebServer(this,getConfig());
+
+                //异步运行
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        webServer.Enable();
+                    }
+                }.runTaskAsynchronously(this);
+
+                getLogger().info("[CL] 功能WebServer已启用");
+
+            }else{
+                getLogger().info("[CL] 功能WebServer已重载");
+                webServer.ReloadConfig(getConfig());
+            }
+
+        }else{
+            if (webServer != null){
+
+                //关闭
+                webServer.Disable();
+                webServer = null;
+                getLogger().info("[CL] 功能WebServer已禁用");
+            }else{
+                getLogger().info("[CL] 功能WebServer未启用");
+            }
+
         }
 
         getLogger().info("[CL] 重载工具");
