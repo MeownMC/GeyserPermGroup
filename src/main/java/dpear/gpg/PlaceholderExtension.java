@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.bukkit.Bukkit.getLogger;
@@ -203,6 +204,15 @@ public class PlaceholderExtension extends PlaceholderExpansion{
                 return (plugin.variableCore.GetVariable(player.getUniqueId(),varMix));
             }
         }
+
+        if (params.equalsIgnoreCase("player_light_sky")){
+            return (String.valueOf(Objects.requireNonNull(player.getPlayer()).getLocation().getBlock().getLightFromSky()));
+        }
+
+        if (params.equalsIgnoreCase("player_light_block")){
+            return (String.valueOf(Objects.requireNonNull(player.getPlayer()).getLocation().getBlock().getLightFromBlocks()));
+        }
+
 
         return null; // 未知变量
     }

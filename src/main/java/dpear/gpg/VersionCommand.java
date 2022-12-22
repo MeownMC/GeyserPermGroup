@@ -133,6 +133,9 @@ public class VersionCommand {
             }
         }
 
+        //如果没有floodgate直接过
+        if (!config.getBoolean("VersionCheck.FloodGate", false)){return true;}
+
         if (!FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) {
             if (player.getName().charAt(0) == '.') {
                 getLogger().warning("玩家 " + player.getName() + " 使用了非法用户名");

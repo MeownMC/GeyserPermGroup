@@ -51,7 +51,7 @@ public class WebServer {
             //开始监听
             httpServer.createContext("/", new TestHttpHandler());
 
-            plugin.getLogger().info("[GeyserPermGroup] [WS] 网页服务器在端口" + PORT + "上启动");
+            plugin.getLogger().info("[WS] 网页服务器在端口" + PORT + "上启动");
 
             //启动
             httpServer.start();
@@ -59,7 +59,7 @@ public class WebServer {
             return true;
 
         }catch (Exception e){
-            plugin.getLogger().info("[GeyserPermGroup] [WS] Socket Create failed! StackTrace:");
+            plugin.getLogger().info("[WS] Socket Create failed! StackTrace:");
             e.printStackTrace();
             return false;
         }
@@ -68,7 +68,7 @@ public class WebServer {
 
     public void Disable(){
         httpServer.stop(0);
-        plugin.getLogger().info("[GeyserPermGroup] [WS] 网页服务器已关闭");
+        plugin.getLogger().info("[WS] 网页服务器已关闭");
     }
 
     public class TestHttpHandler implements HttpHandler {

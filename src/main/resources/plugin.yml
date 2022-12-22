@@ -5,9 +5,9 @@ api-version: 1.17
 author: D-Pear
 website: meown.top
 depend:
-  - floodgate
   - PlaceholderAPI
 softdepend:
+  - floodgate
   - AuthMe
   - PlugManX
   - ViaVersion

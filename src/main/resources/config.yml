@@ -240,3 +240,19 @@ WebServer:
     example:
       - 'playerid➩%player_name%'
       - 'playerping➩%player_ping%'
+#在开启人机验证后可以在通过验证后自动初始化变量
+DefaultVariable:
+  - 'im1➩1'
+
+TaskRunner:
+  TaskList:
+
+    # 测试任务
+    TestTask:
+      Target: '@a'
+      Commands:
+        - 'Msg~Send from task'
+      Async: false
+      Timer: 114514
+  EnabledTask:
+    - 'TestTask'

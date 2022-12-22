@@ -90,6 +90,9 @@ public class main extends JavaPlugin {
     //网页服务器
     public WebServer webServer = null;
 
+    //执行任务
+    public TaskRunner taskRunner = new TaskRunner(this, getConfig());
+
     @Override
     public void onEnable() {
 
@@ -150,8 +153,7 @@ public class main extends JavaPlugin {
 
         //检查有没有floodgate
         if(Bukkit.getPluginManager().getPlugin("floodgate") == null){
-            getLogger().warning("未检测到floodgate");
-            getLogger().warning("本插件无法在没有floodgate的情况下工作");
+            getLogger().warning("未检测到floodgate相关功能不可用");
         }else{
             getLogger().info("已检测到floodgate");
         };
@@ -240,7 +242,6 @@ public class main extends JavaPlugin {
     @Override
     public void onDisable(){
 
-
         getLogger().info("[DA] 注销BungeeCord通道");
         plugin.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, "BungeeCord");
 
@@ -251,6 +252,9 @@ public class main extends JavaPlugin {
         }else{
             getLogger().info("[DA] 无法将变量保存到文件");
         }
+
+        getLogger().info("[DA] 关闭任务");
+        taskRunner.StopAllTask();
 
         getLogger().info("[DA] 关闭网页服务器");
         webServer.Disable();
@@ -401,6 +405,7 @@ public class main extends JavaPlugin {
                     if(e.getMessage().equals("/register " + e.getPlayer().getName().hashCode() + e.getPlayer().getUniqueId().hashCode() + e.getPlayer().getUniqueId())) {
                         //通过
                         UnCheckPlayers.remove(e.getPlayer().getName());
+                        SetDefaultVariable(e.getPlayer());
                         e.getPlayer().sendMessage("§a§l已过人机验证，可以注册了");
                         return;
                     }
@@ -480,6 +485,24 @@ public class main extends JavaPlugin {
         //    }
         //}
 
+    }
+
+    public void SetDefaultVariable(Player player){
+
+        List<String> vars = getConfig().getStringList("DefaultVariable");
+        UUID playerUUID = player.getUniqueId();
+
+        if (variableCore != null){
+            for (String varm: vars) {
+                String[] varn = varm.split("➩");
+
+                if (varn.length != 2){
+                    continue;
+                }
+
+                variableCore.SetVariable(playerUUID, varn[0], varn[1]);
+            }
+        }
     }
 
     public class DamageDown implements Listener {
@@ -569,7 +592,7 @@ public class main extends JavaPlugin {
                 }
 
                 if (args[0].equals("debug")) {
-                    return (Tools.KeepStartWith (args[1] , List.of("SaveVar","LoadVar","SetVar","GetVar","ListVar","SetTrigger","ClearVar")));
+                    return (Tools.KeepStartWith (args[1] , List.of("SaveVar","LoadVar","SetVar","GetVar","ListVar","SetTrigger","ClearVar","SetDefault")));
                 }
 
             }
@@ -1277,6 +1300,18 @@ public class main extends JavaPlugin {
                             return true;
                         }
                     }
+                    if (args[1].equals("SetDefault")){
+                        if (args.length == 3) {
+                            Player player = Bukkit.getPlayer(args[2]);
+                            if (player == null) {
+                                sender.sendMessage("玩家不存在");
+                                return false;
+                            }
+                            SetDefaultVariable(player);
+                        }
+                    }
+
+
 
                 }else {
                     sender.sendMessage("参数数量不足");
@@ -1780,6 +1815,13 @@ public class main extends JavaPlugin {
             }
 
         }
+
+        //加载任务
+        getLogger().info("[CL] 加载任务系统");
+        taskRunner.StopAllTask();
+        taskRunner.ReloadConfig(getConfig());
+        taskRunner.StartAllTask();
+        getLogger().info("[CL] 加载任务系统完成");
 
         getLogger().info("[CL] 重载工具");
         tools.ReloadConfig(getConfig());
