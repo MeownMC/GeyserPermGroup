@@ -613,7 +613,7 @@ public class main extends JavaPlugin {
 
                             if (NoteNumber == -1){
                                 //不存在
-                                return (List.of("","Last:null","What's the next?"));
+                                return (List.of(""));
                             }else {
                                 //高音
                                 player.playSound(((Player) sender).getPlayer().getLocation(),
@@ -624,7 +624,7 @@ public class main extends JavaPlugin {
                                                 + String.valueOf(-((double) (NoteNumber+1)/10)-1.2) + "d,1.5d,1.5d]}");
                                     }
                                 }
-                                return (List.of("","Last:+" + NoteNumber, "What's the next?"));
+                                return (List.of("","Last:+" + NoteNumber));
                             }
                         }else {
                             //只有一个肯定不可能低音
@@ -639,7 +639,7 @@ public class main extends JavaPlugin {
                                                     + String.valueOf(-((double) (NoteNumber+1)/10)+3.6) + "d,1.5d,1.5d]}");
                                         }
                                     }
-                                    return (List.of("","Last:-" + NoteNumber, "What's the next?"));
+                                    return (List.of("","Last:-" + NoteNumber));
                                 } else {
                                     //中音
                                     player.playSound(player.getLocation(),
@@ -650,7 +650,7 @@ public class main extends JavaPlugin {
                                                     + String.valueOf(-((double) (NoteNumber+1)/10)+1.2) + "d,1.5d,1.5d]}");
                                         }
                                     }
-                                    return (List.of("","Last:" + NoteNumber, "What's the next?"));
+                                    return (List.of("","Last:" + NoteNumber));
 
                                 }
                             }else {
@@ -663,11 +663,11 @@ public class main extends JavaPlugin {
                                                 + String.valueOf(-((double) (NoteNumber+1)/10)+1.2) + "d,1.5d,1.5d]}");
                                     }
                                 }
-                                return (List.of("","Last:" + NoteNumber, "What's the next?"));
+                                return (List.of("","Last:" + NoteNumber));
                             }
                         }
                     }
-                    return (List.of("What's the next?"));
+                    return (List.of(""));
                 }
 
                 if (args[0].equals("sudo")) {

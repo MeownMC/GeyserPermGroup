@@ -42,8 +42,7 @@ public class TaskRunner {
             boolean isAsync = config.getBoolean("TaskRunner.TaskList." + TaskNow + ".Async");
             int CTimer = config.getInt("TaskRunner.TaskList." + TaskNow + ".Timer");
 
-
-            if (Objects.equals(CTarget, "@a")){
+            if (Objects.equals(CTarget, "Players")){
 
                 //获取runnable
                 BukkitRunnable runnable = new BukkitRunnable() {
@@ -75,11 +74,51 @@ public class TaskRunner {
                 }else{
                     if (isAsync){
                         taskMap.put(TaskNow,
-                                runnable.runTaskTimerAsynchronously(plugin, CTimer, CTimer)
+                                runnable.runTaskTimerAsynchronously(plugin, 0, CTimer)
                         );
                     }else{
                         taskMap.put(TaskNow,
-                                runnable.runTaskTimer(plugin, CTimer, CTimer)
+                                runnable.runTaskTimer(plugin, 0, CTimer)
+                        );
+                    }
+                }
+
+
+            }
+
+            if (Objects.equals(CTarget, "Console")){
+
+                //获取runnable
+                BukkitRunnable runnable = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        //执行命令
+                        for (String command:Commands) {
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                        }
+                    }
+                };
+
+
+                //执行runnable
+                if (CTimer < 1){
+                    if (isAsync){
+                        taskMap.put(TaskNow,
+                                runnable.runTaskLaterAsynchronously(plugin, -CTimer)
+                        );
+                    }else{
+                        taskMap.put(TaskNow,
+                                runnable.runTaskLater(plugin, -CTimer)
+                        );
+                    }
+                }else{
+                    if (isAsync){
+                        taskMap.put(TaskNow,
+                                runnable.runTaskTimerAsynchronously(plugin, 0, CTimer)
+                        );
+                    }else{
+                        taskMap.put(TaskNow,
+                                runnable.runTaskTimer(plugin, 0, CTimer)
                         );
                     }
                 }

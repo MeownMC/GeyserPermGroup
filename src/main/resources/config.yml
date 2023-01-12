@@ -236,6 +236,7 @@ EliteMobs:
     - 'SecondBossName'
 WebServer:
   Port: 9090
+
   ResponseList:
     example:
       - 'playerid➩%player_name%'
@@ -249,10 +250,18 @@ TaskRunner:
 
     # 测试任务
     TestTask:
-      Target: '@a'
+      Target: 'Players'
       Commands:
         - 'Msg~Send from task'
       Async: false
       Timer: 114514
+
+    Broadcast:
+      Target: 'Console'
+      Commands:
+        - 'broadcast a'
+      Async: false
+      Timer: 1200
   EnabledTask:
     - 'TestTask'
+    - 'Broadcast'
