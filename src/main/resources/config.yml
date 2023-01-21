@@ -134,7 +134,7 @@ Menus:
           - '不对'
       b:
         type: 'Input'
-        text: '输入点东西'
+        title: '输入点东西'
         content: '->'
       c:
         type: 'Label'
@@ -221,6 +221,8 @@ CommandAlert:
     - 'nssbb'
   Soft:
     - 'wssbb'
+  DisabledCommand:
+    - 'cmi back'
 SimulationDistance:
   world: 3
   plotworld: 3

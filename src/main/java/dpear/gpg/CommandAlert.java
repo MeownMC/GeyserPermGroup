@@ -36,6 +36,7 @@ public class CommandAlert {
     //命令列表
     List <String>HardCommandAlert;
     List <String>SoftCommandAlert;
+    List <String>DisabledCommand;
     ArrayList<Command> RegisterAlertCommands = new ArrayList<Command>();
 
     //实例化的时候获取主插件
@@ -49,6 +50,7 @@ public class CommandAlert {
         //加载命令列表
         HardCommandAlert = config.getStringList("CommandAlert.Hard");
         SoftCommandAlert = config.getStringList("CommandAlert.Soft");
+        DisabledCommand = config.getStringList("CommandAlert.DisabledCommand");
 
         //加载转接
         LoadCommandAlert();
@@ -60,6 +62,7 @@ public class CommandAlert {
         //加载命令列表
         HardCommandAlert = config.getStringList("CommandAlert.Hard");
         SoftCommandAlert = config.getStringList("CommandAlert.Soft");
+        DisabledCommand = config.getStringList("CommandAlert.DisabledCommand");
 
         //加载转接
         LoadCommandAlert();
@@ -101,8 +104,7 @@ public class CommandAlert {
             //是否被其他插件取消
             if (e.isCancelled()) {
                 return;
-            }
-            ;
+            };
         }
 
 
@@ -158,7 +160,8 @@ public class CommandAlert {
         if (p != null && ExecuteCommands == null) {
             //玩家走表达式
             if (!config.getString(CommandPath + "Expression", "Null").equals("Null")) {
-                String EXPString = Tools.ReplacePlaceholder(p,config.getString(CommandPath + "Expression", "Null"));
+
+                String EXPString = config.getString(CommandPath + "Expression", "Null");
 
                 //如果启用
                 if (config.getBoolean(CommandPath + "Replace", false)) {
@@ -168,8 +171,9 @@ public class CommandAlert {
                     }
                 }
 
-                //替换变量
-                EXPString = plugin.tools.VariableReplace(p.getUniqueId(),EXPString);
+                //替换变量(PAPI+VC)
+
+                EXPString = Tools.ReplacePlaceholder(p, plugin.tools.VariableReplace(p.getUniqueId(),EXPString));
 
                 Expression expression = new Expression(EXPString);
                 if (expression.eval().intValue() == 1) {
@@ -415,6 +419,9 @@ public class CommandAlert {
             getLogger().warning("[GeyserPermGroup] 出现了异常");
             e.printStackTrace();
         }
+
+        getLogger().info("[GeyserPermGroup] [CA] 载入禁用指令");
+        getLogger().info("[GeyserPermGroup] [CA] 已载入" + DisabledCommand.size() + "个禁用命令");
     }
 
     public void LoadCommandAlertTabComplete(){

@@ -2,6 +2,7 @@ package dpear.gpg;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.geysermc.floodgate.api.FloodgateApi;
 
@@ -113,7 +114,7 @@ public class PlaceholderExtension extends PlaceholderExpansion{
             }catch (Exception e){
                 getLogger().info("查询ip失败");
                 e.printStackTrace();
-                return "";
+                return "妈妈生的";
             }
         }
 
@@ -203,6 +204,10 @@ public class PlaceholderExtension extends PlaceholderExpansion{
                 //返回玩家的UUID
                 return (plugin.variableCore.GetVariable(player.getUniqueId(),varMix));
             }
+        }
+
+        if (params.startsWith("isplayeronline_")){
+            return((Bukkit.getPlayer(params.substring(15)) == null) ? "0" : "1");
         }
 
         if (params.equalsIgnoreCase("player_light_sky")){

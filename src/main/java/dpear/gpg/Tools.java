@@ -419,7 +419,7 @@ public class Tools {
     }
 
     public static boolean isNumber(String str) {
-        Pattern pattern = Pattern.compile("-?[0-9]+\\.?[0-9]*");
+        Pattern pattern = Pattern.compile("^-?\\d+$");
         Matcher isNum = pattern.matcher(str);
         return isNum.matches();
     }
