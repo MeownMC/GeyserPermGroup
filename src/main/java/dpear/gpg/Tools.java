@@ -331,7 +331,7 @@ public class Tools {
         if (Objects.equals(ComputerCode, "FAILURE")){
             getLogger().warning("[GeyserPermGroup] [SC] CID获取失败");
             getLogger().warning("[GeyserPermGroup] [SC] 没有以管理员身份运行或不受支持的操作系统");
-            ComputerCode = new Random().toString();
+            ComputerCode = "没有以管理员身份运行或不受支持的操作系统";
         }
 
         getLogger().info("[GeyserPermGroup] [SC] 正在加密CID");
